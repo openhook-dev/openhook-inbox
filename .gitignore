@@ -60,3 +60,6 @@ AGENTS.md
 # Caches
 .ruff_cache/
 .mypy_cache/
+
+data/
+*.sqlite3*

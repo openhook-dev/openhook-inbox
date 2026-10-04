@@ -1,0 +1,20 @@
+services:
+  openhook:
+    build: .
+    restart: unless-stopped
+    environment:
+      OPENHOOK_ORIGIN: ${OPENHOOK_ORIGIN:-http://127.0.0.1:8788}
+      OPENHOOK_DATABASE: /data/openhook.sqlite3
+    ports:
+      - "127.0.0.1:8788:8788"
+    volumes:
+      - openhook-data:/data
+    mem_limit: 512m
+    cpus: 1
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+volumes:
+  openhook-data:

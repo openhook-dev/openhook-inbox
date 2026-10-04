@@ -1,13 +1,13 @@
 [project]
-name = "webhook-mcp-server"
-version = "3.0.0"
-description = "MCP Server for webhook.site API integration with layered architecture"
+name = "openhook-mcp"
+version = "0.1.0"
+description = "Self-hosted webhook, email, and DNS inboxes for AI agents"
 readme = "README.md"
 license = {text = "MIT"}
-authors = [{name = "zebbern", email = "zebbern@users.noreply.github.com"}]
+authors = [{name = "Openhook"}]
 keywords = ["mcp", "webhook", "testing", "model-context-protocol", "bugbounty", "api-testing"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -23,24 +23,26 @@ requires-python = ">=3.10"
 dependencies = [
     "mcp>=2.0.0",
     "httpx>=0.26.0",
-    "httpcore>=1.0.0",
-    "anyio>=4.0.0",
-    "python-socketio[asyncio_client]>=5.11.0",
+    "aiosmtpd>=1.4.6",
+    "dnslib>=0.9.26",
+    "uvicorn>=0.35.0",
+    "starlette>=0.47.0",
 ]
 
 [project.scripts]
-webhook-mcp-server = "server:run_server"
+openhook = "server:run_server"
+openhook-mcp = "server:run_server"
+openhook-listen = "openhook.listener:main"
 
 [project.urls]
-Repository = "https://github.com/zebbern/webhook-mcp-server"
-Homepage = "https://github.com/zebbern/webhook-mcp-server"
+Homepage = "https://openhook.dev"
+Repository = "https://github.com/openhook-dev/openhook-inbox"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=1.0.0",
     "respx>=0.22.0",
-    "tiktoken>=0.7.0",
 ]
 
 [build-system]
@@ -48,18 +50,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["handlers", "models", "services", "utils", "scripts"]
+packages = ["openhook"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "server.py" = "server.py"
+"web_app.py" = "web_app.py"
+"web" = "web"
 "py.typed" = "py.typed"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]
+testpaths = ["native_tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-markers = [
-    "live: tests that call the real webhook.site API",
-    "live_auth: tests that need WEBHOOK_SITE_API_KEY and exercise account features on the real API",
-]

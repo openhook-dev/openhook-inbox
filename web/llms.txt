@@ -1,0 +1,17 @@
+# Openhook
+
+Self-hosted event inboxes for AI agents. Openhook operates its own HTTP, SMTP,
+and authoritative DNS listeners with durable SQLite storage.
+
+MCP: https://openhook.dev/mcp (Streamable HTTP)
+Browser: https://openhook.dev/app
+Setup: https://openhook.dev/connect
+Live tool schemas: https://openhook.dev/api/tools
+Source: https://github.com/openhook-dev/openhook-inbox
+
+create_webhook returns a private ohk_ management token and public capture
+addresses. Keep the token private; capture addresses cannot read stored events.
+Email and DNS addresses are present when their listeners are configured.
+wait_for_request and wait_for_email wait up to 120 seconds. Pass next_since
+when reconnecting. Inboxes expire within seven days, retaining the latest 1000
+events, each at most 1 MB. 26 native MCP tools are available.

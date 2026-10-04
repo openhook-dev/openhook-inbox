@@ -1,0 +1,26 @@
+services:
+  openhook:
+    build: .
+    restart: unless-stopped
+    environment:
+      OPENHOOK_ORIGIN: ${OPENHOOK_ORIGIN:-https://openhook.dev}
+      OPENHOOK_DATABASE: /data/openhook.sqlite3
+      OPENHOOK_EMAIL_DOMAIN: ${OPENHOOK_EMAIL_DOMAIN:-}
+      OPENHOOK_DNS_DOMAIN: ${OPENHOOK_DNS_DOMAIN:-}
+      OPENHOOK_DNS_ADDRESS: ${OPENHOOK_DNS_ADDRESS:-127.0.0.1}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-10.0.1.0/24}
+    ports:
+      - "${OPENHOOK_BIND_ADDRESS:-127.0.0.1}:25:2525"
+      - "${OPENHOOK_BIND_ADDRESS:-127.0.0.1}:53:5353/tcp"
+      - "${OPENHOOK_BIND_ADDRESS:-127.0.0.1}:53:5353/udp"
+    volumes:
+      - openhook-data:/data
+    mem_limit: 512m
+    cpus: 1
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+volumes:
+  openhook-data:

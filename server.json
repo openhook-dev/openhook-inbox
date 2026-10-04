@@ -1,23 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.zebbern/webhook-mcp-server",
-  "title": "Webhook.site MCP Server",
-  "description": "Capture HTTP, email, and DNS callbacks with webhook.site from MCP clients.",
-  "version": "3.0.0",
-  "repository": {
-    "url": "https://github.com/zebbern/webhook-mcp-server",
-    "source": "github"
-  },
-  "packages": [
-    {
-      "registryType": "pypi",
-      "registryBaseUrl": "https://pypi.org",
-      "identifier": "webhook-mcp-server",
-      "version": "3.0.0",
-      "runtimeHint": "uvx",
-      "transport": {
-        "type": "stdio"
-      }
-    }
-  ]
+  "name": "io.github.openhook-dev/openhook-inbox",
+  "title": "Openhook",
+  "description": "Self-hosted webhook, email, and DNS inboxes for AI agents.",
+  "version": "0.1.0",
+  "remotes": [{"type": "streamable-http", "url": "https://openhook.dev/mcp"}]
 }
