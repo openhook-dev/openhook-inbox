@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0d0d0d">
+  <meta name="theme-color" content="#000000">
   <title>Openhook — Webhook inboxes for AI agents</title>
   <meta name="description" content="Give your agent an inbox for HTTP requests, email, and DNS callbacks. Create, wait, inspect, and continue with 26 native MCP tools.">
-  <meta property="og:title" content="Openhook — Give your agent an inbox">
+  <meta property="og:title" content="Openhook — Give your agent a way to listen">
   <meta property="og:description" content="Disposable webhook, email, and DNS inboxes. Open-source MCP tools, a live inspector, and no server setup.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://openhook.dev">
@@ -16,13 +16,15 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="canonical" href="https://openhook.dev">
   <script src="/assets/theme.js"></script>
+  <link rel="preload" href="/assets/fonts/barlow-condensed-semibold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/style.css">
-  <script src="/assets/app.js" defer></script>
+  <link rel="stylesheet" href="/assets/brand.css">
+  <script src="/assets/app.js" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Openhook home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M23 5.5A12 12 0 1 0 28 16H19"/></svg><span>openhook</span><span class="version">0.1</span></a>
+    <a class="brand" href="/" aria-label="Openhook home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 3H15V9H9V23H15V29H3Z M17 3H29V29H17V23H23V9H17Z M11 13H21V19H11Z"/></svg><span>OPENHOOK</span><span class="version">0.1</span></a>
     <nav aria-label="Main navigation"><a href="/docs">Docs</a><a href="/connect">Connect</a><button id="theme-toggle" class="icon-button" aria-label="Switch to light theme" title="Change theme"></button><a href="/app" class="button small">Open inbox <span aria-hidden="true">↗</span></a></nav>
   </header>
   <main id="main" tabindex="-1"></main>

@@ -10,3 +10,7 @@ by Paragon, MIT licensed. Openhook's SVG identity is original artwork.
 
 Runtime dependencies retain their respective licenses; see package metadata
 for MCP, Starlette, Uvicorn, HTTPX, aiosmtpd, and dnslib.
+
+Barlow Condensed by Jeremy Tribby is licensed under the SIL Open Font License.
+The required notice is distributed in web/assets/fonts/OFL.txt.
+E2B is a visual reference; its brand assets and commercial fonts are not used.

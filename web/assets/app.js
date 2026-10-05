@@ -1,3 +1,4 @@
+import {renderHome} from './home.js';
 'use strict';
 
 const main = document.querySelector('#main');
@@ -49,31 +50,7 @@ async function api(action, args = {}, signal) {
   return result.data;
 }
 
-function homePage() {
-  main.innerHTML = `
-    <section class="hero">
-      <div class="hero-copy"><div class="eyebrow"><span class="dot"></span> An inbox for your agent</div>
-        <h1>The world sends events.<br>Your agent gets them.</h1>
-        <p>Create a webhook, catch an email, wait for a callback. Give your agent a place to listen, then let it get back to work.</p>
-        <div class="actions"><a class="button primary" href="/connect">Connect your agent <span aria-hidden="true">↗</span></a><a class="button" href="/app">Try an inbox <span aria-hidden="true">→</span></a></div>
-        <span class="hero-note">Open source · 26 MCP tools · Self-hosted</span>
-      </div>
-      <div class="terminal" aria-label="Example agent workflow"><div class="terminal-bar"><span>agent / callback</span><span>Example</span></div><div class="terminal-body">
-        <div class="terminal-step"><div class="terminal-prompt">› Create an inbox for this callback.</div><div class="terminal-response">create_webhook()</div><div class="terminal-response">↳ HTTP · email · DNS</div></div>
-        <div class="terminal-step"><div class="terminal-prompt">› Wait for the event.</div><div class="terminal-response">wait_for_request(token, timeout=60)</div></div>
-        <div class="terminal-step"><div class="terminal-result"><span class="dot"></span> Event received</div><div class="terminal-response">{"status": "complete", "id": "run_42"}</div></div>
-      </div><div class="terminal-caption">create → listen → inspect → continue</div></div>
-    </section>
-    <div class="strip"><span>HTTP requests</span><span>Temporary email</span><span>DNS callbacks</span><span>Stdio + Streamable HTTP</span></div>
-    <section class="section"><div class="section-heading"><span class="section-number">01</span><h2>One inbox. Three ways in.</h2></div>
-      <div class="feature-grid"><article class="feature">${icon('inbox')}<h3>Receive a webhook</h3><p>Get a public URL in one call. Capture callbacks, inspect headers and bodies, and choose the response.</p></article><article class="feature">${icon('email')}<h3>Catch an email</h3><p>A temporary inbox for verification emails and test flows. Extract links and codes through MCP.</p></article><article class="feature">${icon('signal')}<h3>See a DNS callback</h3><p>Receive DNS lookups alongside HTTP and email events. Inspect out-of-band callbacks in systems you own.</p></article></div>
-    </section>
-    <section class="section"><div class="section-heading"><span class="section-number">02</span><h2>A small loop, done all the way.</h2></div>
-      <div><div class="how-row"><h3>01 / Create</h3><p>Ask your agent for an inbox. It gets a URL, email address, and DNS name. Anonymous inboxes need no account.</p></div><div class="how-row"><h3>02 / Listen</h3><p>Give the address to the service sending the event. Wait through MCP or watch the live inspector in your browser.</p></div><div class="how-row"><h3>03 / Continue</h3><p>The waiting tool returns the captured event. Your running agent can inspect it and take the next step.</p></div></div>
-      <p class="hero-note">Register GitHub, Stripe, or Linear subscriptions through MCP. Forward events to a local server or wake OpenClaw with the Openhook listener.</p>
-    </section>
-    <section class="section section-cta"><div><h2>Give your next task an inbox.</h2><p>No local HTTP server needed. Start in your browser or your MCP client.</p></div><a class="button primary" href="/app">Create an inbox <span aria-hidden="true">→</span></a></section>`;
-}
+function homePage() { renderHome(main, {origin, copy}); }
 
 const setups = {
   claude: {name:'Claude Code', title:'Connect from your terminal', code:`claude mcp add --transport http openhook ${origin}/mcp`, next:'Run the command, restart your session if needed, then ask Claude to create a webhook and wait for a test event.'},
