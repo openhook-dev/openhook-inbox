@@ -220,6 +220,8 @@ class WebBoundary:
                 ])
                 if protected or path == "/app":
                     message["headers"].append((b"cache-control", b"no-store"))
+                elif path.startswith("/assets/"):
+                    message["headers"].append((b"cache-control", b"no-cache"))
             await send(message)
 
         await self.app(scope, bounded_receive, secure_send)

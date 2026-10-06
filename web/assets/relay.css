@@ -1,0 +1,129 @@
+.native-relay .ik-plate {
+  --ik-panel: var(--frame);
+  --ik-top: var(--raised);
+  --ik-front: var(--frame);
+  --ik-side: var(--page);
+  --ik-well: var(--page);
+  --ik-line: var(--line-2);
+  --ik-detail: var(--line);
+  --ik-live: var(--accent);
+  --ik-ink: var(--fg-3);
+  --ik-ink-hi: var(--fg);
+  --ik-screen: var(--page);
+  --ik-screen-ink: var(--fg);
+  --ik-border: var(--line);
+  border-radius: 0;
+  height: auto;
+  padding: 22px 26px;
+  background: var(--frame);
+}
+.relay-plate > svg {
+  height: auto;
+  aspect-ratio: 1.7;
+}
+.relay-plate .ik-cap {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.relay-plate .relay-small {
+  font-size: 8px;
+  fill: var(--fg-3);
+}
+.relay-plate .relay-status {
+  font-size: 16px;
+}
+.relay-plate .relay-key-label {
+  font-size: 13px;
+  fill: var(--fg);
+}
+.relay-light {
+  fill: var(--ik-detail);
+  transition: fill 0.3s;
+}
+.relay-plate svg[data-phase="captured"] .relay-light {
+  fill: var(--accent);
+}
+.relay-plate
+  svg:is([data-phase="ready"], [data-phase="error"])
+  .relay-send
+  .ik-face {
+  stroke: var(--accent);
+}
+.relay-plate .relay-send:focus-visible .ik-face {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.relay-result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 45px;
+  margin-top: 30px;
+  align-items: start;
+}
+.relay-result .bracket-label {
+  font-size: 10px;
+  margin: 0 0 15px;
+  display: block;
+  color: var(--accent);
+}
+.relay-result h3 {
+  font: 600 34px var(--display);
+  margin: 0 0 12px;
+}
+.relay-result p {
+  font-size: 14px;
+  color: var(--fg-2);
+  line-height: 1.7;
+  margin: 0 0 20px;
+}
+.relay-result pre {
+  font: 12px/1.8 var(--mono);
+  border: 1px solid var(--line);
+  background: var(--frame);
+  padding: 24px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.relay-loading {
+  text-align: center;
+  font: 10px var(--mono);
+  color: var(--fg-3);
+}
+@media (max-width: 800px) {
+  .relay-result {
+    gap: 25px;
+  }
+  .native-relay .ik-plate {
+    padding: 16px;
+  }
+  .relay-plate .ik-cap {
+    font-size: 8px;
+  }
+}
+@media (max-width: 480px) {
+  .native-relay .ik-plate {
+    padding: 14px 10px;
+  }
+  .relay-plate .ik-cap {
+    font-size: 7px;
+    gap: 6px;
+  }
+  .relay-plate > svg {
+    aspect-ratio: 1.35;
+  }
+  .relay-result {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 26px;
+  }
+  .relay-result h3 {
+    font-size: 29px;
+  }
+  .relay-result pre {
+    padding: 18px;
+    font-size: 10px;
+  }
+  .architecture:has(.native-relay) {
+    margin-inline: 0;
+  }
+}

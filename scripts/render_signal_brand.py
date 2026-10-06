@@ -1,5 +1,6 @@
-"""Generate original Openhook marks, outlined type, and ordered dither artwork."""
+"""Package the approved organization logo, outlined type, and dither artwork."""
 
+import base64
 import math
 from pathlib import Path
 
@@ -11,7 +12,8 @@ font = TTFont(assets / "fonts/barlow-condensed-semibold.woff2")
 glyphs = font.getGlyphSet()
 cmap = font.getBestCmap()
 units = font["head"].unitsPerEm
-mark = '<path d="M3 3H15V9H9V23H15V29H3Z M17 3H29V29H17V23H23V9H17Z M11 13H21V19H11Z" fill="currentColor"/>'
+logo = base64.b64encode((assets / "organization-logo.png").read_bytes()).decode()
+mark = f'<image width="32" height="32" href="data:image/png;base64,{logo}"/>'
 
 
 def text(value, x, y, size, color="currentColor"):
@@ -48,11 +50,11 @@ for y in range(0, 900, 6):
 field_paths = "".join(f'<path fill="{color}" d="' + "".join(commands) + '"/>' for color, commands in zip(("#242424", "#494949", "#777777"), paths))
 assets.joinpath("signal-field.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" fill="none">' + field_paths + '</svg>')
 
-social = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" color="#fff" role="img" aria-labelledby="title"><title id="title">Openhook — give your agent a way to listen</title><rect width="1200" height="630" fill="#000"/><g transform="translate(500 -110)">' + field_paths + '</g><g transform="translate(68 64) scale(1.25)">' + mark + '</g>'
+social = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" color="#fff" role="img" aria-labelledby="title"><title id="title">Openhook — an inbox for your AI agent</title><rect width="1200" height="630" fill="#000"/><g transform="translate(500 -110)">' + field_paths + '</g><g transform="translate(68 64) scale(1.25)">' + mark + '</g>'
 social += text("OPENHOOK", 124, 102, 43)
-social += text("GIVE YOUR AGENT", 68, 290, 89)
-social += text("A WAY TO LISTEN.", 68, 379, 89)
+social += text("AN INBOX FOR", 68, 290, 89)
+social += text("YOUR AI AGENT.", 68, 379, 89)
 social += text("HTTP / EMAIL / DNS", 72, 447, 27, "#999")
-social += '<path d="M68 511H1132" stroke="#303030"/><rect x="72" y="553" width="7" height="7" fill="#e24a2b"/>'
+social += '<path d="M68 511H1132" stroke="#303030"/><rect x="72" y="553" width="7" height="7" fill="#fff"/>'
 social += text("OPENHOOK.DEV", 95, 567, 25) + '</svg>'
 assets.joinpath("social.svg").write_text(social)

@@ -1,4 +1,4 @@
-import {renderHome} from './home.js';
+import {renderHome} from './home.js?v=0df2deaddb92';
 'use strict';
 
 const main = document.querySelector('#main');
@@ -122,7 +122,7 @@ function inboxPage() {
   }
   function clearError(){$('#region-error')?.remove();}
   function renderEmpty(){
-    $('#inbox-content').innerHTML=`<div class="empty-state"><svg class="empty-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M23 5.5A12 12 0 1 0 28 16H19"/></svg><div><h2>Give your next event a home.</h2><p>Create an inbox to receive HTTP, email, and DNS events. Or add an inbox your agent already created.</p></div><button class="button primary" id="empty-create">Create your first inbox →</button><p class="hero-note">No account needed. Capture and storage by Openhook.</p></div>`;
+    $('#inbox-content').innerHTML=`<div class="empty-state"><img class="empty-mark" src="/assets/logo.svg" alt="" aria-hidden="true"><div><h2>Give your next event a home.</h2><p>Create an inbox to receive HTTP, email, and DNS events. Or add an inbox your agent already created.</p></div><button class="button primary" id="empty-create">Create your first inbox →</button><p class="hero-note">No account needed. Capture and storage by Openhook.</p></div>`;
     $('#empty-create').addEventListener('click',createInbox);
   }
   function renderInbox(){

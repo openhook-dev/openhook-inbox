@@ -96,6 +96,15 @@ provisioning is not included.
 
 ## Verify
 
+The landing page uses a lazy-loaded IsoKit event relay. Its Send key creates
+an inbox, sends a real callback, and reads the captured event. Rebuild its
+committed browser assets after editing `frontend/`:
+
+```sh
+bun install --frozen-lockfile
+bun run build
+```
+
 ```sh
 uv run --extra dev pytest
 node --check web/assets/app.js
