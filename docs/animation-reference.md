@@ -1,5 +1,9 @@
 # Landing motion study
 
+Historical research only. The shipped interface now uses plain text and Paper
+Mono, following the 2026-10-08 design direction. The animation implementation
+described below has been removed.
+
 Reference reviewed: https://e2b.dev/, 2026-10-05.
 The public page loaded 40 first-party JavaScript chunks and three stylesheets.
 Copies are temporary research artifacts, outside this repository. No E2B

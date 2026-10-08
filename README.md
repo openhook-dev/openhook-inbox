@@ -96,12 +96,11 @@ provisioning is not included.
 
 ## Verify
 
-The landing page uses a lazy-loaded IsoKit event relay. Its Send key creates
-an inbox, sends a real callback, and reads the captured event. Rebuild its
-committed browser assets after editing `frontend/`:
+The website uses a centered text interface and the self-hosted Paper Mono
+v1.000 variable font. Its webhook demo creates an inbox, sends a real callback,
+and reads the captured event. Refresh asset versions after editing `web/`:
 
 ```sh
-bun install --frozen-lockfile
 bun run build
 ```
 

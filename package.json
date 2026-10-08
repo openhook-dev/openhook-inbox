@@ -1,7 +1,6 @@
 {
-  "name": "openhook-landing",
+  "name": "openhook-web",
   "private": true,
   "type": "module",
-  "scripts": {"build": "bun scripts/build-landing.ts"},
-  "dependencies": {"react": "19.2.0", "react-dom": "19.2.0", "react-isokit": "0.4.0"}
+  "scripts": { "build": "bun scripts/build-landing.ts" }
 }
