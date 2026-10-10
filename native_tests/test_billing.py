@@ -132,12 +132,40 @@ async def test_provider_failure_and_transaction_failure_remain_retryable(billing
         assert await service.receive(body,sign(body))=={'applied':True}
 
 
+def pro_price():
+    return {
+        'active':True,'livemode':False,'unit_amount':1900,'currency':'usd','billing_scheme':'per_unit',
+        'tax_behavior':'exclusive','transform_quantity':None,
+        'recurring':{'interval':'month','interval_count':1,'usage_type':'licensed'}}
+
+
 def checkout_mocks(router):
-    router.get(API+'prices/price_pro').mock(return_value=httpx.Response(200,json={
-        'active':True,'livemode':False,'unit_amount':1900,'currency':'usd','recurring':{'interval':'month','interval_count':1}}))
+    router.get(API+'prices/price_pro').mock(return_value=httpx.Response(200,json=pro_price()))
     router.post(API+'customers').mock(return_value=httpx.Response(200,json={'id':'cus_one'}))
     router.get(API+'subscriptions?customer=cus_one&status=all&limit=100').mock(return_value=httpx.Response(200,json={'data':[],'has_more':False}))
     return router.post(API+'checkout/sessions').mock(return_value=httpx.Response(200,json={'id':'cs_one','url':'https://checkout.stripe.com/c/pay/test'}))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('invalid', [
+    {'recurring': None},
+    {'recurring': {'interval':'month','interval_count':1,'usage_type':'metered'}},
+    {'tax_behavior':'inclusive'},
+    {'tax_behavior':'unspecified'},
+    {'billing_scheme':'tiered'},
+    {'transform_quantity':{'divide_by':10,'round':'up'}},
+])
+async def test_checkout_rejects_incompatible_prices_before_creating_customer(billing, invalid):
+    service,account,_=billing
+    price = pro_price()
+    price.update(invalid)
+    with respx.mock as router:
+        router.get(API+'prices/price_pro').mock(return_value=httpx.Response(200,json=price))
+        with pytest.raises(InboxError, match='price is not configured') as error:
+            await service.checkout(account)
+        assert error.value.status == 503
+        assert len(router.calls) == 1
+    assert service.entitlement(account) == {}
 
 
 @pytest.mark.asyncio

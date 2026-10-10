@@ -34,15 +34,14 @@ def verify_signature(body: bytes, signature: str, secret: str) -> None:
         raise InboxError("Invalid Stripe signature.", 401)
 
 
-class Billing:
+class BillingBase:
     def __init__(self, store):
         self.store = store
         self.settings = store.settings
 
     @property
     def configured(self):
-        s = self.settings
-        return bool(s.hosted_enabled and s.stripe_secret_key and s.stripe_price_id and s.stripe_webhook_secret)
+        return self.settings.billing_configured
 
     @property
     def available(self):
@@ -55,6 +54,22 @@ class Billing:
     def require_available(self):
         if not self.available:
             raise InboxError("Hosted billing is not available yet.", 503)
+
+    def entitlement(self, account):
+        with self.store.connection() as db:
+            row = db.execute("SELECT * FROM hosted_entitlements WHERE account=?", (account,)).fetchone()
+        return dict(row) if row else {}
+
+    @staticmethod
+    def redirect_url(result, hostname):
+        url = result.get("url", "")
+        if not isinstance(url, str) or urlsplit(url).scheme != "https" or urlsplit(url).hostname != hostname:
+            raise InboxError("Invalid billing redirect response.", 502)
+        return url
+
+
+class Billing(BillingBase):
+    """Stripe adapter retained for existing self-hosted deployments."""
 
     async def api(self, method, path, data=None, *, key=None):
         self.require_configured()
@@ -72,11 +87,6 @@ class Billing:
         except (httpx.HTTPError, ValueError):
             # Never expose provider response bodies, customer data, or credentials.
             raise InboxError("Billing is temporarily unavailable. Please retry shortly.", 502) from None
-
-    def entitlement(self, account):
-        with self.store.connection() as db:
-            row = db.execute("SELECT * FROM hosted_entitlements WHERE account=?", (account,)).fetchone()
-        return dict(row) if row else {}
 
     async def customer(self, account):
         current = self.entitlement(account)
@@ -99,22 +109,18 @@ class Billing:
             db.execute("UPDATE hosted_entitlements SET customer_id=?,status='free',updated=? WHERE account=? AND customer_id IS NULL", (customer, now, account))
         return self.entitlement(account)["customer_id"]
 
-    @staticmethod
-    def redirect_url(result, hostname):
-        url = result.get("url", "")
-        if not isinstance(url, str) or urlsplit(url).scheme != "https" or urlsplit(url).hostname != hostname:
-            raise InboxError("Invalid billing redirect response.", 502)
-        return url
-
     async def checkout(self, account):
         self.require_available()
         if self.entitlement(account).get("paid_until", 0) > time.time():
             raise InboxError("You already have Pro. Use Manage billing for your subscription.", 409)
         price = await self.api("GET", "prices/" + quote(self.settings.stripe_price_id, safe=""))
+        recurring = price.get("recurring") or {}
         if not (price.get("active") is True and price.get("livemode") is self.settings.stripe_live
                 and price.get("unit_amount") == 1900 and price.get("currency") == "usd"
-                and price.get("recurring", {}).get("interval") == "month"
-                and price.get("recurring", {}).get("interval_count") == 1):
+                and price.get("billing_scheme") == "per_unit" and price.get("transform_quantity") is None
+                and price.get("tax_behavior") == "exclusive"
+                and recurring.get("interval") == "month" and recurring.get("interval_count") == 1
+                and recurring.get("usage_type") == "licensed"):
             raise InboxError("The hosted price is not configured correctly.", 503)
         customer = await self.customer(account)
         subscriptions = await self.api("GET", "subscriptions?customer=" + quote(customer, safe="") + "&status=all&limit=100")
@@ -222,3 +228,10 @@ class Billing:
                            (period_end + PRO_RETENTION_SECONDS, account))
             db.execute("INSERT INTO billing_events VALUES(?,?,?)", (identifier, kind, now))
         return {"applied": bool(inserted)}
+
+
+def billing_for(store):
+    if store.settings.billing_provider == "polar":
+        from openhook.polar_billing import PolarBilling
+        return PolarBilling(store)
+    return Billing(store)

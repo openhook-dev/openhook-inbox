@@ -55,9 +55,9 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
               "canonical": escape(canonical), "alternate": alternate, "alternate_type": alternate_type,
               "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit),
               "tool_count": str(len(tools)), "tools": tool_rows(tools)}
-    billing_ready = bool(settings.hosted_enabled and settings.billing_enabled and settings.stripe_secret_key
-                         and settings.stripe_price_id and settings.stripe_webhook_secret
+    billing_ready = bool(settings.billing_enabled and settings.billing_configured
                          and settings.github_client_id and settings.github_client_secret)
+    values["billing_provider"] = "Polar" if settings.billing_provider == "polar" else "Stripe"
     values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
     values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
     values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account">Get started with Pro →</a></p>'

@@ -10,7 +10,7 @@ from starlette.routing import Route
 
 from openhook.accounts import Accounts, OAUTH_SECONDS, SESSION_SECONDS, github_identity
 from openhook.store import InboxError
-from openhook.billing import Billing
+from openhook.billing import Billing, billing_for
 
 
 class KeyCall(BaseModel):
@@ -69,9 +69,9 @@ async def account_status(request):
             "keys": service.keys(account["id"]) if account else [],
             "usage": service.usage(account["id"]) if account else None,
             "inboxes": service.inboxes(account["id"]) if account else [],
-            "billing_available": Billing(service.store).available,
-            "billing_management_available": Billing(service.store).configured,
-            "billing_customer": bool(Billing(service.store).entitlement(account["id"]).get("customer_id")) if account else False,
+            "billing_available": billing_for(service.store).available,
+            "billing_management_available": billing_for(service.store).configured,
+            "billing_customer": bool(billing_for(service.store).entitlement(account["id"]).get("customer_id")) if account else False,
         }})
     except InboxError as exc:
         return error_response(exc)
@@ -190,7 +190,7 @@ async def billing_redirect(request):
             raise InboxError("Billing action not found.", 404)
         require_browser_origin(request)
         account = signed_in(request)
-        billing = Billing(accounts(request).store)
+        billing = billing_for(accounts(request).store)
         url = await (billing.checkout(account["id"]) if request.path_params["action"] == "checkout" else billing.portal(account["id"]))
         return JSONResponse({"success": True, "data": {"url": url}})
     except InboxError as exc:
@@ -199,13 +199,27 @@ async def billing_redirect(request):
 
 async def billing_webhook(request):
     try:
+        if accounts(request).store.settings.billing_provider != "stripe":
+            raise InboxError("Billing endpoint is not enabled.", 404)
         result = await Billing(accounts(request).store).receive(await request.body(), request.headers.get("stripe-signature", ""))
         return JSONResponse({"success": True, "data": result})
     except InboxError as exc:
         return error_response(exc)
 
 
+async def polar_webhook(request):
+    try:
+        store = accounts(request).store
+        if store.settings.billing_provider != "polar":
+            raise InboxError("Billing endpoint is not enabled.", 404)
+        result = await billing_for(store).receive(await request.body(), request.headers)
+        return JSONResponse({"success": True, "data": result})
+    except InboxError as exc:
+        return error_response(exc)
+
+
 ROUTES = [
+    Route("/billing/polar", polar_webhook, methods=["POST"]),
     Route("/billing/stripe", billing_webhook, methods=["POST"]),
     Route("/api/account/billing/{action}", billing_redirect, methods=["POST"]),
     Route("/auth/github", github_start), Route("/auth/github/callback", github_callback),
