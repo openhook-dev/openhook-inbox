@@ -243,7 +243,11 @@ class WebBoundary:
                 message.setdefault("headers", []).extend([
                     (b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
                 ])
-                if not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
+                if path.startswith("/h/"):
+                    # Inbox owners control response bodies and content types.
+                    # Their HTML must never execute with the account UI's origin.
+                    message["headers"].append((b"content-security-policy", b"sandbox; default-src 'none'; frame-ancestors 'none'"))
+                elif not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
                     message["headers"].append((b"content-security-policy", CSP.encode()))
                 if path in {"/app", "/account"} or path.startswith(("/h/", "/mcp", "/health", "/auth/")) or (path.startswith("/api/") and path != "/api/tools"):
                     message["headers"].append((b"x-robots-tag", b"noindex, nofollow"))

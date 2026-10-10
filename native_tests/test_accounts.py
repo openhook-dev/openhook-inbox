@@ -152,3 +152,17 @@ def test_public_capture_never_exposes_browser_session_cookies(tmp_path):
         result=client.post('/api/call',json={'action':'get','token':inbox['token']}).json()['data']['request']
         assert 'cookie' not in result['headers']
         assert 'ohs_secret' not in json.dumps(result)
+
+
+def test_owner_controlled_capture_html_is_sandboxed_from_hosted_accounts(tmp_path):
+    settings=Settings(database=str(tmp_path/'capture-html.sqlite3'),hosted_enabled=True)
+    with TestClient(create_app(settings),base_url=settings.origin) as client:
+        inbox=client.post('/api/call',json={'action':'create'}).json()['data']
+        html='<script src="/assets/app.js"></script><iframe src="/account"></iframe>'
+        configured=client.post('/api/call',json={'action':'configure','token':inbox['token'],
+            'config':{'default_content_type':'text/html','default_content':html}})
+        assert configured.status_code==200
+        response=client.get(inbox['url'])
+        assert response.text==html
+        assert response.headers['content-security-policy']=="sandbox; default-src 'none'; frame-ancestors 'none'"
+        assert response.headers['x-content-type-options']=='nosniff'
