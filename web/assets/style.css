@@ -61,6 +61,7 @@ footer a { text-decoration: none; }
 .text-home { max-width: 54ch; margin: auto; text-align: center; }
 .intro { min-height: 44vh; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding-bottom: 64px; }
 .intro .actions { justify-content: center; gap: 28px; }
+.pricing .intro { min-height: 0; padding-bottom: 32px; }
 .home-section { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 36px 0; }
 .home-section pre { max-width: 100%; font-size: 12px; text-align: left; }
 .plain-steps { text-align: left; color: var(--fg-2); margin: 0; padding-left: 24px; }

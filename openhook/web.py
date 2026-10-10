@@ -25,6 +25,8 @@ from openhook.transports import CaptureTransports
 from server import build_mcp
 from openhook.discovery import openapi_schema, tools_markdown
 from openhook.pages import CSP, PAGES, PUBLIC_PATHS, WEB_ROOT, render_page, template
+from openhook.accounts import Accounts
+from openhook.hosted_web import ROUTES as HOSTED_ROUTES
 
 
 class WebCall(BaseModel):
@@ -98,6 +100,10 @@ async def capture(request: Request) -> Response:
         config = store.public_info(identifier)
         headers = {}
         for key, value in request.headers.items():
+            # A public capture URL may belong to someone else. Never let a visit
+            # copy the browser's hosted login cookie into that person's inbox.
+            if key.lower() == "cookie":
+                continue
             headers.setdefault(key.lower(), []).append(value)
         cors = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "*",
                 "Access-Control-Allow-Headers": "*"} if config["cors"] else {}
@@ -156,6 +162,8 @@ async def health(request):
 
 
 async def page(request):
+    if request.url.path == "/account" and not request.app.state.store.settings.hosted_enabled:
+        raise HTTPException(404)
     tools = await request.app.state.mcp.list_tools() if request.url.path == "/docs" else ()
     return render_page(request.url.path, request.app.state.store.settings, tools)
 
@@ -178,7 +186,7 @@ async def openapi(request):
 
 
 async def robots(request):
-    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /mcp\nDisallow: /health\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
+    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /account\nDisallow: /auth/\nDisallow: /billing/\nDisallow: /mcp\nDisallow: /health\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
 
 
 async def sitemap(request):
@@ -205,7 +213,7 @@ class WebBoundary:
         protected = path.startswith(("/api/", "/mcp"))
         if protected and headers.get("origin") not in {None, self.settings.origin}:
             return await JSONResponse({"message": "Origin is not allowed."}, status_code=403)(scope, receive, send)
-        if path.startswith(("/api/", "/mcp", "/h/")):
+        if path.startswith(("/api/", "/mcp", "/h/", "/auth/")):
             now = time.monotonic()
             ip = (scope.get("client") or ("unknown",))[0]
             self.hits = {key: values for key, values in self.hits.items() if values and values[-1] > now - 60}
@@ -237,9 +245,9 @@ class WebBoundary:
                 ])
                 if not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
                     message["headers"].append((b"content-security-policy", CSP.encode()))
-                if path == "/app" or path.startswith(("/h/", "/mcp", "/health")) or (path.startswith("/api/") and path != "/api/tools"):
+                if path in {"/app", "/account"} or path.startswith(("/h/", "/mcp", "/health", "/auth/")) or (path.startswith("/api/") and path != "/api/tools"):
                     message["headers"].append((b"x-robots-tag", b"noindex, nofollow"))
-                if protected or path == "/app":
+                if protected or path in {"/app", "/account"} or path.startswith("/auth/"):
                     message["headers"].append((b"cache-control", b"no-store"))
                 elif path.startswith("/assets/"):
                     message["headers"].append((b"cache-control", b"no-cache"))
@@ -261,6 +269,7 @@ def create_app(settings: Settings | None = None):
     async def lifespan(application):
         store = Store(settings)
         application.state.store = store
+        application.state.accounts = Accounts(store) if settings.hosted_enabled else None
         application.state.mcp = mcp
         transports = CaptureTransports(store)
         await transports.start()
@@ -279,6 +288,7 @@ def create_app(settings: Settings | None = None):
 
     app.router.lifespan_context = lifespan
     app.router.routes.extend([
+        *HOSTED_ROUTES,
         Route("/health", health), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),
         Route("/api/export", export_events, methods=["POST"]),
         Route("/api/wait", wait_events, methods=["POST"]),

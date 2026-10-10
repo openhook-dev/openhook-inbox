@@ -1,8 +1,33 @@
 # Openhook tool reference
 
-27 native tools. Generated with `uv run python scripts/generate_docs.py`.
+29 native tools. Generated with `uv run python scripts/generate_docs.py`.
 
 Keep private management tokens and provider credentials out of shared documents.
+
+## access_hosted_inbox
+
+Hosted only: issue a private inbox token for an inbox you own. Keep the returned token private.
+
+```json
+{
+  "properties": {
+    "account_key": {
+      "title": "Account Key",
+      "type": "string"
+    },
+    "inbox_id": {
+      "title": "Inbox Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "account_key",
+    "inbox_id"
+  ],
+  "title": "access_hosted_inboxArguments",
+  "type": "object"
+}
+```
 
 ## check_for_callbacks
 
@@ -137,7 +162,7 @@ Set HTTP responses and optional SHA256 HMAC verification, preserving unspecified
 
 ## create_webhook
 
-Create an inbox. Save its private token; share only its public capture addresses.
+Create an inbox. Save its private token; share only public capture addresses. A hosted Pro account_key creates a persistent owned inbox.
 
 ```json
 {
@@ -150,6 +175,11 @@ Create an inbox. Save its private token; share only its public capture addresses
     "name": {
       "default": "",
       "title": "Name",
+      "type": "string"
+    },
+    "account_key": {
+      "default": "",
+      "title": "Account Key",
       "type": "string"
     }
   },
@@ -334,6 +364,26 @@ Read callback addresses for authorized out-of-band testing.
 }
 ```
 
+## get_hosted_inboxes
+
+Hosted only: list your persistent inboxes and usage using a private account agent key.
+
+```json
+{
+  "properties": {
+    "account_key": {
+      "title": "Account Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "account_key"
+  ],
+  "title": "get_hosted_inboxesArguments",
+  "type": "object"
+}
+```
+
 ## get_request
 
 Read a complete event; omit request_id to inspect the newest one.
@@ -509,6 +559,11 @@ Create a signed GitHub repository subscription and native inbox. Requires webhoo
       },
       "title": "Events",
       "type": "array"
+    },
+    "account_key": {
+      "default": "",
+      "title": "Account Key",
+      "type": "string"
     }
   },
   "required": [
@@ -543,6 +598,11 @@ Create a signed Linear subscription and native inbox. Requires admin scope; opti
       "default": "",
       "title": "Team Id",
       "type": "string"
+    },
+    "account_key": {
+      "default": "",
+      "title": "Account Key",
+      "type": "string"
     }
   },
   "required": [
@@ -571,6 +631,11 @@ Create a signed Stripe webhook endpoint and native inbox. Provider credentials a
       },
       "title": "Events",
       "type": "array"
+    },
+    "account_key": {
+      "default": "",
+      "title": "Account Key",
+      "type": "string"
     }
   },
   "required": [

@@ -1,4 +1,5 @@
 import {renderHome} from './home.js?v=d585ad698949';
+import {renderAccount} from './account.js?v=f9f11f3a2c42';
 'use strict';
 
 const main = document.querySelector('#main');
@@ -234,5 +235,5 @@ $('#theme-toggle').hidden = false;
 $$('nav a').forEach(link => {
   if (link.getAttribute('href') === location.pathname) link.setAttribute('aria-current', 'page');
 });
-const routes = {'/': homePage, '/docs': docsPage, '/app': inboxPage};
+const routes = {'/': homePage, '/docs': docsPage, '/app': inboxPage, '/account': () => renderAccount(main, {escapeHTML, copy, storageGet, storageSet})};
 routes[location.pathname]?.();

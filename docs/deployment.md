@@ -31,7 +31,7 @@ Health reports configured listeners, not independent proof of public reachabilit
 ## Storage and backups
 
 Events are committed before an HTTP success response. WAL permits concurrent
-SMTP, HTTP, and MCP access. Inboxes expire within seven days; cleanup runs every
+SMTP, HTTP, and MCP access. Anonymous inboxes expire within seven days; cleanup runs every
 minute, and every creation also removes expired inboxes. Each inbox accepts up to
 1000 retained events. At capacity, new captures fail instead of evicting earlier
 accepted events. Receipts and mutations write durable activity records in the
@@ -53,3 +53,9 @@ Also verify that a public capture UUID cannot read the inbox through /api/call.
 Trust only the verified Dokploy proxy subnet with FORWARDED_ALLOW_IPS. If using
 Cloudflare proxying, also add its published IP ranges. Confirm actual sender IPs
 in captured events so rate limits do not group all visitors under the proxy IP.
+
+## Optional hosted accounts
+
+The Compose file passes hosted settings with accounts and new checkout disabled
+by default. Read [hosted operations](HOSTED_OPERATIONS.md) before enabling them.
+Use dedicated OAuth/payment credentials and a separate sandbox database.
