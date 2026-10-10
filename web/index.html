@@ -4,30 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#faf9f6">
-  <title>Openhook — An inbox for your agent</title>
-  <meta name="description" content="Create a webhook URL. Let your agent wait for the reply, then carry on. Open source. No account needed.">
-  <meta property="og:title" content="Openhook — An inbox for your agent">
-  <meta property="og:description" content="Catch a webhook. Keep your agent moving. Hosted here, or by you.">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <meta name="robots" content="{{robots}}">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:site_name" content="Openhook">
+  <meta property="og:locale" content="en_US">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://openhook.dev">
-  <meta property="og:image" content="https://openhook.dev/assets/social.png?v=c635203f927e">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:image" content="{{origin}}/assets/social.png?v=c635203f927e">
+  <meta property="og:image:alt" content="Openhook — An inbox for your agent">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg?v=604e6a773711">
-  <link rel="canonical" href="https://openhook.dev">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{title}}">
+  <meta name="twitter:description" content="{{description}}">
+  <meta name="twitter:image" content="{{origin}}/assets/social.png?v=c635203f927e">
+  <meta name="twitter:image:alt" content="Openhook — An inbox for your agent">
+  <link rel="canonical" href="{{canonical}}">
+  <link rel="alternate" type="{{alternate_type}}" href="{{alternate}}" title="Openhook text documentation">
+  <link rel="service-desc" type="application/vnd.oai.openapi+json" href="/openapi.json">
+  {{structured_data}}
   <script src="/assets/theme.js?v=e2cd009294c3"></script>
   <link rel="preload" href="/assets/fonts/paper-mono.woff2?v=57b28aaaffc4" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/assets/style.css?v=5f33d48f8cb4">
-  <script src="/assets/app.js?v=dcda007bde6a" type="module"></script>
+  <link rel="stylesheet" href="/assets/style.css?v=3911ce7f1be6">
+  <script src="/assets/app.js?v=15f14fc4e79d" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Openhook home">openhook</a>
-    <nav aria-label="Main navigation"><a href="/docs">Docs</a><a href="/connect">Connect</a><a href="/app">Inbox</a><button id="theme-toggle" class="icon-button" aria-label="Switch to dark theme" title="Change theme">Dark</button></nav>
+    <a class="brand" href="/" aria-label="Openhook home"><img class="brand-logo" src="/assets/organization-logo.png" width="28" height="28" alt="" decoding="async">openhook</a>
+    <nav aria-label="Main navigation"><a href="/docs">Docs</a><a href="/connect">Connect</a><a href="/agents">For agents</a><a href="/app">Inbox</a><button id="theme-toggle" class="icon-button" aria-label="Switch to dark theme" title="Change theme" hidden>Dark</button></nav>
   </header>
-  <main id="main" tabindex="-1"></main>
-  <footer><a href="https://github.com/openhook-dev/openhook-inbox">Source</a><a href="/privacy">Privacy</a><a href="/llms.txt">llms.txt</a></footer>
+  <main id="main" tabindex="-1">{{content}}</main>
+  <footer><a href="https://github.com/openhook-dev/openhook-inbox">Source</a><a href="/privacy">Privacy</a><a href="/llms.txt">llms.txt</a><a href="/skill.md">Agent skill</a><a href="/openapi.json">API</a></footer>
   <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>

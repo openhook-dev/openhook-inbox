@@ -89,3 +89,36 @@ async def test_failed_registration_cleans_up_native_inbox(settings):
             await register(store, "github", "invalid-token", ["push"], "customer/repo")
     with store.connection() as db:
         assert db.execute("SELECT COUNT(*) FROM inboxes").fetchone()[0] == 0
+        history = [dict(row) for row in db.execute("SELECT * FROM activity ORDER BY sequence")]
+    assert [row["action"] for row in history][-2:] == ["subscription.registration_failed", "inbox.deleted"]
+    assert "invalid-token" not in json.dumps(history)
+
+
+@pytest.mark.parametrize("provider_status", [204, 403])
+def test_mcp_unregistration_preserves_audit_and_failed_subscription(settings, provider_status):
+    store = Store(settings)
+    inbox = store.create()
+    store.attach_subscription(inbox["token"], "github", "42", "customer/repo")
+    with respx.mock:
+        removal = respx.delete("https://api.github.com/repos/customer/repo/hooks/42").respond(provider_status)
+        with TestClient(create_app(settings), base_url=settings.origin) as client:
+            response = client.post("/mcp", headers={"Accept": "application/json, text/event-stream"}, json={
+                "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                "params": {"name": "unregister_webhook", "arguments": {
+                    "webhook_token": inbox["token"], "access_token": "private-provider-token"}}})
+        assert removal.call_count == 1
+    assert response.status_code == 200
+    assert bool(response.json()["result"].get("isError")) == (provider_status == 403)
+    with store.connection() as db:
+        history = [dict(row) for row in db.execute("SELECT * FROM activity ORDER BY sequence")]
+        remaining = db.execute("SELECT COUNT(*) FROM inboxes").fetchone()[0]
+    actions = [row["action"] for row in history]
+    if provider_status == 204:
+        assert remaining == 0
+        assert actions[-3:] == ["subscription.removal_started", "subscription.removed", "inbox.deleted"]
+    else:
+        assert remaining == 1
+        assert store.info(inbox["token"])["subscription"]["external_id"] == "42"
+        assert actions[-2:] == ["subscription.removal_started", "subscription.removal_failed"]
+    assert "private-provider-token" not in json.dumps(history)
+    assert inbox["token"] not in json.dumps(history)

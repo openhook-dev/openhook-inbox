@@ -1,6 +1,6 @@
 # Openhook tool reference
 
-26 native tools. Generated with `uv run python scripts/generate_docs.py`.
+27 native tools. Generated with `uv run python scripts/generate_docs.py`.
 
 Keep private management tokens and provider credentials out of shared documents.
 
@@ -362,6 +362,36 @@ Read a complete event; omit request_id to inspect the newest one.
     "webhook_token"
   ],
   "title": "get_requestArguments",
+  "type": "object"
+}
+```
+
+## get_webhook_activity
+
+Read durable receipt and mutation history with a cursor. Bodies and secrets are excluded.
+
+```json
+{
+  "properties": {
+    "webhook_token": {
+      "title": "Webhook Token",
+      "type": "string"
+    },
+    "since": {
+      "default": 0,
+      "title": "Since",
+      "type": "integer"
+    },
+    "limit": {
+      "default": 100,
+      "title": "Limit",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "webhook_token"
+  ],
+  "title": "get_webhook_activityArguments",
   "type": "object"
 }
 ```

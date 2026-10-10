@@ -20,7 +20,7 @@ const replacements: Array<[RegExp, string]> = [];
 for (const asset of ["app.js", "style.css", "theme.js", "fonts/paper-mono.woff2", "favicon.svg", "social.png"]) {
   const escaped = asset.replaceAll(".", "\\.");
   replacements.push([
-    new RegExp("/assets/" + escaped + "(?:\\?v=[^\\\"]+)?"),
+    new RegExp("/assets/" + escaped + "(?:\\?v=[^\\\"]+)?", "g"),
     "/assets/" + asset + "?v=" + await version("web/assets/" + asset),
   ]);
 }

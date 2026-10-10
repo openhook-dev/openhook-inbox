@@ -7,7 +7,7 @@ import json
 import time
 from collections import deque
 from contextlib import asynccontextmanager
-from pathlib import Path
+from html import escape
 from typing import Any, Literal
 from urllib.parse import urlsplit
 
@@ -15,7 +15,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 from pydantic import BaseModel, Field, ValidationError
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import FileResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
+from starlette.responses import JSONResponse, RedirectResponse, Response, StreamingResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
@@ -23,15 +23,17 @@ from openhook.settings import Settings
 from openhook.store import InboxError, Store
 from openhook.transports import CaptureTransports
 from server import build_mcp
-
-WEB_ROOT = Path(__file__).parent.parent / "web"
+from openhook.discovery import openapi_schema, tools_markdown
+from openhook.pages import CSP, PAGES, PUBLIC_PATHS, WEB_ROOT, render_page, template
 
 
 class WebCall(BaseModel):
-    action: Literal["create", "info", "list", "get", "send", "configure", "export", "links", "delete", "rotate"]
+    action: Literal["create", "info", "list", "get", "send", "configure", "export", "links", "delete", "rotate", "activity"]
     token: str = ""
     request_id: str | None = None
     page: int = Field(default=1, ge=1, le=1000)
+    since: int = Field(default=0, ge=0)
+    limit: int = Field(default=100, ge=1, le=1000)
     payload: dict[str, Any] = Field(default_factory=dict)
     config: dict[str, Any] = Field(default_factory=dict)
 
@@ -78,6 +80,8 @@ async def api_call(request: Request) -> Response:
             result = store.delete(call.token)
         elif call.action == "rotate":
             result = store.rotate(call.token)
+        elif call.action == "activity":
+            result = store.activity(call.token, since=call.since, limit=call.limit)
         else:
             result = store.requests(call.token, limit=1000, oldest=True)
         return JSONResponse({"success": True, "data": result})
@@ -152,20 +156,34 @@ async def health(request):
 
 
 async def page(request):
-    return FileResponse(WEB_ROOT / "index.html")
+    tools = await request.app.state.mcp.list_tools() if request.url.path == "/docs" else ()
+    return render_page(request.url.path, request.app.state.store.settings, tools)
 
 
 async def llms(request):
-    return FileResponse(WEB_ROOT / "llms.txt", media_type="text/plain")
+    settings = request.app.state.store.settings
+    values = {"origin": settings.origin, "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit)}
+    path = request.url.path
+    if path == "/docs.md":
+        text = tools_markdown(await request.app.state.mcp.list_tools())
+    elif path == "/llms-full.txt":
+        text = template("agent-guide.md", values) + "\n\n" + tools_markdown(await request.app.state.mcp.list_tools())
+    else:
+        text = template({"/llms.txt": "llms.txt", "/agents.md": "agent-guide.md", "/skill.md": "skill.md"}[path], values)
+    return Response(text, media_type="text/markdown" if path.endswith(".md") else "text/plain")
+
+
+async def openapi(request):
+    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, WebCall, WaitCall))
 
 
 async def robots(request):
-    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /h/\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
+    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /mcp\nDisallow: /health\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
 
 
 async def sitemap(request):
     origin = request.app.state.store.settings.origin
-    urls = "".join(f"<url><loc>{origin}{path}</loc></url>" for path in ("/", "/docs", "/connect", "/privacy"))
+    urls = "".join(f"<url><loc>{escape(origin + path)}</loc></url>" for path in PUBLIC_PATHS)
     return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', media_type="application/xml")
 
 
@@ -216,8 +234,11 @@ class WebBoundary:
             if message["type"] == "http.response.start":
                 message.setdefault("headers", []).extend([
                     (b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
-                    (b"content-security-policy", b"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"),
                 ])
+                if not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
+                    message["headers"].append((b"content-security-policy", CSP.encode()))
+                if path == "/app" or path.startswith(("/h/", "/mcp", "/health")) or (path.startswith("/api/") and path != "/api/tools"):
+                    message["headers"].append((b"x-robots-tag", b"noindex, nofollow"))
                 if protected or path == "/app":
                     message["headers"].append((b"cache-control", b"no-store"))
                 elif path.startswith("/assets/"):
@@ -264,7 +285,8 @@ def create_app(settings: Settings | None = None):
         Route("/h/{identifier}", capture, methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]),
         Route("/h/{identifier}/{rest:path}", capture, methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]),
         Route("/robots.txt", robots), Route("/sitemap.xml", sitemap),
-        Route("/llms.txt", llms), *[Route(path, page) for path in ("/", "/app", "/docs", "/connect", "/privacy")],
+        *[Route(path, llms) for path in ("/llms.txt", "/llms-full.txt", "/agents.md", "/docs.md", "/skill.md")],
+        Route("/openapi.json", openapi), *[Route(path, page) for path in PAGES],
         Mount("/assets", StaticFiles(directory=WEB_ROOT / "assets")),
     ])
     app.add_middleware(WebBoundary, settings=settings)

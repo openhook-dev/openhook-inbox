@@ -131,13 +131,15 @@ def test_retention_pagination_search_and_expiry(tmp_path):
     settings = Settings(database=str(tmp_path / "retention.sqlite3"), event_limit=3)
     store = Store(settings)
     inbox = store.create(expiry=60)
-    for index in range(5):
+    for index in range(3):
         store.capture(inbox["inbox_id"], f"event-{index}".encode())
+    with pytest.raises(InboxError, match="capacity"):
+        store.capture(inbox["inbox_id"], b"must not evict an accepted event")
     assert store.requests(inbox["token"])["total_requests"] == 3
     first = store.requests(inbox["token"], limit=2)
     assert not first["pagination"]["is_last_page"]
     assert len(store.requests(inbox["token"], limit=2, page=2)["requests"]) == 1
-    assert store.requests(inbox["token"], query="event-3")["total_requests"] == 1
+    assert store.requests(inbox["token"], query="event-0")["total_requests"] == 1
     with store.connection(write=True) as db:
         db.execute("UPDATE inboxes SET expires=0")
     with pytest.raises(InboxError, match="expired"):
@@ -180,8 +182,14 @@ def test_native_mcp_uses_same_storage(client):
     assert not configured.json()["result"].get("isError"), configured.text
     client.post(inbox["url"], json={"from": "mcp"})
     assert call(client, "list", token=inbox["token"])["total_requests"] == 1
+    history = client.post("/mcp", headers=headers, json={"jsonrpc": "2.0", "id": 4, "method": "tools/call",
+        "params": {"name": "get_webhook_activity", "arguments": {"webhook_token": inbox["token"], "since": 0}}})
+    result = history.json()["result"]
+    assert not result.get("isError"), result
+    records = json.loads(result["content"][0]["text"])["activity"]
+    assert [record["action"] for record in records] == ["inbox.created", "inbox.configured", "event.received"]
     tools = client.get("/api/tools").json()["tools"]
-    assert len(tools) == 26
+    assert len(tools) == 27
     assert not any("webhook.site" in json.dumps(tool) for tool in tools)
 
 
@@ -220,6 +228,8 @@ def test_real_smtp_dns_udp_and_tcp(tmp_path):
         assert refused.header.rcode == RCODE.REFUSED and not refused.header.ra
         events = call(client, "list", token=inbox["token"])["requests"]
         assert sorted(event["type"] for event in events) == ["dns", "dns", "email"]
+        history = call(client, "activity", token=inbox["token"])["activity"]
+        assert sorted(item["details"]["type"] for item in history if item["action"] == "event.received") == ["dns", "dns", "email"]
         email = next(event for event in events if event["type"] == "email")
         assert email["subject"] == "Native email"
         links = call(client, "links", token=inbox["token"], request_id=email["uuid"])

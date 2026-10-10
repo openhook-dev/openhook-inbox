@@ -45,7 +45,9 @@ code { overflow-wrap: anywhere; }
 .quiet, .hero-note, .notice, .settings-summary { color: var(--fg-3); font-size: 12px; }
 .topbar, main, footer { width: min(760px, calc(100% - 48px)); margin-inline: auto; }
 .topbar { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 48px; }
-.brand { text-decoration: none; font-size: 16px; font-weight: 500; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 16px; font-weight: 500; }
+.brand-logo { display: block; width: 28px; height: 28px; filter: invert(1); }
+:root[data-theme='dark'] .brand-logo { filter: none; }
 nav { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 24px; color: var(--fg-3); font-size: 12px; }
 nav a { text-decoration: none; }
 nav a[aria-current='page'] { color: var(--fg); text-decoration: underline; }

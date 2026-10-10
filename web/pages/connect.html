@@ -1,0 +1,23 @@
+<div class="page-head"><div><h1>Connect your agent.</h1><p>Add the MCP endpoint. Create your first inbox in the next tool call.</p></div></div>
+<div class="page-body reading">
+  <section><h2>Claude Code</h2><div class="code-box"><pre>claude mcp add --transport http openhook {{origin}}/mcp</pre><button class="button copy-code" hidden>Copy</button></div></section>
+  <section><h2>Cursor</h2><p>Add this to <code>.cursor/mcp.json</code>, then enable Openhook in your tools.</p><div class="code-box"><pre>{
+  "mcpServers": {
+    "openhook": { "url": "{{origin}}/mcp" }
+  }
+}</pre><button class="button copy-code" hidden>Copy</button></div></section>
+  <section><h2>VS Code</h2><p>Save this in <code>.vscode/mcp.json</code>. Start Openhook from the MCP server list.</p><div class="code-box"><pre>{
+  "servers": {
+    "openhook": { "type": "http", "url": "{{origin}}/mcp" }
+  }
+}</pre><button class="button copy-code" hidden>Copy</button></div></section>
+  <section><h2>Other MCP clients</h2><p>Use <code>{{origin}}/mcp</code> with Streamable HTTP transport. No account or global API key is required. Each inbox returns its own private management token.</p></section>
+  <section><h2>Try the whole loop</h2><div class="code-box"><pre>Create a webhook inbox. Save its private token with this task.
+Give me its public HTTP URL. Wait with since: 0 for a test
+event and show me the JSON body. Delete the inbox when done.</pre><button class="button copy-code" hidden>Copy</button></div><p>Send a request to the URL from another terminal. The <a href="/agents">agent guide</a> explains waiting, local forwarding, and cleanup.</p></section>
+  <section><h2>Run your own server</h2><div class="code-box"><pre>git clone https://github.com/openhook-dev/openhook-inbox.git
+cd openhook-inbox
+uv sync
+uv run openhook --http</pre><button class="button copy-code" hidden>Copy</button></div><p>For stdio, use command <code>uv</code> with args <code>["--directory", "/absolute/path/to/openhook-inbox", "run", "openhook"]</code>. Keep the HTTP server running to receive callbacks. A locally hosted URL needs public routing for external senders; the hosted service already has it.</p></section>
+  <p><a href="/skill.md">Download the Openhook agent skill</a> · <a href="/openapi.json">REST API schema</a> · <a href="/docs">MCP tool reference</a></p>
+</div>

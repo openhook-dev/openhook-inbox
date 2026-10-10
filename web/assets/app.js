@@ -1,4 +1,4 @@
-import {renderHome} from './home.js?v=7808a05e7010';
+import {renderHome} from './home.js?v=d585ad698949';
 'use strict';
 
 const main = document.querySelector('#main');
@@ -44,45 +44,26 @@ async function api(action, args = {}, signal) {
 
 function homePage() { renderHome(main, {origin, copy, api, storageGet, storageSet}); }
 
-const setups = {
-  claude: {name:'Claude Code', title:'Connect from your terminal', code:`claude mcp add --transport http openhook ${origin}/mcp`, next:'Run the command, restart your session if needed, then ask Claude to create a webhook and wait for a test event.'},
-  cursor: {name:'Cursor', title:'Add Openhook to your MCP configuration', code:JSON.stringify({mcpServers:{openhook:{url:`${origin}/mcp`}}}, null, 2), next:'Add this entry to .cursor/mcp.json or your MCP settings, then enable Openhook in the tools list.'},
-  vscode: {name:'VS Code', title:'Add a workspace MCP server', code:JSON.stringify({servers:{openhook:{type:'http',url:`${origin}/mcp`}}},null,2), next:'Save this configuration in .vscode/mcp.json. Start Openhook from the MCP server list.'},
-  local: {name:'Local / stdio', title:'Run the open-source server locally', code:'git clone https://github.com/openhook-dev/openhook-inbox.git\ncd openhook-inbox\nuv sync\nuv run openhook', next:'For a stdio client, use command "uv", args ["--directory", "/absolute/path/to/openhook", "run", "openhook"]. Keep the absolute path specific to your checkout.'},
-};
-
-function connectPage() {
-  main.innerHTML = `<div class="page-head"><div><div class="eyebrow">Setup</div><h1>Connect your agent</h1><p>Choose your client. Create your first inbox in the next tool call.</p></div></div><div class="page-body"><div class="setup-grid"><div class="tabs" role="tablist" aria-label="MCP client" aria-orientation="horizontal">${Object.entries(setups).map(([key,value],i)=>`<button class="tab" role="tab" id="tab-${key}" aria-controls="setup-panel" aria-selected="${i===0}" tabindex="${i===0?0:-1}" data-client="${key}">${value.name}</button>`).join('')}</div><div id="setup-panel" class="setup-content" role="tabpanel" aria-labelledby="tab-claude" tabindex="0"></div></div></div>`;
-  function select(key) {
-    const setup = setups[key];
-    $$('.tab').forEach(tab => { const selected = tab.dataset.client===key; tab.setAttribute('aria-selected',selected); tab.tabIndex=selected?0:-1; });
-    $('#setup-panel').setAttribute('aria-labelledby',`tab-${key}`);
-    $('#setup-panel').innerHTML = `<div class="setup-step"><span class="step-number">1</span><h2>${setup.title}</h2></div><div class="code-box"><pre>${escapeHTML(setup.code)}</pre><button class="button small copy-code">Copy</button></div><p>${escapeHTML(setup.next)}</p><div class="setup-step"><span class="step-number">2</span><h2>Try the whole loop</h2></div><div class="code-box"><pre>Create a webhook inbox. Give me its HTTP URL.\nWait for the next request and show me its JSON body.</pre><button class="button small copy-code">Copy</button></div><p>Send a request to the URL from another terminal, or import the inbox into the <a class="inline-link" href="/app">browser inspector</a>.</p><div class="callout"><strong>Hosted or local?</strong> Openhook runs its own capture service and durable storage. Connect to this deployment or run your own. No external webhook account is needed.</div><a class="inline-link" href="/docs">Read the tool reference →</a>`;
-    $$('.copy-code').forEach(button=>button.addEventListener('click',()=>copy(button.previousElementSibling.textContent,button)));
-  }
-  $$('.tab').forEach((tab,i)=>{
-    tab.addEventListener('click',()=>select(tab.dataset.client));
-    tab.addEventListener('keydown',event=>{const tabs=$$('.tab');let next;if(['ArrowDown','ArrowRight'].includes(event.key))next=(i+1)%tabs.length;if(['ArrowUp','ArrowLeft'].includes(event.key))next=(i-1+tabs.length)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();tabs[next].focus();select(tabs[next].dataset.client);}});
+function enhanceCopyButtons() {
+  $$('.copy-code', main).forEach(button => {
+    button.hidden = false;
+    button.addEventListener('click', () => copy(button.previousElementSibling.textContent, button));
   });
-  select('claude');
 }
 
-async function docsPage() {
-  main.innerHTML = `<div class="page-head"><div><div class="eyebrow">Documentation</div><h1>Use Openhook.</h1><p>26 native tools for HTTP, email, DNS, and event delivery.</p></div><a class="button small" href="/connect">Connect your agent →</a></div><div class="page-body"><div class="reading"><section><h2>Start with an inbox</h2><p><code>create_webhook</code> returns a token, HTTP URL, email address, and DNS name. Supply the address to the external service, then call <code>wait_for_request</code> or <code>wait_for_email</code>. Wait calls last up to 120 seconds and return to your running agent when an event arrives.</p><h3>Keep the token</h3><p>The private management token grants access to an inbox. Public capture addresses cannot read events. Store it with your task, keep it private, and use it to inspect events after reconnecting. The browser stores your inbox list on this device only.</p><h3>What is included</h3><p>A browser inspector, a hosted MCP endpoint, and 26 native tools. Openhook captures and stores its own events. Email and DNS addresses are returned when their listeners are configured.</p><h3>Retention and limits</h3><p>Inboxes expire within seven days and retain the latest 1000 events, each at most 1 MB. Use <code>server_status</code> to inspect enabled transports. Pass <code>next_since</code> when reconnecting a waiting agent to receive retained events after its last cursor.</p><h3>Registration and local forwarding</h3><p>Use register_github_webhook, register_stripe_webhook, or register_linear_webhook with your provider credentials. Credentials are used for the API call and are never saved. Unregister subscriptions before their inbox expires. Run openhook-listen --forward http://localhost:8080/webhook for local delivery, or openhook-listen --openclaw to wake a configured local agent. Set OPENHOOK_TOKEN to the private inbox token. The listener makes outbound HTTPS requests and resumes from its saved cursor.</p></section></div><div><h2>Tool reference</h2><p class="hero-note">Loaded from the running server so names and schemas stay current.</p></div><label class="tool-search">Search tools<input id="tool-search" type="search" placeholder="Search by name or purpose" autocomplete="off"></label><div id="tool-list" class="tool-list" aria-live="polite"><p class="quiet">Loading tools…</p></div><div class="reading"><section id="source"><h2>Open source</h2><p>Openhook is MIT-licensed. Run it locally, inspect the code, or contribute a new workflow.</p><h3>Run it yourself</h3><p><a class="inline-link" href="https://github.com/openhook-dev/openhook-inbox" target="_blank" rel="noopener noreferrer">Read the source on GitHub ↗</a>. Run <code>uv run openhook</code> for stdio, or <code>uv run openhook --http</code> to serve the website and MCP endpoint locally.</p></section></div></div>`;
-  async function loadTools() {
-    try {
-      const response=await fetch('/api/tools');if(!response.ok)throw new Error('Could not load tools.');
-      const {tools}=await response.json();
-      function filter(){const query=$('#tool-search').value.toLowerCase();const filtered=tools.filter(t=>`${t.name} ${t.description}`.toLowerCase().includes(query));$('#tool-list').innerHTML=filtered.length?filtered.map(tool=>`<article class="tool-row"><div><code>${escapeHTML(tool.name)}</code><div class="tool-hint">${tool.annotations?.readOnlyHint?'Read only':tool.annotations?.destructiveHint?'Can change or delete data':'Creates or updates data'}</div></div><div><p>${escapeHTML(tool.description.split('\n')[0])}</p><details><summary class="hero-note">Parameters</summary><pre>${escapeHTML(JSON.stringify(tool.inputSchema,null,2))}</pre></details></div></article>`).join(''):'<div class="list-empty">No tools match. Try another search.</div>';}
-      $('#tool-search').addEventListener('input',filter);filter();
-    } catch {$('#tool-list').innerHTML='<div class="tool-error"><p>Could not load the tool reference. Check your connection and try again.</p><button class="button small" id="retry-tools">Try again</button></div>';$('#retry-tools').addEventListener('click',loadTools);}
-  }
-  await loadTools();
-  if(location.hash)document.getElementById(location.hash.slice(1))?.scrollIntoView();
-}
-
-function privacyPage() {
-  main.innerHTML='<div class="page-head"><div><div class="eyebrow">Privacy</div><h1>Know where your events go.</h1><p>Captured and stored by Openhook.</p></div></div><div class="page-body reading"><section><h2>Captured events</h2><p>Openhook stores incoming bodies, headers, sender addresses, timestamps, and notes in its database on its hosting server. Inboxes expire within seven days; periodic cleanup deletes expired inboxes and their events. Each inbox retains its latest 1000 events.</p></section><section><h2>On your device</h2><p>Your theme preference, inbox bookmarks, and private management tokens are saved in browser local storage. Bookmarks are not synchronized. Removing a bookmark leaves the inbox and its server events intact.</p></section><section><h2>Private tokens</h2><p>Anyone with an inbox management token can inspect or delete its events. Public capture addresses only accept events. The server stores hashes of management tokens. Provider API credentials are used only during registration and removal calls and are not saved. Optional signing secrets are stored with inbox settings to verify incoming webhook signatures. You can rotate tokens or permanently delete inboxes through MCP.</p></section><section><h2>Operational data</h2><p>HTTP rate-limit counters are held in memory. Application HTTP access logging is disabled; hosting and network providers may maintain operational logs. There are no advertising trackers or analytics scripts in the application.</p></section></div>';
+function docsPage() {
+  const search = $('#tool-search');
+  const rows = $$('.tool-row');
+  search.closest('label').hidden = false;
+  search.addEventListener('input', () => {
+    const query = search.value.trim().toLowerCase();
+    let matches = 0;
+    rows.forEach(row => {
+      row.hidden = !row.textContent.toLowerCase().includes(query);
+      if (!row.hidden) matches++;
+    });
+    $('#tool-empty').hidden = matches > 0;
+  });
 }
 
 function inboxPage() {
@@ -119,11 +100,34 @@ function inboxPage() {
   }
   function renderInbox(){
     const inbox=active;
-    $('#inbox-content').innerHTML=`<div class="endpoint-panel"><div class="inbox-title-row"><h2>${escapeHTML(inbox.name)}</h2><div class="actions"><button class="button small ghost" id="settings">Response settings</button><button class="icon-button" id="forget" aria-label="Remove inbox bookmark from this device" title="Remove bookmark">Remove</button></div></div><div class="endpoint-grid">${[['HTTP',inbox.url],['Email',inbox.email],['DNS',inbox.dns],['Private token',inbox.token]].filter(([,value])=>value).map(([label,value])=>`<div class="endpoint-row"><span class="endpoint-label">${label}</span><code>${escapeHTML(value)}</code><button class="button small ghost copy-endpoint" data-copy="${escapeHTML(value)}" aria-label="Copy ${label} address">Copy</button></div>`).join('')}</div><div class="inbox-meta"><span id="expiry">${expiryLabel(inbox.expires_at)}</span><span>Keep the management token private</span></div></div><div class="event-toolbar"><div><h3>Events <span id="event-count" class="mono">—</span></h3><span id="live-status" class="live-label"><span class="dot"></span> Listening · refreshes every 5s</span></div><div class="actions"><button class="button small" id="test-event">Send test</button><button class="button small ghost" id="refresh-events" aria-label="Refresh events">Refresh</button><button class="button small ghost" id="pause-events" aria-pressed="false">Pause</button><button class="button small ghost" id="export-events">Export</button></div></div><div class="event-layout"><div id="event-list" class="event-list" role="listbox" aria-label="Captured events"><p class="quiet">Loading events…</p></div><div id="event-detail" class="event-detail"><p class="hero-note">Select an event to inspect its payload and headers.</p></div></div><div class="event-toolbar" id="pagination" hidden><button class="button small" id="previous-page">Previous</button><span id="page-label" class="hero-note">Page 1</span><button class="button small" id="next-page">Next</button></div><div class="notice">Events are stored by Openhook. Bookmarks and private tokens stay on this device.</div>`;
+    $('#inbox-content').innerHTML=`<div class="endpoint-panel"><div class="inbox-title-row"><h2>${escapeHTML(inbox.name)}</h2><div class="actions"><button class="button small ghost" id="settings">Response settings</button><button class="icon-button" id="forget" aria-label="Remove inbox bookmark from this device" title="Remove bookmark">Remove</button></div></div><div class="endpoint-grid">${[['HTTP',inbox.url],['Email',inbox.email],['DNS',inbox.dns],['Private token',inbox.token]].filter(([,value])=>value).map(([label,value])=>`<div class="endpoint-row"><span class="endpoint-label">${label}</span><code>${escapeHTML(value)}</code><button class="button small ghost copy-endpoint" data-copy="${escapeHTML(value)}" aria-label="Copy ${label} address">Copy</button></div>`).join('')}</div><div class="inbox-meta"><span id="expiry">${expiryLabel(inbox.expires_at)}</span><span>Keep the management token private</span></div></div><div class="event-toolbar"><div><h3>Events <span id="event-count" class="mono">—</span></h3><span id="live-status" class="live-label"><span class="dot"></span> Listening · refreshes every 5s</span></div><div class="actions"><button class="button small" id="test-event">Send test</button><button class="button small ghost" id="refresh-events" aria-label="Refresh events">Refresh</button><button class="button small ghost" id="pause-events" aria-pressed="false">Pause</button><button class="button small ghost" id="export-events">Export</button></div></div><div class="event-layout"><div id="event-list" class="event-list" role="listbox" aria-label="Captured events"><p class="quiet">Loading events…</p></div><div id="event-detail" class="event-detail"><p class="hero-note">Select an event to inspect its payload and headers.</p></div></div><div class="event-toolbar" id="pagination" hidden><button class="button small" id="previous-page">Previous</button><span id="page-label" class="hero-note">Page 1</span><button class="button small" id="next-page">Next</button></div><section class="reading" aria-labelledby="activity-title"><h3 id="activity-title">Activity</h3><p class="quiet">Receipts and changes, in order. Payloads and secrets are excluded.</p><div id="activity-list" class="reading"></div><button class="button small" id="load-activity">Load activity</button><p id="activity-status" class="quiet" role="status"></p></section><div class="notice">Events are stored by Openhook. Bookmarks and private tokens stay on this device.</div>`;
     $$('.copy-endpoint').forEach(button=>button.addEventListener('click',()=>copy(button.dataset.copy,button)));
     $('#refresh-events').addEventListener('click',()=>refresh(true));
     $('#test-event').addEventListener('click',()=>testDialog());
     $('#settings').addEventListener('click',settingsDialog);
+    let activitySince = 0;
+    $('#load-activity').addEventListener('click', async event => {
+      const button = event.currentTarget;
+      const list = $('#activity-list');
+      const status = $('#activity-status');
+      button.disabled = true;
+      try {
+        const result = await api('activity', {token: inbox.token, since: activitySince, limit: 50});
+        if (active?.token !== inbox.token) return;
+        if (activitySince === 0) list.replaceChildren();
+        for (const item of result.activity) {
+          const row = document.createElement('p');
+          row.className = 'quiet';
+          row.textContent = item.created_at + ' · ' + item.action + (item.details.type ? ' · ' + item.details.type : '');
+          list.append(row);
+        }
+        status.textContent = result.has_more ? 'More activity is available.' : 'Activity is up to date.';
+        activitySince = result.has_more ? result.next_since : 0;
+        button.textContent = result.has_more ? 'Load more activity' : 'Refresh activity';
+      } catch (error) {
+        if (active?.token === inbox.token) status.textContent = error.message;
+      } finally { button.disabled = false; }
+    });
     $('#pause-events').addEventListener('click',()=>{polling=!polling;$('#pause-events').textContent=polling?'Pause':'Resume';$('#pause-events').setAttribute('aria-pressed',!polling);updateLiveStatus();if(polling)refresh();});
     $('#forget').addEventListener('click',()=>{inboxes=inboxes.filter(i=>i.token!==active.token);save();selectInbox(inboxes[0]||null);announce('Inbox bookmark removed from this device. Server events are retained.');});
     $('#export-events').addEventListener('click',exportEvents);
@@ -225,9 +229,10 @@ function inboxPage() {
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&polling){failures=0;refresh();}});
 }
 
-const routes={'/':homePage,'/connect':connectPage,'/docs':docsPage,'/app':inboxPage,'/privacy':privacyPage};
-const titles={'/':'Openhook — An inbox for your agent','/connect':'Connect your agent — Openhook','/docs':'Documentation — Openhook','/app':'Your inboxes — Openhook','/privacy':'Privacy — Openhook'};
-document.title=titles[location.pathname]||titles['/'];
-$$('nav a').forEach(link=>{if(link.getAttribute('href')===location.pathname)link.setAttribute('aria-current','page');});
-document.querySelector('link[rel=canonical]').href=`https://openhook.dev${location.pathname==='/'?'':location.pathname}`;
-(routes[location.pathname]||homePage)();
+enhanceCopyButtons();
+$('#theme-toggle').hidden = false;
+$$('nav a').forEach(link => {
+  if (link.getAttribute('href') === location.pathname) link.setAttribute('aria-current', 'page');
+});
+const routes = {'/': homePage, '/docs': docsPage, '/app': inboxPage};
+routes[location.pathname]?.();

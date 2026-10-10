@@ -84,7 +84,13 @@ def register_tools(mcp: MCPServer) -> None:
         subscription = store(ctx).info(webhook_token)["subscription"]
         if not subscription:
             raise InboxError("This inbox has no provider subscription.")
-        await remove(subscription["provider"], access_token, subscription["external_id"], subscription["target"])
+        store(ctx).record_activity(webhook_token, "subscription.removal_started", {"provider": subscription["provider"]})
+        try:
+            await remove(subscription["provider"], access_token, subscription["external_id"], subscription["target"])
+        except Exception as exc:
+            store(ctx).record_activity(webhook_token, "subscription.removal_failed", {"provider": subscription["provider"], "error_type": type(exc).__name__})
+            raise
+        store(ctx).detach_subscription(webhook_token)
         return store(ctx).delete(webhook_token)
 
     @mcp.tool(annotations=DELETE)
@@ -102,6 +108,11 @@ def register_tools(mcp: MCPServer) -> None:
                              page: int = 1, since: int = 0, request_type: Kind | None = None) -> dict:
         """Read events with pagination or a durable sequence cursor."""
         return store(ctx).requests(webhook_token, limit=limit, page=page, since=since, request_type=request_type)
+
+    @mcp.tool(annotations=READ)
+    def get_webhook_activity(ctx: Context, webhook_token: str, since: int = 0, limit: int = 100) -> dict:
+        """Read durable receipt and mutation history with a cursor. Bodies and secrets are excluded."""
+        return store(ctx).activity(webhook_token, since=since, limit=limit)
 
     @mcp.tool(annotations=READ)
     def search_requests(ctx: Context, webhook_token: str, query: str,

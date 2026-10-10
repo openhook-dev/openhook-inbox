@@ -48,6 +48,7 @@ async def register(store: Store, provider: str, access_token: str, events: list[
     inbox = store.create(name=f"{provider}: {target or 'events'}"[:60], config={"enabled": False})
     remote_id = None
     secret = secrets.token_urlsafe(32)
+    store.record_activity(inbox["token"], "subscription.registration_started", {"provider": provider})
     try:
         async with httpx.AsyncClient(timeout=20, follow_redirects=False, trust_env=False) as client:
             if provider == "github":
@@ -79,13 +80,15 @@ async def register(store: Store, provider: str, access_token: str, events: list[
             store.attach_subscription(inbox["token"], provider, remote_id, target)
         return {**store.info(inbox["token"]), "events": events,
                 "cleanup": "Unregister with unregister_webhook before the inbox expires. Provider subscriptions do not automatically expire."}
-    except BaseException:
+    except BaseException as exc:
+        store.record_activity(inbox["token"], "subscription.registration_failed", {"provider": provider, "error_type": type(exc).__name__})
         # Credentials are used only for this call, including best-effort rollback.
         if remote_id:
             try:
                 await remove(provider, access_token, remote_id, target)
-            except Exception:
-                pass
+                store.record_activity(inbox["token"], "subscription.rollback_removed", {"provider": provider, "external_id": remote_id})
+            except Exception as cleanup_error:
+                store.record_activity(inbox["token"], "subscription.rollback_failed", {"provider": provider, "error_type": type(cleanup_error).__name__})
         store.delete(inbox["token"])
         raise
 
