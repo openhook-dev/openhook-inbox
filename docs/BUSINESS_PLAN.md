@@ -91,6 +91,7 @@ listener behavior throughout this work.
 - [ ] Real Stripe sandbox lifecycle and dedicated GitHub OAuth verification.
 - [x] Hosted dashboard, onboarding, and conditional pricing implemented.
 - [x] Open-source acquisition assets and local browser validation.
-- [ ] Hosted foundation merged/deployed; remote release checks.
+- [x] Hosted foundation merged/deployed in PR #2 (0e87101); 57 tests and live
+  capture/MCP, cookie isolation, response sandbox, and existing-data checks passed.
 - [ ] Live merchant activation and launch.
 - [ ] First paying customers and measured retention.
