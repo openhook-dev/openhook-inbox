@@ -58,6 +58,8 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     billing_ready = bool(settings.billing_enabled and settings.billing_configured
                          and settings.github_client_id and settings.github_client_secret)
     values["billing_provider"] = "Polar" if settings.billing_provider == "polar" else "Stripe"
+    values["support_link"] = (f'<a href="mailto:{escape(settings.support_email, quote=True)}">Support</a>'
+                              if settings.support_email else '')
     values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
     values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
     values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account">Get started with Pro →</a></p>'

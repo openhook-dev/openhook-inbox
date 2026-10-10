@@ -75,6 +75,7 @@ remain available. Leave `OPENHOOK_HOSTED=true` after onboarding customers.
 
 | Variable | Purpose |
 | --- | --- |
+| `OPENHOOK_SUPPORT_EMAIL` | Monitored support address linked in the site footer |
 | `OPENHOOK_HOSTED=true` | Enable accounts and hosted ownership policy |
 | `OPENHOOK_GITHUB_CLIENT_ID` | Dedicated GitHub OAuth application's client ID |
 | `OPENHOOK_GITHUB_CLIENT_SECRET` | Its secret; never commit it |
