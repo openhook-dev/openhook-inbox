@@ -32,8 +32,11 @@ Health reports configured listeners, not independent proof of public reachabilit
 
 Events are committed before an HTTP success response. WAL permits concurrent
 SMTP, HTTP, and MCP access. Inboxes expire within seven days; cleanup runs every
-minute, and every creation also removes expired inboxes. Each inbox keeps its
-latest 1000 events.
+minute, and every creation also removes expired inboxes. Each inbox accepts up to
+1000 retained events. At capacity, new captures fail instead of evicting earlier
+accepted events. Receipts and mutations write durable activity records in the
+same transaction. Minimal history remains after payload deletion and expiry;
+it excludes bodies, notes, and secrets.
 
 Use SQLite's backup API for a consistent database copy. Copying only the live
 .sqlite3 file can miss transactions in its WAL. Keep backups private; they

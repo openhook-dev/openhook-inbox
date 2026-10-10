@@ -31,16 +31,32 @@ The HTTP process must be running to receive HTTP callbacks.
 Public capture addresses cannot read or delete events. Rotate a compromised
 management token with `rotate_webhook_token`. Rotation preserves public addresses.
 
-Inboxes expire within seven days. Each retains its latest 1000 events.
+Inboxes expire within seven days. Each accepts up to 1000 retained events.
+When full, capture returns a capacity error instead of evicting accepted events.
 Individual events are limited to 1 MB. Email and DNS addresses are returned only
 when their listeners are configured.
 
 ## Native tools
 
-26 tools cover inbox creation, response configuration, token rotation,
+27 tools cover inbox creation, response configuration, token rotation,
 event inspection, literal search, notes, JSON/CSV export, exact-byte download,
 HTTP/email waits, test events, link/code extraction, callback checking,
-delayed responses, provider subscriptions, and deletion. See [the generated tool reference](docs/TOOLS.md).
+delayed responses, provider subscriptions, deletion, and activity history. See [the generated tool reference](docs/TOOLS.md).
+
+## Durable activity history
+
+Every accepted HTTP, email, and DNS receipt and successful local mutation writes
+an activity record in the same transaction as its state change. Duplicate source
+deliveries also receive records. History includes notes, response settings,
+delayed responses, token rotation, subscriptions, deletion, and expiry.
+Read it with `get_webhook_activity` or POST `/api/call` with `action: activity`,
+the private `token`, a `since` cursor, and a bounded `limit`.
+
+Minimal activity metadata remains after payload deletion and expiry. It excludes
+private tokens, provider credentials, bodies, notes, and signing secrets.
+Existing events are marked as imported; their previous mutation history cannot
+be reconstructed. The application appends records; this is not a cryptographic
+tamper-proof log. Rejected captures are not stored as accepted events.
 
 Set `verification_secret` through `configure_webhook` to require SHA256 HMAC
 on raw HTTP bodies. Openhook accepts `X-Openhook-Signature: sha256=…` and
@@ -97,7 +113,10 @@ provisioning is not included.
 ## Verify
 
 The website uses a centered text interface and the self-hosted Paper Mono
-v1.000 variable font. Its webhook demo creates an inbox, sends a real callback,
+v1.000 variable font and the approved Openhook logo. Public pages and live tool
+schemas are rendered in HTML before JavaScript runs. Agent entry points include
+`/agents.md`, `/skill.md`, `/llms.txt`, `/llms-full.txt`, `/docs.md`, and
+`/openapi.json`. Its webhook demo creates an inbox, sends a real callback,
 and reads the captured event. Refresh asset versions after editing `web/`:
 
 ```sh

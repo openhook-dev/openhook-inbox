@@ -82,7 +82,21 @@ class Store:
                     content_type TEXT NOT NULL,
                     FOREIGN KEY (event) REFERENCES events(id) ON DELETE CASCADE
                 );
+                CREATE TABLE IF NOT EXISTS activity (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    inbox TEXT NOT NULL, event TEXT,
+                    created REAL NOT NULL, action TEXT NOT NULL,
+                    actor TEXT NOT NULL, details TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS activity_inbox_sequence ON activity(inbox, sequence);
+                CREATE INDEX IF NOT EXISTS activity_event ON activity(event);
             """)
+        # Preserve existing payloads; do not invent a pre-release mutation trail.
+        with self.connection(write=True) as db:
+            for row in db.execute("SELECT id,created FROM inboxes WHERE NOT EXISTS (SELECT 1 FROM activity WHERE activity.inbox=inboxes.id)").fetchall():
+                self._audit(db, row["id"], "inbox.imported", actor="system", created=row["created"])
+            for row in db.execute("SELECT id,inbox,created,kind FROM events WHERE NOT EXISTS (SELECT 1 FROM activity WHERE activity.event=events.id)").fetchall():
+                self._audit(db, row["inbox"], "event.imported", row["id"], {"type": row["kind"]}, actor="system", created=row["created"])
 
     @contextmanager
     def connection(self, write: bool = False):
@@ -113,7 +127,47 @@ class Store:
 
     def cleanup(self) -> int:
         with self.connection(write=True) as db:
-            return db.execute("DELETE FROM inboxes WHERE expires <= ?", (time.time(),)).rowcount
+            return self._expire(db)
+
+    def _audit(self, db, inbox: str, action: str, event: str | None = None, details: dict | None = None,
+               *, actor: str = "management-token", created: float | None = None):
+        # No foreign key: minimal history survives intentional payload deletion.
+        # Callers allowlist details; never copy secrets, bodies, notes or config.
+        db.execute("INSERT INTO activity(inbox,event,created,action,actor,details) VALUES(?,?,?,?,?,?)",
+                   (inbox, event, created if created is not None else time.time(), action, actor, json.dumps(details or {})))
+
+    def _delete_events(self, db, inbox: str, request_id: str | None = None, *, reason: str = "event.deleted", actor: str = "management-token") -> int:
+        where = "inbox=?" + (" AND id=?" if request_id else "")
+        args = [inbox, request_id] if request_id else [inbox]
+        for row in db.execute(f"SELECT id,kind FROM events WHERE {where}", args).fetchall():
+            self._audit(db, inbox, reason, row["id"], {"type": row["kind"]}, actor=actor)
+        return db.execute(f"DELETE FROM events WHERE {where}", args).rowcount
+
+    def _expire(self, db) -> int:
+        rows = db.execute("SELECT id FROM inboxes WHERE expires <= ?", (time.time(),)).fetchall()
+        for row in rows:
+            count = self._delete_events(db, row["id"], reason="event.expired", actor="system")
+            self._audit(db, row["id"], "inbox.expired", details={"deleted_events": count}, actor="system")
+            db.execute("DELETE FROM inboxes WHERE id=?", (row["id"],))
+        return len(rows)
+
+    def activity(self, token: str, *, since: int = 0, limit: int = 100) -> dict:
+        if since < 0 or not 1 <= limit <= 1000:
+            raise InboxError("Invalid activity cursor or limit.")
+        with self.connection() as db:
+            inbox = self._row(db, token)
+            rows = db.execute("SELECT * FROM activity WHERE inbox=? AND sequence>? ORDER BY sequence LIMIT ?",
+                              (inbox["id"], since, limit + 1)).fetchall()
+        records = [{"sequence": row["sequence"], "inbox_id": row["inbox"], "event_id": row["event"],
+                    "created_at": timestamp(row["created"]), "action": row["action"], "actor": row["actor"],
+                    "details": json.loads(row["details"])} for row in rows[:limit]]
+        return {"activity": records, "next_since": records[-1]["sequence"] if records else since,
+                "has_more": len(rows) > limit}
+
+    def record_activity(self, token: str, action: str, details: dict) -> None:
+        with self.connection(write=True) as db:
+            inbox = self._row(db, token)
+            self._audit(db, inbox["id"], action, details=details, actor="provider")
 
     def create(self, expiry: int = 604800, name: str = "", config: dict | None = None) -> dict:
         if not 60 <= expiry <= 604800:
@@ -125,12 +179,13 @@ class Store:
         identifier = str(uuid4())
         now = time.time()
         with self.connection(write=True) as db:
-            db.execute("DELETE FROM inboxes WHERE expires <= ?", (now,))
+            self._expire(db)
             count = db.execute("SELECT COUNT(*) FROM inboxes").fetchone()[0]
             if count >= self.settings.inbox_limit:
                 raise InboxError("Inbox capacity reached. Try again later.", 429)
             db.execute("INSERT INTO inboxes(id,key_hash,created,expires,config,name) VALUES(?,?,?,?,?,?)",
                        (identifier, token_hash(key), now, now + expiry, json.dumps(options), name))
+            self._audit(db, identifier, "inbox.created", details={"expiry_seconds": expiry}, actor="client")
         return self.info(key)
 
     def _info(self, db, row, token: str) -> dict:
@@ -166,11 +221,14 @@ class Store:
             row = self._row(db, token)
             config = ResponseSettings.model_validate({**json.loads(row["config"]), **changes}).model_dump()
             db.execute("UPDATE inboxes SET config=? WHERE id=?", (json.dumps(config), row["id"]))
+            self._audit(db, row["id"], "inbox.configured", details={"fields": sorted(changes)})
         return self.info(token)
 
     def delete(self, token: str) -> dict:
         with self.connection(write=True) as db:
             row = self._row(db, token)
+            count = self._delete_events(db, row["id"])
+            self._audit(db, row["id"], "inbox.deleted", details={"deleted_events": count})
             db.execute("DELETE FROM inboxes WHERE id=?", (row["id"],))
         return {"deleted": True}
 
@@ -179,6 +237,7 @@ class Store:
         with self.connection(write=True) as db:
             row = self._row(db, token)
             db.execute("UPDATE inboxes SET key_hash=? WHERE id=?", (token_hash(new_token), row["id"]))
+            self._audit(db, row["id"], "inbox.token_rotated")
         return self.info(new_token)
 
     def capture(self, identifier: str, body: bytes, *, kind: str = "web", method: str = "POST",
@@ -202,17 +261,22 @@ class Store:
             if source_id:
                 existing = db.execute("SELECT sequence,payload FROM events WHERE inbox=? AND source_id=?", (identifier, source_id)).fetchone()
                 if existing:
+                    self._audit(db, identifier, "event.duplicate_received", json.loads(existing["payload"])["uuid"],
+                                {"type": kind, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}, actor=kind)
                     return {**json.loads(existing["payload"]), "sorting": existing["sequence"], "duplicate": True}
             pages = db.execute("PRAGMA page_count").fetchone()[0]
             free = db.execute("PRAGMA freelist_count").fetchone()[0]
             page_size = db.execute("PRAGMA page_size").fetchone()[0]
             if (pages - free) * page_size >= self.settings.storage_limit or shutil.disk_usage(self.settings.database).free < 524_288_000:
                 raise InboxError("Storage capacity reached. Try again after events expire.", 429)
+            if db.execute("SELECT COUNT(*) FROM events WHERE inbox=?", (identifier,)).fetchone()[0] >= self.settings.event_limit:
+                raise InboxError("Inbox event capacity reached. Export or delete events before sending more.", 429)
             cursor = db.execute("INSERT INTO events(id,inbox,created,kind,payload,source_id) VALUES(?,?,?,?,?,?)",
                                 (event["uuid"], row["id"], now, kind, json.dumps(event), source_id))
             event["sorting"] = cursor.lastrowid
-            db.execute("DELETE FROM events WHERE inbox=? AND sequence NOT IN (SELECT sequence FROM events WHERE inbox=? ORDER BY sequence DESC LIMIT ?)",
-                       (identifier, identifier, self.settings.event_limit))
+            self._audit(db, identifier, "event.received", event["uuid"],
+                        {"type": kind, "method": method, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(),
+                         "test_event": bool((extra or {}).get("test_event"))}, actor=kind, created=now)
         return event
 
     def requests(self, token: str, *, limit: int = 50, page: int = 1, since: int = 0,
@@ -274,15 +338,13 @@ class Store:
                 raise InboxError("Event not found in this inbox.", 404)
             payload = {**json.loads(event["payload"]), "note": note}
             db.execute("UPDATE events SET payload=? WHERE id=?", (json.dumps(payload), request_id))
+            self._audit(db, row["id"], "event.note_updated", request_id, {"note_characters": len(note)})
         return self.request(token, request_id)
 
     def delete_requests(self, token: str, request_id: str | None = None) -> dict:
         with self.connection(write=True) as db:
             row = self._row(db, token)
-            if request_id:
-                count = db.execute("DELETE FROM events WHERE inbox=? AND id=?", (row["id"], request_id)).rowcount
-            else:
-                count = db.execute("DELETE FROM events WHERE inbox=?", (row["id"],)).rowcount
+            count = self._delete_events(db, row["id"], request_id)
         return {"deleted": count}
 
     async def wait(self, token: str, timeout_seconds: float = 60, request_type: str | None = None,
@@ -326,6 +388,15 @@ class Store:
             inbox = self._row(db, token)
             db.execute("INSERT INTO subscriptions(inbox,provider,external_id,target) VALUES(?,?,?,?)",
                        (inbox["id"], provider, external_id, target))
+            self._audit(db, inbox["id"], "subscription.registered", details={"provider": provider, "external_id": external_id}, actor="provider")
+
+    def detach_subscription(self, token: str) -> None:
+        with self.connection(write=True) as db:
+            inbox = self._row(db, token)
+            row = db.execute("SELECT provider,external_id FROM subscriptions WHERE inbox=?", (inbox["id"],)).fetchone()
+            if row:
+                self._audit(db, inbox["id"], "subscription.removed", details=dict(row), actor="provider")
+                db.execute("DELETE FROM subscriptions WHERE inbox=?", (inbox["id"],))
 
     def verify(self, identifier: str, body: bytes, headers: dict) -> None:
         config = self.public_info(identifier)
@@ -362,11 +433,15 @@ class Store:
             raise InboxError("Invalid webhook signature.", 401)
 
     def set_response(self, token: str, request_id: str, status: int, content: str, content_type: str) -> dict:
-        self.request(token, request_id)
         settings = ResponseSettings(default_status=status, default_content=content, default_content_type=content_type)
         with self.connection(write=True) as db:
+            inbox = self._row(db, token)
+            if not db.execute("SELECT 1 FROM events WHERE inbox=? AND id=?", (inbox["id"], request_id)).fetchone():
+                raise InboxError("Event not found in this inbox.", 404)
             db.execute("INSERT OR REPLACE INTO responses(event,status,content,content_type) VALUES(?,?,?,?)",
                        (request_id, settings.default_status, settings.default_content, settings.default_content_type))
+            self._audit(db, inbox["id"], "event.response_set", request_id,
+                        {"status": status, "content_type": content_type, "content_characters": len(content)})
         return {"responded": True, "request_id": request_id}
 
     def response(self, request_id: str) -> dict | None:

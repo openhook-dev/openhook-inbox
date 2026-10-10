@@ -1,0 +1,42 @@
+<div class="text-home">
+  <section class="intro" aria-labelledby="intro-title">
+    <h1 id="intro-title">An inbox for your agent.</h1>
+    <p>Give your agent a webhook URL.<br>Let it continue when the event arrives.</p>
+    <div class="actions"><a href="/app">Create an inbox</a><a href="/connect">Connect your agent</a></div>
+    <p class="quiet">Open source. No account needed.</p>
+  </section>
+  <section class="home-section" aria-labelledby="why-title">
+    <h2 id="why-title">Test locally. Receive from anywhere.</h2>
+    <p>Your agent is building a webhook integration on your laptop. GitHub or Stripe needs a public URL to send a test event to.</p>
+    <p>Openhook gives you that URL, keeps the payload, and lets your agent inspect it or forward it to your local app. No open port on your laptop.</p>
+    <p class="quiet"><a href="/agents#local-testing">See the local testing workflow</a></p>
+  </section>
+  <section class="home-section" aria-labelledby="connect-title">
+    <h2 id="connect-title">Add Openhook to your agent.</h2>
+    <pre id="quick-command">claude mcp add --transport http openhook {{origin}}/mcp</pre>
+    <button id="quick-connect" class="button" hidden>Copy command</button>
+    <p class="quiet"><a href="/connect">Setup for Cursor, VS Code, and local clients</a></p>
+  </section>
+  <section class="home-section" aria-labelledby="flow-title">
+    <h2 id="flow-title">A small loop.</h2>
+    <ol class="plain-steps"><li>Create an inbox.</li><li>Give its URL to the service sending the event.</li><li>Your agent reads what arrived and continues.</li></ol>
+    <p>Test a payment callback. React to a GitHub push. Wait for a job to finish.</p>
+    <p>A running agent can wait through MCP. A local listener can forward events or wake a configured OpenClaw agent.</p>
+    <p class="quiet"><a href="/agents#notifications">How agent notifications work</a></p>
+  </section>
+  <section class="home-section" aria-labelledby="try-title">
+    <h2 id="try-title">Try a real webhook.</h2>
+    <p>Create an inbox, send a request, and see what arrived.</p>
+    <button id="send-callback" class="button" hidden>Send a webhook</button>
+    <noscript><p><a href="/agents.md">Use the REST quickstart without JavaScript</a>.</p></noscript>
+    <p id="callback-status" class="quiet" role="status" aria-live="polite"></p>
+    <pre id="callback-body" hidden></pre>
+    <button id="open-callback" class="button" hidden>Open this inbox</button>
+  </section>
+  <section class="home-section" aria-labelledby="host-title">
+    <h2 id="host-title">Hosted here. Or by you.</h2>
+    <p>Openhook receives and stores its own events. Use this service or run it on your server. Receive email too.</p>
+    <p><a href="https://github.com/openhook-dev/openhook-inbox">Source on GitHub</a></p>
+    <p class="quiet">Inboxes last up to seven days. Keep your reading key private.</p>
+  </section>
+</div>

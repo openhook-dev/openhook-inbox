@@ -47,3 +47,20 @@ The landing, inbox, setup, and documentation contain only text and native form
 controls. Desktop and 375px phone checks confirm no horizontal overflow. Both
 themes and keyboard-operated callback capture work. The captured event opens
 in the inspector with endpoint details; response settings remain accessible.
+
+## Activity and discovery release checks
+
+Validated locally on 2026-10-10:
+
+- All 27 native tests pass, including migration of existing events, atomic
+  activity writes, retained deletion history, capacity rejection, and MCP reads.
+- Provider removal tests prove a failed remote removal preserves the inbox and
+  subscription, while a successful removal keeps its audit after inbox deletion.
+- Generated docs and JavaScript syntax checks pass. The source distribution and
+  wheel build successfully and include the public templates and agent guides.
+- The browser demo captures a real callback and the inspector reads its activity.
+  Demo callbacks omit browser credentials so ambient cookies are not captured.
+- At 375px, documentation has no horizontal overflow and tool search isolates
+  `get_webhook_activity`.
+
+These are local checks; the dated public release evidence above is separate.
