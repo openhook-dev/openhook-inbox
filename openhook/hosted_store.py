@@ -14,7 +14,7 @@ PRO_RETAINED_BYTES = 1_073_741_824
 PRO_RETENTION_SECONDS = 30 * 86400
 
 
-def initialize(db, *, stripe_live=False):
+def initialize(db, *, stripe_live=False, billing_provider="stripe", polar_sandbox=True):
     db.executescript("""
         CREATE TABLE IF NOT EXISTS accounts (
             id TEXT PRIMARY KEY, github_id INTEGER NOT NULL UNIQUE,
@@ -71,10 +71,33 @@ def initialize(db, *, stripe_live=False):
             subscription_id TEXT NOT NULL, period_end REAL NOT NULL,
             amount_paid INTEGER NOT NULL, currency TEXT NOT NULL, created REAL NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS polar_orders (
+            id TEXT PRIMARY KEY, account TEXT NOT NULL REFERENCES accounts(id),
+            subscription_id TEXT NOT NULL, period_end REAL NOT NULL,
+            amount_paid INTEGER NOT NULL, refunded INTEGER NOT NULL DEFAULT 0,
+            updated REAL NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS polar_revocations (
+            subscription_id TEXT PRIMARY KEY, account TEXT NOT NULL REFERENCES accounts(id)
+        );
+        CREATE TABLE IF NOT EXISTS billing_runtime (
+            id INTEGER PRIMARY KEY CHECK(id=1), provider TEXT NOT NULL, sandbox INTEGER NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS hosted_runtime (
             id INTEGER PRIMARY KEY CHECK(id=1), stripe_live INTEGER NOT NULL
         );
     """)
+    if billing_provider not in {"stripe", "polar"}:
+        raise InboxError("Unknown billing provider.", 503)
+    sandbox = polar_sandbox if billing_provider == "polar" else not stripe_live
+    previous = db.execute('SELECT provider,sandbox FROM billing_runtime WHERE id=1').fetchone()
+    has_billing = db.execute("SELECT 1 FROM hosted_entitlements WHERE customer_id IS NOT NULL OR paid_until>0 LIMIT 1").fetchone()
+    has_billing = has_billing or db.execute("SELECT 1 FROM billing_attempts LIMIT 1").fetchone()
+    if has_billing and ((previous and (previous['provider'], bool(previous['sandbox'])) != (billing_provider, sandbox))
+                        or (not previous and billing_provider != 'stripe')):
+        raise InboxError("Billing provider or environment differs from existing accounts. Use a separate database.", 503)
+    db.execute('INSERT INTO billing_runtime VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET provider=excluded.provider,sandbox=excluded.sandbox',
+               (billing_provider, int(sandbox)))
     current = db.execute('SELECT stripe_live FROM hosted_runtime WHERE id=1').fetchone()
     if current and bool(current['stripe_live']) != stripe_live and db.execute('SELECT 1 FROM paid_invoices LIMIT 1').fetchone():
         raise InboxError('Payment mode differs from the invoice ledger. Use a separate database for Stripe sandbox tests.', 503)

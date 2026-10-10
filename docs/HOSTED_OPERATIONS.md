@@ -5,7 +5,73 @@ and self-hostable. Do not enable live checkout until the launch checks below pas
 The application adds tables alongside existing inboxes; it does not convert free
 inboxes or change their expiry.
 
-## Configuration
+## Polar (openhook.dev)
+
+Set `OPENHOOK_BILLING_PROVIDER=polar`. The default remains `stripe` for existing
+self-hosted installations. Both adapters share the account policy, but billing
+accounts and checkout attempts prevent changing provider or payment environment
+on an existing database. Use a separate sandbox database.
+
+| Variable | Purpose |
+| --- | --- |
+| `OPENHOOK_POLAR_ACCESS_TOKEN` | Dedicated Openhook organization token; never commit it |
+| `OPENHOOK_POLAR_WEBHOOK_SECRET` | Standard Webhooks secret from a newly created endpoint |
+| `OPENHOOK_POLAR_ORGANIZATION_ID` | Owning Polar organization |
+| `OPENHOOK_POLAR_PRODUCT_ID` | One recurring monthly Pro product, no trial |
+| `OPENHOOK_POLAR_PRICE_ID` | Its single active fixed USD 1900 price |
+| `OPENHOOK_POLAR_SANDBOX=true` | Use sandbox API; set false only for the production organization |
+
+The common hosted, GitHub and billing gate variables below also apply. Required
+API scopes are organizations:read, products:read, customers:read,
+subscriptions:read, orders:read, checkouts:read/write and customer_sessions:write.
+Use a separate setup token for webhooks:read/write. Track token expiration and
+rotate before expiry; an expired token blocks checkout and payment reconciliation.
+
+Configure **exclusive** tax on the price or organization. Keep one price, no
+trials, discounts, seats, usage billing or customer plan changes. The application
+checks the product contract before creating checkout, and checks its returned
+price/currency/tax behavior before exposing the URL. Polar must approve the
+organization and payout setup before new sales can be enabled.
+
+Create a raw webhook at `https://YOUR_HOST/billing/polar` with API version
+**2026-10**, subscribing to `order.paid`, `order.refunded`, and
+`subscription.revoked`. New endpoints use Standard Webhooks signature verification;
+legacy secrets created before September 8, 2026 are not supported. Outbound API
+requests also pin version 2026-10. Plan a tested API version upgrade before Polar
+retires it. Never publish the webhook secret or a pre-authenticated portal URL.
+
+Checkout binds the authenticated account UUID as `external_customer_id` and
+`metadata.openhook_account`. Direct dashboard checkout links do not carry this
+binding and must not be advertised. Keep the product private and send buyers
+through `/account`. The customer portal provides invoices and cancellation.
+
+Only the canonical paid order's positive, non-prorated configured-price line can
+extend access. Its own `start_timestamp` and `end_timestamp` define the paid period;
+a subscription's mutable current period never grants time. Failed payment,
+trial, zero-value order, and checkout return cannot grant access. Ordinary
+cancellation retains paid time. A full refund removes that order's entitlement;
+a partial refund retains it. Explicit subscription revocation excludes all orders
+for that subscription. Terminal ledger entries prevent late or concurrent paid
+deliveries from restoring refunded/revoked access. Disputes still need operator
+review. Existing payload retention continues after revocation.
+
+Checkout creation is claimed in SQLite before a provider POST. Concurrent requests
+cannot create multiple sessions. Known open sessions are reused; expired sessions
+can be replaced. An ambiguous provider failure deliberately stays pending. Inspect
+Polar's checkout list for `metadata.openhook_attempt` matching `billing_attempts.identifier`.
+After verifying account, product, status and URL, link the actual session ID and URL
+to the pending row. Only remove a pending row once you have confirmed no checkout
+was created, or the identified session has expired. Never blindly retry a POST or
+re-run a charge to repair entitlement state.
+
+Before enabling sales, complete a provider sandbox payment and verify the signed
+webhook, account grant, persistent inbox capture, portal cancellation, renewal,
+refund and revocation. The local tests mock provider HTTP; they are not a real
+payment-flow test. Verify the actual GitHub callback and production account review.
+Pause new sales with `OPENHOOK_BILLING_ENABLED=false`; webhooks and management
+remain available. Leave `OPENHOOK_HOSTED=true` after onboarding customers.
+
+## Stripe configuration (alternative provider)
 
 | Variable | Purpose |
 | --- | --- |
@@ -13,9 +79,9 @@ inboxes or change their expiry.
 | `OPENHOOK_GITHUB_CLIENT_ID` | Dedicated GitHub OAuth application's client ID |
 | `OPENHOOK_GITHUB_CLIENT_SECRET` | Its secret; never commit it |
 | `OPENHOOK_BILLING_ENABLED=true` | Explicit new-checkout activation gate |
-| `OPENHOOK_STRIPE_SECRET_KEY` | Dedicated Stripe test secret first |
+| `OPENHOOK_STRIPE_SECRET_KEY` | Dedicated restricted Stripe key where possible; sandbox first |
 | `OPENHOOK_STRIPE_WEBHOOK_SECRET` | Endpoint signing secret |
-| `OPENHOOK_STRIPE_PRICE_ID` | Active recurring price, USD 1900, monthly, interval count 1 |
+| `OPENHOOK_STRIPE_PRICE_ID` | Active USD 1900 monthly price, interval count 1, licensed usage, per-unit billing, exclusive tax, no quantity transformation |
 | `OPENHOOK_STRIPE_LIVE=false` | Require test objects; change only for an approved live launch |
 | `OPENHOOK_STORAGE_LIMIT` | Global SQLite used-page capacity in bytes; default 1 GiB |
 
@@ -40,6 +106,10 @@ or additional prices without extending and testing this policy.
 Checkout requires Stripe Tax and collection of billing addresses and terms
 acceptance. Configure the seller, tax registrations, public business details,
 customer support, and terms/privacy links in the dedicated Stripe account first.
+Verify Tax settings are active and that registrations match the seller's confirmed
+obligations. `automatic_tax=true` alone does not collect tax where no active
+registration applies. See [the Stripe review](STRIPE_REVIEW.md) for the initial
+sandbox audit and remaining integration work.
 Configure its customer portal for payment-method updates, invoices, and
 cancellation **at the end of the paid period**. Disable plan changes and quantity
 changes. No application route lets an agent key manage billing.

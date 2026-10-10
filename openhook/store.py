@@ -88,7 +88,8 @@ class Store:
                 CREATE INDEX IF NOT EXISTS activity_event ON activity(event);
             """)
             if settings.hosted_enabled:
-                hosted_store.initialize(db, stripe_live=settings.stripe_live)
+                hosted_store.initialize(db, stripe_live=settings.stripe_live, billing_provider=settings.billing_provider,
+                                        polar_sandbox=settings.polar_sandbox)
             elif db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hosted_inboxes'").fetchone():
                 if db.execute("SELECT 1 FROM hosted_inboxes LIMIT 1").fetchone():
                     raise InboxError("This database has owned inboxes. Keep hosted mode enabled to enforce their access and limits.", 503)
