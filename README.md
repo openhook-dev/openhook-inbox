@@ -6,6 +6,18 @@ what arrived, and continue the task.
 Openhook operates its own HTTP, SMTP, and authoritative DNS capture servers.
 Events live in its SQLite database. No external webhook service is involved.
 
+## Try it or host it
+
+[Create a free inbox](https://openhook.dev/app) without an account, or
+[connect your agent](https://openhook.dev/connect). Optional hosted Pro is being
+prepared for persistent inboxes and account recovery; see the current
+[availability and plans](https://openhook.dev/pricing). Self-hosting remains MIT
+licensed with no Openhook account or subscription.
+
+Practical recipes: [local forwarding](docs/recipes/local-handler.md),
+[GitHub push callbacks](docs/recipes/github-push.md), and
+[Stripe test callbacks](docs/recipes/stripe-test.md).
+
 ## Run it
 
 ```sh
@@ -31,14 +43,14 @@ The HTTP process must be running to receive HTTP callbacks.
 Public capture addresses cannot read or delete events. Rotate a compromised
 management token with `rotate_webhook_token`. Rotation preserves public addresses.
 
-Inboxes expire within seven days. Each accepts up to 1000 retained events.
+Anonymous inboxes expire within seven days. Each accepts up to 1000 retained events.
 When full, capture returns a capacity error instead of evicting accepted events.
 Individual events are limited to 1 MB. Email and DNS addresses are returned only
 when their listeners are configured.
 
 ## Native tools
 
-27 tools cover inbox creation, response configuration, token rotation,
+29 tools cover inbox creation, response configuration, token rotation,
 event inspection, literal search, notes, JSON/CSV export, exact-byte download,
 HTTP/email waits, test events, link/code extraction, callback checking,
 delayed responses, provider subscriptions, deletion, and activity history. See [the generated tool reference](docs/TOOLS.md).
@@ -132,3 +144,13 @@ Tests exercise native HTTP capture, private-token isolation, signature checks,
 idempotency, persistence, expiry, MCP, and real local SMTP and UDP/TCP DNS.
 
 MIT licensed. Required third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Hosted development and contributing
+
+Accounts and billing are disabled by default. The optional hosted edition adds
+GitHub identity, revocable agent keys, owned inboxes, and verified paid-invoice
+entitlements. See [hosted operations](docs/HOSTED_OPERATIONS.md) for configuration,
+limits, test-mode requirements, and launch dependencies. No real merchant or paid
+launch is implied by the presence of this code.
+
+See [contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md).

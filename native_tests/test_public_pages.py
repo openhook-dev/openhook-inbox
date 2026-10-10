@@ -67,3 +67,16 @@ def test_agent_discovery_is_consistent_with_runtime(tmp_path):
         sitemap = ElementTree.fromstring(client.get("/sitemap.xml").text)
         urls = [node.text for node in sitemap.iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
         assert urls == ["http://testserver" + path for path in PUBLIC_PATHS]
+
+
+def test_pricing_does_not_claim_checkout_until_fully_configured(tmp_path):
+    from dataclasses import replace
+    settings=Settings(database=str(tmp_path/'pricing.sqlite3'),hosted_enabled=True)
+    for available in (False,True):
+        configured=replace(settings,billing_enabled=available,stripe_secret_key='sk_test',stripe_webhook_secret='whsec',
+                           stripe_price_id='price',github_client_id='client',github_client_secret='secret')
+        with TestClient(create_app(configured)) as client:
+            text=client.get('/pricing').text
+            assert ('Get started with Pro' in text)==available
+            assert ('Paid checkout is not available yet' in text)==(not available)
+            assert 'no-store' in client.get('/account').headers['cache-control']

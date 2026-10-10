@@ -24,12 +24,8 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 from openhook.settings import Settings
-
-
-class InboxError(ValueError):
-    def __init__(self, message: str, status: int = 400):
-        super().__init__(message)
-        self.status = status
+from openhook.errors import InboxError
+from openhook import hosted_store
 
 
 class ResponseSettings(BaseModel):
@@ -91,6 +87,11 @@ class Store:
                 CREATE INDEX IF NOT EXISTS activity_inbox_sequence ON activity(inbox, sequence);
                 CREATE INDEX IF NOT EXISTS activity_event ON activity(event);
             """)
+            if settings.hosted_enabled:
+                hosted_store.initialize(db, stripe_live=settings.stripe_live)
+            elif db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hosted_inboxes'").fetchone():
+                if db.execute("SELECT 1 FROM hosted_inboxes LIMIT 1").fetchone():
+                    raise InboxError("This database has owned inboxes. Keep hosted mode enabled to enforce their access and limits.", 503)
         # Preserve existing payloads; do not invent a pre-release mutation trail.
         with self.connection(write=True) as db:
             for row in db.execute("SELECT id,created FROM inboxes WHERE NOT EXISTS (SELECT 1 FROM activity WHERE activity.inbox=inboxes.id)").fetchall():
@@ -121,6 +122,9 @@ class Store:
             if not identifier.startswith("ohk_") or len(identifier) > 100:
                 raise InboxError("Use the private management token returned by create_webhook, not the public capture URL.", 401)
             row = db.execute("SELECT * FROM inboxes WHERE key_hash=?", (token_hash(identifier),)).fetchone()
+            if row is None and self.settings.hosted_enabled:
+                row = db.execute("SELECT i.* FROM inboxes i JOIN inbox_access a ON a.inbox=i.id "
+                                 "WHERE a.key_hash=? AND a.expires>?", (token_hash(identifier), time.time())).fetchone()
         if not row or row["expires"] <= time.time():
             raise InboxError("Inbox not found or expired.", 404)
         return row
@@ -144,6 +148,8 @@ class Store:
         return db.execute(f"DELETE FROM events WHERE {where}", args).rowcount
 
     def _expire(self, db) -> int:
+        if self.settings.hosted_enabled:
+            hosted_store.expire_payloads(db, self._audit, time.time())
         rows = db.execute("SELECT id FROM inboxes WHERE expires <= ?", (time.time(),)).fetchall()
         for row in rows:
             count = self._delete_events(db, row["id"], reason="event.expired", actor="system")
@@ -169,7 +175,7 @@ class Store:
             inbox = self._row(db, token)
             self._audit(db, inbox["id"], action, details=details, actor="provider")
 
-    def create(self, expiry: int = 604800, name: str = "", config: dict | None = None) -> dict:
+    def create(self, expiry: int = 604800, name: str = "", config: dict | None = None, *, account: str | None = None) -> dict:
         if not 60 <= expiry <= 604800:
             raise InboxError("Expiry must be between 60 seconds and seven days.")
         if len(name) > 60:
@@ -180,11 +186,20 @@ class Store:
         now = time.time()
         with self.connection(write=True) as db:
             self._expire(db)
+            if account:
+                if not self.settings.hosted_enabled:
+                    raise InboxError("Hosted accounts are not enabled.", 404)
+                entitlement = hosted_store.require_paid(db, account, now)
+                if db.execute("SELECT COUNT(*) FROM hosted_inboxes WHERE account=?", (account,)).fetchone()[0] >= hosted_store.PRO_INBOXES:
+                    raise InboxError("Hosted inbox limit reached. Delete an unused inbox first.", 429)
+                expiry = entitlement["paid_until"] + hosted_store.PRO_RETENTION_SECONDS - now
             count = db.execute("SELECT COUNT(*) FROM inboxes").fetchone()[0]
             if count >= self.settings.inbox_limit:
                 raise InboxError("Inbox capacity reached. Try again later.", 429)
             db.execute("INSERT INTO inboxes(id,key_hash,created,expires,config,name) VALUES(?,?,?,?,?,?)",
                        (identifier, token_hash(key), now, now + expiry, json.dumps(options), name))
+            if account:
+                db.execute("INSERT INTO hosted_inboxes(inbox,account) VALUES(?,?)", (identifier, account))
             self._audit(db, identifier, "inbox.created", details={"expiry_seconds": expiry}, actor="client")
         return self.info(key)
 
@@ -193,6 +208,7 @@ class Store:
         config.pop("verification_secret", None)
         identifier = row["id"]
         subscription = db.execute("SELECT provider,external_id,target FROM subscriptions WHERE inbox=?", (identifier,)).fetchone()
+        account = hosted_store.owner(db, identifier) if self.settings.hosted_enabled else None
         return {
             "token": token, "inbox_id": identifier, "name": row["name"],
             "url": f"{self.settings.origin}/h/{identifier}",
@@ -200,7 +216,9 @@ class Store:
             "dns": f"{identifier}.{self.settings.dns_domain}" if self.settings.dns_domain else None,
             "created_at": timestamp(row["created"]), "expires_at": timestamp(row["expires"]),
             "requests_count": db.execute("SELECT COUNT(*) FROM events WHERE inbox=?", (identifier,)).fetchone()[0],
-            "request_limit": self.settings.event_limit,
+            "request_limit": hosted_store.PRO_MONTHLY_EVENTS if account else self.settings.event_limit,
+            "request_limit_scope": "account_calendar_month" if account else "retained_inbox_events",
+            "hosted": bool(account),
             "subscription": dict(subscription) if subscription else None,
             "signature_required": bool(json.loads(row["config"])["verification_secret"]), **config,
         }
@@ -237,6 +255,8 @@ class Store:
         with self.connection(write=True) as db:
             row = self._row(db, token)
             db.execute("UPDATE inboxes SET key_hash=? WHERE id=?", (token_hash(new_token), row["id"]))
+            if self.settings.hosted_enabled:
+                db.execute("DELETE FROM inbox_access WHERE inbox=?", (row["id"],))
             self._audit(db, row["id"], "inbox.token_rotated")
         return self.info(new_token)
 
@@ -269,10 +289,14 @@ class Store:
             page_size = db.execute("PRAGMA page_size").fetchone()[0]
             if (pages - free) * page_size >= self.settings.storage_limit or shutil.disk_usage(self.settings.database).free < 524_288_000:
                 raise InboxError("Storage capacity reached. Try again after events expire.", 429)
-            if db.execute("SELECT COUNT(*) FROM events WHERE inbox=?", (identifier,)).fetchone()[0] >= self.settings.event_limit:
+            account = hosted_store.owner(db, identifier) if self.settings.hosted_enabled else None
+            serialized = json.dumps(event)
+            if account:
+                hosted_store.reserve_capture(db, account, len(serialized.encode()), now)
+            if not account and db.execute("SELECT COUNT(*) FROM events WHERE inbox=?", (identifier,)).fetchone()[0] >= self.settings.event_limit:
                 raise InboxError("Inbox event capacity reached. Export or delete events before sending more.", 429)
             cursor = db.execute("INSERT INTO events(id,inbox,created,kind,payload,source_id) VALUES(?,?,?,?,?,?)",
-                                (event["uuid"], row["id"], now, kind, json.dumps(event), source_id))
+                                (event["uuid"], row["id"], now, kind, serialized, source_id))
             event["sorting"] = cursor.lastrowid
             self._audit(db, identifier, "event.received", event["uuid"],
                         {"type": kind, "method": method, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(),
@@ -337,7 +361,12 @@ class Store:
             if not event:
                 raise InboxError("Event not found in this inbox.", 404)
             payload = {**json.loads(event["payload"]), "note": note}
-            db.execute("UPDATE events SET payload=? WHERE id=?", (json.dumps(payload), request_id))
+            serialized = json.dumps(payload)
+            account = hosted_store.owner(db, row["id"]) if self.settings.hosted_enabled else None
+            growth = len(serialized.encode()) - len(event["payload"].encode())
+            if account and growth > 0 and hosted_store.retained_bytes(db, account) + growth > hosted_store.PRO_RETAINED_BYTES:
+                raise InboxError("Hosted storage limit reached. Export or delete events before adding notes.", 429)
+            db.execute("UPDATE events SET payload=? WHERE id=?", (serialized, request_id))
             self._audit(db, row["id"], "event.note_updated", request_id, {"note_characters": len(note)})
         return self.request(token, request_id)
 
@@ -407,15 +436,9 @@ class Store:
                 raise InboxError("Signing secret is not configured.", 503)
             return
         if provider == "stripe":
-            values = [value.strip().partition("=") for value in headers.get("stripe-signature", "").split(",")]
-            sent = next((value for key, _, value in values if key == "t"), "")
-            try:
-                if abs(time.time() - int(sent)) > 300:
-                    raise ValueError
-            except ValueError:
-                raise InboxError("Invalid or expired Stripe signature.", 401) from None
-            expected = hmac.new(secret.encode(), sent.encode() + b"." + body, hashlib.sha256).hexdigest()
-            valid = any(hmac.compare_digest(value, expected) for key, _, value in values if key == "v1")
+            from openhook.billing import verify_signature
+            verify_signature(body, headers.get("stripe-signature", ""), secret)
+            valid = True
         else:
             expected = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
             if provider == "linear":

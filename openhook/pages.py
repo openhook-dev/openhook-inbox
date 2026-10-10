@@ -20,8 +20,11 @@ PAGES = {
     "/agents": ("agents", "Webhook testing and notifications for agents — Openhook", "A practical guide for AI agents: public webhook URLs, local testing, event waits, local notifications, private tokens, and resumable delivery."),
     "/privacy": ("privacy", "Privacy and event retention — Openhook", "How Openhook stores webhook events, private management tokens, browser bookmarks, and provider credentials. Understand retention and deletion."),
     "/app": ("app", "Your webhook inboxes — Openhook", "Create a webhook inbox and inspect captured events on this device."),
+    "/account": ("account", "Your hosted account — Openhook", "Manage your Openhook hosted account and agent access."),
+    "/pricing": ("pricing", "Hosted plans and self-hosting — Openhook", "Try a free webhook inbox, run Openhook yourself, or explore persistent hosted inboxes for your agent."),
 }
-PUBLIC_PATHS = tuple(path for path in PAGES if path != "/app")
+PRIVATE_PATHS = {"/app", "/account"}
+PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
 
 
 def template(path: str, values: dict[str, str]) -> str:
@@ -52,11 +55,18 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
               "canonical": escape(canonical), "alternate": alternate, "alternate_type": alternate_type,
               "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit),
               "tool_count": str(len(tools)), "tools": tool_rows(tools)}
+    billing_ready = bool(settings.hosted_enabled and settings.billing_enabled and settings.stripe_secret_key
+                         and settings.stripe_price_id and settings.stripe_webhook_secret
+                         and settings.github_client_id and settings.github_client_secret)
+    values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
+    values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
+    values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account">Get started with Pro →</a></p>'
+                            if billing_ready else '<p>Coming soon. Paid checkout is not available yet.</p><p><a href="/app">Try a free inbox →</a></p>')
     values["content"] = template(f"pages/{name}.html", values)
-    values["robots"] = "noindex, nofollow" if path == "/app" else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
     csp = CSP
-    if path != "/app":
+    if path not in PRIVATE_PATHS:
         graph = [
             {"@type": "Organization", "@id": origin + "/#organization", "name": "Openhook", "url": origin + "/",
              "logo": {"@type": "ImageObject", "url": origin + "/assets/organization-logo.png", "width": 460, "height": 460},
@@ -83,7 +93,7 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
         csp = CSP.replace("script-src 'self'", f"script-src 'self' 'sha256-{digest}'")
         values["structured_data"] = f'<script type="application/ld+json">{data}</script>'
     headers = {"Content-Security-Policy": csp}
-    if path != "/app":
+    if path not in PRIVATE_PATHS:
         headers["Cache-Control"] = "no-cache"
         headers["Link"] = f'<{origin}{alternate}>; rel="alternate"; type="{alternate_type}", <{origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"'
     return HTMLResponse(template("index.html", values), headers=headers)

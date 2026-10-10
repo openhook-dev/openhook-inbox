@@ -36,7 +36,7 @@ def checked(response: httpx.Response, provider: str) -> dict:
     return data
 
 
-async def register(store: Store, provider: str, access_token: str, events: list[str], target: str = "") -> dict:
+async def register(store: Store, provider: str, access_token: str, events: list[str], target: str = "", *, account: str | None = None) -> dict:
     access_token = credentials(access_token)
     if provider not in PROVIDERS or not 1 <= len(events) <= 100 or any(not event or len(event) > 100 for event in events):
         raise InboxError("Supply a supported provider and between one and 100 event types.")
@@ -45,7 +45,7 @@ async def register(store: Store, provider: str, access_token: str, events: list[
         raise InboxError("Provider registration needs a deployment with a public HTTPS origin.")
     if provider == "github":
         target = repository_name(target)
-    inbox = store.create(name=f"{provider}: {target or 'events'}"[:60], config={"enabled": False})
+    inbox = store.create(name=f"{provider}: {target or 'events'}"[:60], config={"enabled": False}, account=account)
     remote_id = None
     secret = secrets.token_urlsafe(32)
     store.record_activity(inbox["token"], "subscription.registration_started", {"provider": provider})

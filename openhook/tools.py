@@ -13,6 +13,7 @@ from mcp.types import ToolAnnotations
 
 from openhook.store import InboxError, Store
 from openhook.providers import register, remove
+from openhook.accounts import Accounts
 
 READ = ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False)
 WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=False, open_world_hint=False)
@@ -26,6 +27,10 @@ def store(ctx: Context) -> Store:
     return ctx.request_context.lifespan_context
 
 
+def hosted_owner(native: Store, account_key: str) -> str | None:
+    return Accounts(native).authenticate_key(account_key)["id"] if account_key else None
+
+
 def register_tools(mcp: MCPServer) -> None:
     @mcp.tool(annotations=READ)
     def server_status(ctx: Context) -> dict:
@@ -37,9 +42,25 @@ def register_tools(mcp: MCPServer) -> None:
                 "max_events_per_inbox": settings.event_limit, "max_event_bytes": settings.body_limit}
 
     @mcp.tool(annotations=WRITE)
-    def create_webhook(ctx: Context, expiry: int = 604800, name: str = "") -> dict:
-        """Create an inbox. Save its private token; share only its public capture addresses."""
-        return store(ctx).create(expiry=expiry, name=name)
+    def create_webhook(ctx: Context, expiry: int = 604800, name: str = "", account_key: str = "") -> dict:
+        """Create an inbox. Save its private token; share only public capture addresses. A hosted Pro account_key creates a persistent owned inbox."""
+        native = store(ctx)
+        account = hosted_owner(native, account_key)
+        return native.create(expiry=expiry, name=name, account=account)
+
+    @mcp.tool(annotations=READ)
+    def get_hosted_inboxes(ctx: Context, account_key: str) -> dict:
+        """Hosted only: list your persistent inboxes and usage using a private account agent key."""
+        service = Accounts(store(ctx))
+        account = service.authenticate_key(account_key)["id"]
+        return {"inboxes": service.inboxes(account), "usage": service.usage(account)}
+
+    @mcp.tool(annotations=WRITE)
+    def access_hosted_inbox(ctx: Context, account_key: str, inbox_id: str) -> dict:
+        """Hosted only: issue a private inbox token for an inbox you own. Keep the returned token private."""
+        service = Accounts(store(ctx))
+        account = service.authenticate_key(account_key)["id"]
+        return service.inbox_access(account, inbox_id)
 
     @mcp.tool(annotations=WRITE)
     def configure_webhook(ctx: Context, webhook_token: str, default_status: int | None = None,
@@ -64,19 +85,22 @@ def register_tools(mcp: MCPServer) -> None:
         return {"email": store(ctx).info(webhook_token)["email"]}
 
     @mcp.tool(annotations=PROVIDER_WRITE)
-    async def register_github_webhook(ctx: Context, access_token: str, repository: str, events: list[str]) -> dict:
+    async def register_github_webhook(ctx: Context, access_token: str, repository: str, events: list[str], account_key: str = "") -> dict:
         """Create a signed GitHub repository subscription and native inbox. Requires webhook-write permission."""
-        return await register(store(ctx), "github", access_token, events, repository)
+        native = store(ctx)
+        return await register(native, "github", access_token, events, repository, account=hosted_owner(native, account_key))
 
     @mcp.tool(annotations=PROVIDER_WRITE)
-    async def register_stripe_webhook(ctx: Context, access_token: str, events: list[str]) -> dict:
+    async def register_stripe_webhook(ctx: Context, access_token: str, events: list[str], account_key: str = "") -> dict:
         """Create a signed Stripe webhook endpoint and native inbox. Provider credentials are not stored."""
-        return await register(store(ctx), "stripe", access_token, events)
+        native = store(ctx)
+        return await register(native, "stripe", access_token, events, account=hosted_owner(native, account_key))
 
     @mcp.tool(annotations=PROVIDER_WRITE)
-    async def register_linear_webhook(ctx: Context, access_token: str, resource_types: list[str], team_id: str = "") -> dict:
+    async def register_linear_webhook(ctx: Context, access_token: str, resource_types: list[str], team_id: str = "", account_key: str = "") -> dict:
         """Create a signed Linear subscription and native inbox. Requires admin scope; optional team filter."""
-        return await register(store(ctx), "linear", access_token, resource_types, team_id)
+        native = store(ctx)
+        return await register(native, "linear", access_token, resource_types, team_id, account=hosted_owner(native, account_key))
 
     @mcp.tool(annotations=PROVIDER_DELETE)
     async def unregister_webhook(ctx: Context, webhook_token: str, access_token: str) -> dict:
