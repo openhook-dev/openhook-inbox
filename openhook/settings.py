@@ -23,6 +23,7 @@ class Settings:
     hosted_enabled: bool = False
     github_client_id: str = ""
     github_client_secret: str = field(default="", repr=False)
+    support_email: str = ""
     billing_enabled: bool = False
     billing_provider: str = "stripe"
     polar_access_token: str = field(default="", repr=False)
@@ -49,6 +50,7 @@ class Settings:
             hosted_enabled=os.getenv("OPENHOOK_HOSTED", "").lower() in {"1", "true"},
             github_client_id=os.getenv("OPENHOOK_GITHUB_CLIENT_ID", ""),
             github_client_secret=os.getenv("OPENHOOK_GITHUB_CLIENT_SECRET", ""),
+            support_email=os.getenv("OPENHOOK_SUPPORT_EMAIL", ""),
             billing_enabled=os.getenv("OPENHOOK_BILLING_ENABLED", "").lower() in {"1", "true"},
             billing_provider=os.getenv("OPENHOOK_BILLING_PROVIDER", "stripe"),
             polar_access_token=os.getenv("OPENHOOK_POLAR_ACCESS_TOKEN", ""),
