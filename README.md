@@ -18,7 +18,25 @@ Practical recipes: [local forwarding](docs/recipes/local-handler.md),
 [GitHub push callbacks](docs/recipes/github-push.md), and
 [Stripe test callbacks](docs/recipes/stripe-test.md).
 
+## First callback in under a minute
+
+With Python 3 installed, clone the repository and run the disposable example:
+
+```sh
+git clone https://github.com/openhook-dev/openhook-inbox.git
+cd openhook-inbox
+python3 examples/first_callback.py
+```
+
+It creates a free inbox on `openhook.dev`, sends a real callback, verifies the
+original bytes, then deletes its inbox and payload. The private token stays in
+memory. No account, API key, or Python dependencies are needed for this example.
+Minimal operational activity metadata remains after deletion.
+
 ## Run it
+
+From the checkout, install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+and start your own server:
 
 ```sh
 uv sync
@@ -31,7 +49,15 @@ endpoint share one service and one durable store.
 Connect an MCP client to `http://127.0.0.1:8788/mcp`, or use
 `uv run openhook` for stdio. A local stdio process shares the same database
 with a running HTTP process when both use the same `OPENHOOK_DATABASE`.
-The HTTP process must be running to receive HTTP callbacks.
+The HTTP process must be running to receive HTTP callbacks. Check the same loop
+against your server with `python3 examples/first_callback.py --url http://127.0.0.1:8788`.
+External providers need a publicly reachable origin; the localhost example only
+proves your local server works.
+
+[GitHub releases](https://github.com/openhook-dev/openhook-inbox/releases) provide
+versioned source and Python distributions when available. The `openhook-mcp`
+package is not currently published on PyPI; use the source checkout or a release
+artifact rather than assuming a package-index install works.
 
 ## Agent workflow
 

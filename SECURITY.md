@@ -3,10 +3,10 @@
 Never post inbox management tokens, captured customer events, provider credentials,
 or signing secrets in public issues.
 
-Use GitHub's private vulnerability reporting if enabled on the repository's
-Security tab. If it is unavailable, open an issue that only asks for a private
-reporting channel, with no vulnerability details or sensitive data. Maintainers
-must establish a monitored private channel before accepting paid customers.
+Report vulnerabilities through [GitHub's private reporting form](https://github.com/openhook-dev/openhook-inbox/security/advisories/new).
+Private reporting is enabled for this repository. Maintainers must monitor reports
+and establish a response process before accepting paid customers. Do not include
+vulnerability details or sensitive data in a public issue.
 
 Reports should describe the affected version, impact, and minimal reproduction
 using disposable test data. Do not access another person's inbox or account,
