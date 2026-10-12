@@ -131,7 +131,10 @@ class PolarBilling(BillingBase):
         session_id = identifier(session.get("id"))
         if (session.get("product_id") != self.settings.polar_product_id
                 or session.get("product_price_id") != self.settings.polar_price_id
-                or session.get("currency") != "usd" or session.get("tax_behavior") != "exclusive"):
+                or session.get("currency") != "usd" or session.get("amount") != 1900
+                # Polar resolves session tax after collecting the buyer's address.
+                # validate_product already requires exclusive catalog taxation.
+                or session.get("tax_behavior") not in {None, "exclusive"}):
             raise InboxError("Checkout does not match the hosted price. Contact support.", 502)
         with self.store.connection(write=True) as db:
             db.execute("UPDATE billing_attempts SET session_id=?,url=? WHERE account=? AND identifier=?",
