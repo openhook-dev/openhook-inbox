@@ -7,6 +7,8 @@ import hashlib
 import json
 from html import escape
 from pathlib import Path
+from urllib.parse import urlsplit
+from uuid import UUID
 
 from starlette.responses import HTMLResponse
 
@@ -62,11 +64,13 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
                               if settings.support_email else '')
     values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
     values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
-    values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account">Get started with Pro →</a></p>'
+    values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account" data-analytics-event="pro-click">Get started with Pro →</a></p>'
                             if billing_ready else '<p>Coming soon. Paid checkout is not available yet.</p><p><a href="/app">Try a free inbox →</a></p>')
     values["content"] = template(f"pages/{name}.html", values)
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
+    values["analytics"] = ""
+    values["analytics_notice"] = "Analytics are disabled on this deployment."
     csp = CSP
     if path not in PRIVATE_PATHS:
         graph = [
@@ -94,6 +98,26 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
         digest = base64.b64encode(hashlib.sha256(data.encode()).digest()).decode()
         csp = CSP.replace("script-src 'self'", f"script-src 'self' 'sha256-{digest}'")
         values["structured_data"] = f'<script type="application/ld+json">{data}</script>'
+    if settings.umami_script_url and settings.umami_website_id:
+        tracker = urlsplit(settings.umami_script_url)
+        if tracker.scheme != "https" or not tracker.hostname or tracker.username or tracker.password or tracker.query or tracker.fragment:
+            raise ValueError("Umami must use an HTTPS script URL without credentials or query parameters.")
+        website_id = str(UUID(settings.umami_website_id))
+        tracker_origin = f"https://{tracker.netloc}"
+        values["analytics_notice"] = ("Public pages use our self-hosted Umami analytics to measure visits, referring sites, "
+            "browser/device categories, approximate countries and selected button clicks. Umami uses no analytics cookies. "
+            "We strip URL queries, fragments and referrer paths and do not send account identities, inbox tokens or event content. "
+            "Do Not Track and Global Privacy Control are respected. Analytics scripts do not load on account or inbox screens. "
+            "The analytics server receives your IP address to process the request; page analytics are separate from captured webhook data.")
+        if path not in PRIVATE_PATHS:
+            values["analytics"] = (f'<script src="/assets/analytics.js" defer></script>'
+                f'<script defer src="{escape(settings.umami_script_url, quote=True)}" data-website-id="{website_id}" '
+                f'data-domains="{escape(urlsplit(origin).hostname, quote=True)}" data-exclude-search="true" '
+                'data-exclude-hash="true" data-do-not-track="true" data-before-send="openhookAnalyticsBeforeSend"></script>')
+            csp = csp.replace("script-src 'self'", f"script-src 'self' {tracker_origin}").replace("connect-src 'self'", f"connect-src 'self' {tracker_origin}")
+    # The privacy page content includes the deployment-specific analytics notice.
+    if path == "/privacy":
+        values["content"] = template("pages/privacy.html", values)
     headers = {"Content-Security-Policy": csp}
     if path not in PRIVATE_PATHS:
         headers["Cache-Control"] = "no-cache"

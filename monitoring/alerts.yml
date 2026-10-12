@@ -1,0 +1,39 @@
+groups:
+  - name: openhook
+    rules:
+      - alert: OpenhookUnavailable
+        expr: up{job="openhook"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: Openhook metrics scrape has failed for two minutes
+      - alert: OpenhookServerErrors
+        expr: sum(increase(openhook_http_requests_total{status=~"5.."}[5m])) >= 5
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: At least five server errors in five minutes
+      - alert: OpenhookStoragePressure
+        expr: openhook_storage_used_bytes / openhook_storage_limit_bytes > 0.8
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: Openhook database is above 80 percent of its configured capacity
+      - alert: OpenhookInboxPressure
+        expr: openhook_inboxes / openhook_inbox_limit > 0.8
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: Shared inbox capacity is above 80 percent
+      - alert: OpenhookDiskPressure
+        expr: openhook_disk_free_bytes < 1073741824
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: Less than 1 GiB of free space remains on the data volume
+      - alert: OpenhookRejections
+        expr: sum(increase(openhook_http_requests_total{status="429"}[5m])) > 30
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: Sustained rate or capacity rejections; inspect traffic and storage

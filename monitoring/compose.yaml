@@ -1,0 +1,60 @@
+name: openhook-monitoring
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=2GB
+      - --web.external-url=http://localhost:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./metrics-token:/etc/prometheus/metrics-token:ro
+      - prometheus-data:/prometheus
+    networks: [default, dokploy-network]
+    labels:
+      traefik.enable: "false"
+    mem_limit: 512m
+    cpus: 0.5
+    security_opt: [no-new-privileges:true]
+  grafana:
+    image: grafana/grafana:13.2.3
+    restart: unless-stopped
+    environment:
+      GF_SERVER_ROOT_URL: https://analytics.berkant.me/ops/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?Set an administrator username}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set a unique password}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY:?Set a stable encryption key}
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_LOG_LEVEL: warn
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    networks: [default, dokploy-network]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: dokploy-network
+      traefik.http.routers.openhook-operations.rule: Host(`analytics.berkant.me`) && PathPrefix(`/ops`)
+      traefik.http.routers.openhook-operations.entrypoints: websecure
+      traefik.http.routers.openhook-operations.priority: "200"
+      traefik.http.routers.openhook-operations.tls.certresolver: letsencrypt
+      traefik.http.services.openhook-operations.loadbalancer.server.port: "3000"
+    mem_limit: 512m
+    cpus: 0.5
+    security_opt: [no-new-privileges:true]
+networks:
+  dokploy-network:
+    external: true
+volumes:
+  prometheus-data:
+  grafana-data:

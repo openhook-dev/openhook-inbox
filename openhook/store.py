@@ -26,6 +26,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from openhook.settings import Settings
 from openhook.errors import InboxError
 from openhook import hosted_store
+from openhook.metrics import CAPTURES, INBOXES
 
 
 class ResponseSettings(BaseModel):
@@ -202,6 +203,7 @@ class Store:
             if account:
                 db.execute("INSERT INTO hosted_inboxes(inbox,account) VALUES(?,?)", (identifier, account))
             self._audit(db, identifier, "inbox.created", details={"expiry_seconds": expiry}, actor="client")
+        INBOXES.labels("pro" if account else "free").inc()
         return self.info(key)
 
     def _info(self, db, row, token: str) -> dict:
@@ -302,6 +304,7 @@ class Store:
             self._audit(db, identifier, "event.received", event["uuid"],
                         {"type": kind, "method": method, "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(),
                          "test_event": bool((extra or {}).get("test_event"))}, actor=kind, created=now)
+        CAPTURES.labels(kind, "test" if (extra or {}).get("test_event") else "unmarked").inc()
         return event
 
     def requests(self, token: str, *, limit: int = 50, page: int = 1, since: int = 0,
