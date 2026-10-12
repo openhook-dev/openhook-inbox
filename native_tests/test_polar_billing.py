@@ -71,7 +71,7 @@ def mock_checkout(router, account):
     mock_product(router)
     router.get(API+'customers/external/'+account).respond(404)
     value = {'id':CHECKOUT,'url':'https://sandbox.polar.sh/checkout/test','status':'open',
-             'product_id':PRODUCT,'product_price_id':PRICE,'currency':'usd','tax_behavior':'exclusive'}
+             'product_id':PRODUCT,'product_price_id':PRICE,'currency':'usd','amount':1900,'tax_behavior':'exclusive'}
     return router.post(API+'checkouts/').respond(201,json=value), value
 
 
@@ -171,10 +171,13 @@ async def test_api_failure_does_not_acknowledge_delivery(billing):
     assert service.entitlement(account)['paid_until']>time.time()
 
 
-async def test_checkout_reuses_session_and_binds_server_identity(billing):
+@pytest.mark.parametrize('tax_behavior', [None, 'exclusive'])
+async def test_checkout_reuses_session_and_binds_server_identity(billing, tax_behavior):
     service,account,_=billing
     with respx.mock as router:
         route,value=mock_checkout(router,account)
+        value['tax_behavior']=tax_behavior
+        route.respond(201,json=value)
         router.get(API+'checkouts/'+CHECKOUT).respond(200,json=value)
         assert await service.checkout(account)==value['url']
         assert await service.checkout(account)==value['url']
@@ -183,6 +186,18 @@ async def test_checkout_reuses_session_and_binds_server_identity(billing):
         assert payload['external_customer_id']==account
         assert payload['metadata']['openhook_account']==account
         assert payload['allow_trial'] is False and payload['allow_discount_codes'] is False
+
+
+@pytest.mark.parametrize('changes', [{'tax_behavior':'inclusive'}, {'amount':2000}, {'currency':'eur'}])
+async def test_checkout_rejects_changed_price_even_before_tax_is_resolved(billing, changes):
+    service,account,_=billing
+    with respx.mock as router:
+        route,value=mock_checkout(router,account)
+        value.update(tax_behavior=None)
+        value.update(changes)
+        route.respond(201,json=value)
+        with pytest.raises(InboxError,match='does not match'):
+            await service.checkout(account)
 
 
 async def test_checkout_concurrency_and_uncertain_failure_do_not_double_create(billing):
