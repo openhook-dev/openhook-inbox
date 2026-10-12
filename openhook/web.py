@@ -27,6 +27,7 @@ from openhook.discovery import openapi_schema, tools_markdown
 from openhook.pages import CSP, PAGES, PUBLIC_PATHS, WEB_ROOT, render_page, template
 from openhook.accounts import Accounts
 from openhook.hosted_web import ROUTES as HOSTED_ROUTES
+from openhook.metrics import RequestMetrics, metrics_response
 
 
 class WebCall(BaseModel):
@@ -262,6 +263,8 @@ class WebBoundary:
 
 def create_app(settings: Settings | None = None):
     settings = settings or Settings.from_env()
+    if settings.metrics_token and len(settings.metrics_token) < 32:
+        raise ValueError("OPENHOOK_METRICS_TOKEN must have at least 32 characters.")
     mcp = build_mcp(settings)
     security = TransportSecuritySettings(enable_dns_rebinding_protection=True,
         allowed_hosts=[urlsplit(settings.origin).netloc, "localhost:*", "127.0.0.1:*"],
@@ -293,7 +296,7 @@ def create_app(settings: Settings | None = None):
     app.router.lifespan_context = lifespan
     app.router.routes.extend([
         *HOSTED_ROUTES,
-        Route("/health", health), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),
+        Route("/health", health), Route("/metrics", metrics_response), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),
         Route("/api/export", export_events, methods=["POST"]),
         Route("/api/wait", wait_events, methods=["POST"]),
         Route("/h/{identifier}", capture, methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]),
@@ -304,4 +307,5 @@ def create_app(settings: Settings | None = None):
         Mount("/assets", StaticFiles(directory=WEB_ROOT / "assets")),
     ])
     app.add_middleware(WebBoundary, settings=settings)
+    app.add_middleware(RequestMetrics)
     return app

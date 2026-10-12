@@ -5,6 +5,9 @@ services:
     environment:
       OPENHOOK_ORIGIN: ${OPENHOOK_ORIGIN:-http://127.0.0.1:8788}
       OPENHOOK_DATABASE: /data/openhook.sqlite3
+      OPENHOOK_UMAMI_SCRIPT_URL: ${OPENHOOK_UMAMI_SCRIPT_URL:-}
+      OPENHOOK_UMAMI_WEBSITE_ID: ${OPENHOOK_UMAMI_WEBSITE_ID:-}
+      OPENHOOK_METRICS_TOKEN: ${OPENHOOK_METRICS_TOKEN:-}
     ports:
       - "127.0.0.1:8788:8788"
     volumes:

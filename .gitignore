@@ -64,3 +64,4 @@ AGENTS.md
 data/
 *.sqlite3*
 node_modules/
+monitoring/metrics-token
