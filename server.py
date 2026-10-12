@@ -11,6 +11,8 @@ from mcp.server import MCPServer
 from openhook.settings import Settings
 from openhook.store import Store
 from openhook.tools import register_tools
+from openhook.pages import template, markdown_page
+from openhook.discovery import tools_markdown
 
 
 def build_mcp(settings: Settings | None = None):
@@ -32,6 +34,21 @@ def build_mcp(settings: Settings | None = None):
         lifespan=lifespan,
     )
     register_tools(result)
+    @result.resource("openhook://docs/guide", name="openhook_agent_guide", title="Openhook agent guide",
+                     description="When to use Openhook, create an inbox, wait with a cursor, forward events and handle credentials safely.", mime_type="text/markdown")
+    def agent_guide() -> str:
+        config = settings or Settings.from_env()
+        return template("agent-guide.md", {"origin": config.origin, "event_limit": str(config.event_limit), "body_limit": str(config.body_limit)})
+
+    @result.resource("openhook://docs/tools", name="openhook_tool_reference", title="Openhook tool reference",
+                     description="Live tool names, descriptions and JSON input schemas generated from this MCP server.", mime_type="text/markdown")
+    async def tool_reference() -> str:
+        return tools_markdown(await result.list_tools())
+
+    @result.resource("openhook://docs/pricing", name="openhook_pricing", title="Openhook plans and limits",
+                     description="Free and hosted Pro plans, capacity limits, retention, self-hosting and billing availability.", mime_type="text/markdown")
+    def pricing() -> str:
+        return markdown_page("/pricing", settings or Settings.from_env()).body.decode()
     return result
 
 

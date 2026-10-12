@@ -125,7 +125,7 @@ pre-release history. Details: {{origin}}/privacy
 
 ## Limits and safety
 
-- Inboxes expire within seven days and accept up to {{event_limit}} retained events. At capacity, new
+- Free inboxes expire within seven days and accept up to {{event_limit}} retained events. At capacity, new
   captures fail rather than evicting previously accepted events.
 - Each event body is limited to {{body_limit}} bytes; capture is rate limited.
 - Private tokens grant reading, configuration, rotation, and deletion access.
@@ -140,3 +140,38 @@ pre-release history. Details: {{origin}}/privacy
   hosted service already has a public capture endpoint.
 
 Full MCP reference: {{origin}}/docs.md
+
+
+## Hosted Pro and account access
+
+The free service needs no account. When hosted checkout is enabled, Pro is $19 USD
+per month plus applicable tax: 10 persistent inboxes, 50,000 accepted events per
+UTC calendar month, 30-day event retention and up to 1 GiB of stored event data.
+Sign in with GitHub at {{origin}}/account. Create an agent key there; pass it as
+account_key to create_webhook or provider registration to create an owned inbox.
+Use get_hosted_inboxes and access_hosted_inbox to recover inbox access. Agent keys
+cannot sign into the browser or manage billing. Persistent inboxes remain stable
+while subscribed and expire 30 days after paid access ends; new captures stop
+when paid access ends. See {{origin}}/pricing for live availability.
+
+## Public documentation resources
+
+Read openhook://docs/guide, openhook://docs/tools and openhook://docs/pricing
+through MCP resources/read. They contain documentation only, never inbox data.
+Discover the server at {{origin}}/.well-known/mcp/server-card.json.
+
+## Versioned REST and recoverable errors
+
+Use /api/v1/call, /api/v1/wait, /api/v1/export and /api/v1/tools for the stable
+inbox API. Original /api routes remain compatible aliases. Breaking changes need
+a new major version. Deprecation and Sunset headers will announce a removal at
+least 90 days in advance; none is scheduled. Read {{origin}}/openapi.json.
+Errors use application/problem+json with status, code, detail and resolution,
+plus the compatible success:false and message fields. RateLimit-Policy and
+RateLimit advertise the 120 requests per 60 seconds per-IP rolling HTTP budget;
+compatibility RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset headers
+are also provided. Retry-After on 429 is measured in seconds. Inbox/account
+capacity errors may require cleanup or account management rather than waiting.
+Capture supports optional Idempotency-Key deduplication while the original event
+is retained. Management writes do not promise general idempotent retries; reconcile
+an ambiguous result before repeating a create or token rotation.

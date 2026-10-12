@@ -10,6 +10,7 @@ from starlette.routing import Route
 
 from openhook.accounts import Accounts, OAUTH_SECONDS, SESSION_SECONDS, github_identity
 from openhook.store import InboxError
+from openhook.http_errors import problem
 from openhook.billing import Billing, billing_for
 
 
@@ -51,7 +52,7 @@ def signed_in(request) -> dict:
 
 
 def error_response(exc):
-    return JSONResponse({"success": False, "message": str(exc)}, status_code=exc.status)
+    return problem(exc.status, str(exc))
 
 
 async def account_status(request):

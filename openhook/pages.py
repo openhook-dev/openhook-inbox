@@ -5,17 +5,21 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import re
 from html import escape
 from pathlib import Path
 from urllib.parse import urlsplit
 from uuid import UUID
 
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, Response
+from markdownify import markdownify
 
 WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
+    "/about": ("about", "About Openhook — Open-source webhook service for AI agents", "Learn what Openhook does, who it serves, how the open-source project and hosted service work, and their limits."),
+    "/contact": ("contact", "Contact Openhook — Support and project links", "Contact Openhook support, report a bug, find the source code, or ask about hosted accounts without sharing secrets."),
     "/": ("home", "Openhook — Webhooks for AI agents", "Give your agent a public webhook URL. Test local integrations, wait for callbacks, and forward events without exposing your laptop. Open source."),
     "/connect": ("connect", "Connect your AI agent — Openhook", "Connect Claude Code, Cursor, VS Code, or a local MCP client to Openhook. Create a webhook inbox and receive your first event."),
     "/docs": ("docs", "Webhook MCP tools and API documentation — Openhook", "Create webhook inboxes, inspect payloads, wait with a cursor, and forward events locally. Live MCP tool schemas and REST API documentation."),
@@ -27,6 +31,31 @@ PAGES = {
 }
 PRIVATE_PATHS = {"/app", "/account"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
+
+
+def prefers_markdown(accept: str) -> bool:
+    qualities = {}
+    for item in accept.lower().split(","):
+        media, *parameters = item.strip().split(";")
+        quality = 1.0
+        for parameter in parameters:
+            if parameter.strip().startswith("q="):
+                try:
+                    quality = float(parameter.strip()[2:])
+                except ValueError:
+                    quality = 0
+        qualities[media] = quality
+    markdown = qualities.get("text/markdown", 0)
+    return markdown > 0 and markdown >= qualities.get("text/html", qualities.get("text/*", qualities.get("*/*", 0)))
+
+
+def markdown_page(path, settings, tools=()):
+    """Generate the text view from the same rendered content as the public HTML."""
+    html = render_page(path, settings, tools).body.decode()
+    main = re.search(r"<main\b[^>]*>(.*?)</main>", html, re.DOTALL).group(1)
+    text = markdownify(main, heading_style="ATX", strip=["button", "input", "label"]).strip()
+    return Response(text + f"\n\nCanonical: {settings.origin}{path}\n", media_type="text/markdown",
+                    headers={"Vary": "Accept", "Cache-Control": "no-cache", "Link": f'<{settings.origin}{path}>; rel="canonical"'})
 
 
 def template(path: str, values: dict[str, str]) -> str:
@@ -62,6 +91,8 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     values["billing_provider"] = "Polar" if settings.billing_provider == "polar" else "Stripe"
     values["support_link"] = (f'<a href="mailto:{escape(settings.support_email, quote=True)}">Support</a>'
                               if settings.support_email else '')
+    values["support_contact"] = (f'Email <a href="mailto:{escape(settings.support_email, quote=True)}">{escape(settings.support_email)}</a> for hosted service questions or private reports.'
+                                  if settings.support_email else 'This deployment has not configured a private support address. For public project questions, use the source repository issue tracker.')
     values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
     values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
     values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account" data-analytics-event="pro-click">Get started with Pro →</a></p>'
@@ -94,6 +125,8 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
                 {"@type": "ListItem", "position": 1, "name": "Openhook", "item": origin + "/"},
                 {"@type": "ListItem", "position": 2, "name": title.split(" — ")[0], "item": canonical},
             ]})
+        if settings.support_email:
+            graph[0]["contactPoint"] = {"@type": "ContactPoint", "contactType": "customer support", "email": settings.support_email, "url": origin + "/contact"}
         data = json.dumps({"@context": "https://schema.org", "@graph": graph}, separators=(",", ":")).replace("<", "\\u003c")
         digest = base64.b64encode(hashlib.sha256(data.encode()).digest()).decode()
         csp = CSP.replace("script-src 'self'", f"script-src 'self' 'sha256-{digest}'")
@@ -118,7 +151,7 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     # The privacy page content includes the deployment-specific analytics notice.
     if path == "/privacy":
         values["content"] = template("pages/privacy.html", values)
-    headers = {"Content-Security-Policy": csp}
+    headers = {"Content-Security-Policy": csp, "Vary": "Accept"}
     if path not in PRIVATE_PATHS:
         headers["Cache-Control"] = "no-cache"
         headers["Link"] = f'<{origin}{alternate}>; rel="alternate"; type="{alternate_type}", <{origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"'
