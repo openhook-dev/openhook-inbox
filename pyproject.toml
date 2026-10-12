@@ -29,6 +29,7 @@ dependencies = [
     "starlette>=0.47.0",
     "standardwebhooks>=1.0.0,<2",
     "prometheus-client>=0.21,<1",
+    "markdownify>=1.2,<2",
 ]
 
 [project.scripts]

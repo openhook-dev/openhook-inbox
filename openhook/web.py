@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+import math
 from collections import deque
 from contextlib import asynccontextmanager
 from html import escape
@@ -24,10 +25,12 @@ from openhook.store import InboxError, Store
 from openhook.transports import CaptureTransports
 from server import build_mcp
 from openhook.discovery import openapi_schema, tools_markdown
-from openhook.pages import CSP, PAGES, PUBLIC_PATHS, WEB_ROOT, render_page, template
+from openhook.pages import CSP, PAGES, PUBLIC_PATHS, PRIVATE_PATHS, WEB_ROOT, render_page, template, markdown_page, prefers_markdown
 from openhook.accounts import Accounts
 from openhook.hosted_web import ROUTES as HOSTED_ROUTES
 from openhook.metrics import RequestMetrics, metrics_response
+from openhook.http_errors import http_error, problem
+from openhook.agent_discovery import ROUTES as DISCOVERY_ROUTES
 
 
 class WebCall(BaseModel):
@@ -53,9 +56,9 @@ async def wait_events(request):
         result = await request.app.state.store.wait(call.token, call.timeout_seconds, since=call.since)
         return JSONResponse({"success": True, "data": result})
     except InboxError as exc:
-        return JSONResponse({"message": str(exc)}, status_code=exc.status)
-    except (ValidationError, ValueError) as exc:
-        return JSONResponse({"message": str(exc)}, status_code=400)
+        return problem(exc.status, str(exc))
+    except (ValidationError, ValueError):
+        return problem(400, "Invalid request fields. Check /openapi.json.")
 
 
 async def api_call(request: Request) -> Response:
@@ -89,9 +92,9 @@ async def api_call(request: Request) -> Response:
             result = store.requests(call.token, limit=1000, oldest=True)
         return JSONResponse({"success": True, "data": result})
     except InboxError as exc:
-        return JSONResponse({"success": False, "message": str(exc)}, status_code=exc.status)
-    except (ValidationError, ValueError) as exc:
-        return JSONResponse({"success": False, "message": str(exc)}, status_code=400)
+        return problem(exc.status, str(exc))
+    except (ValidationError, ValueError):
+        return problem(400, "Invalid request fields. Check /openapi.json.")
 
 
 async def capture(request: Request) -> Response:
@@ -135,7 +138,7 @@ async def capture(request: Request) -> Response:
                         media_type=config["default_content_type"], headers={**cors, "X-Openhook-Event": event["uuid"],
                                                                           "Cache-Control": "no-store"})
     except InboxError as exc:
-        return JSONResponse({"message": str(exc)}, status_code=exc.status)
+        return problem(exc.status, str(exc))
 
 
 async def tools_catalog(request):
@@ -149,9 +152,9 @@ async def export_events(request):
         return StreamingResponse(request.app.state.store.export(token), media_type="application/json",
                                  headers={"Content-Disposition": 'attachment; filename="openhook-events.json"'})
     except InboxError as exc:
-        return JSONResponse({"message": str(exc)}, status_code=exc.status)
+        return problem(exc.status, str(exc))
     except (ValueError, AttributeError):
-        return JSONResponse({"message": "Invalid export request."}, status_code=400)
+        return problem(400, "Invalid export request.")
 
 
 async def health(request):
@@ -166,6 +169,8 @@ async def page(request):
     if request.url.path == "/account" and not request.app.state.store.settings.hosted_enabled:
         raise HTTPException(404)
     tools = await request.app.state.mcp.list_tools() if request.url.path == "/docs" else ()
+    if request.url.path not in PRIVATE_PATHS and prefers_markdown(request.headers.get("accept", "")):
+        return markdown_page(request.url.path, request.app.state.store.settings, tools)
     return render_page(request.url.path, request.app.state.store.settings, tools)
 
 
@@ -196,6 +201,12 @@ async def sitemap(request):
     return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', media_type="application/xml")
 
 
+def rate_limit_headers(remaining: int, reset: int) -> dict[str, str]:
+    return {"RateLimit-Policy": '"default";q=120;w=60',
+            "RateLimit": f'"default";r={remaining};t={reset}',
+            "RateLimit-Limit": "120", "RateLimit-Remaining": str(remaining), "RateLimit-Reset": str(reset)}
+
+
 class WebBoundary:
     def __init__(self, app, settings: Settings):
         self.app = app
@@ -213,22 +224,25 @@ class WebBoundary:
             return await RedirectResponse(target, status_code=308)(scope, receive, send)
         protected = path.startswith(("/api/", "/mcp"))
         if protected and headers.get("origin") not in {None, self.settings.origin}:
-            return await JSONResponse({"message": "Origin is not allowed."}, status_code=403)(scope, receive, send)
+            return await problem(403, "Origin is not allowed.")(scope, receive, send)
+        rate_headers = {}
         if path.startswith(("/api/", "/mcp", "/h/", "/auth/")):
             now = time.monotonic()
             ip = (scope.get("client") or ("unknown",))[0]
             self.hits = {key: values for key, values in self.hits.items() if values and values[-1] > now - 60}
             if ip not in self.hits and len(self.hits) >= 10000:
-                return await Response("Capacity reached", status_code=429)(scope, receive, send)
+                return await problem(429, "Capacity reached", headers={"Retry-After": "60"})(scope, receive, send)
             hits = self.hits.setdefault(ip, deque())
             while hits and hits[0] <= now - 60:
                 hits.popleft()
+            reset = max(1, math.ceil(hits[0] + 60 - now)) if hits else 60
             if len(hits) >= 120:
-                return await JSONResponse({"message": "Too many requests. Try again in a minute."}, status_code=429,
-                                          headers={"Retry-After": "60"})(scope, receive, send)
+                return await problem(429, "Too many requests. Try again in a minute.",
+                    headers={**rate_limit_headers(0, reset), "Retry-After": str(reset)})(scope, receive, send)
             hits.append(now)
+            rate_headers = rate_limit_headers(120 - len(hits), reset)
         if headers.get("content-length", "").isdigit() and int(headers["content-length"]) > self.settings.body_limit:
-            return await Response("Request exceeds 1 MB", status_code=413)(scope, receive, send)
+            return await problem(413, "Request exceeds 1 MB", headers=rate_headers)(scope, receive, send)
         body_size = 0
 
         async def bounded_receive():
@@ -244,6 +258,7 @@ class WebBoundary:
                 message.setdefault("headers", []).extend([
                     (b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
                 ])
+                message["headers"].extend((key.lower().encode(), value.encode()) for key, value in rate_headers.items())
                 if path.startswith("/h/"):
                     # Inbox owners control response bodies and content types.
                     # Their HTML must never execute with the account UI's origin.
@@ -270,6 +285,8 @@ def create_app(settings: Settings | None = None):
         allowed_hosts=[urlsplit(settings.origin).netloc, "localhost:*", "127.0.0.1:*"],
         allowed_origins=[settings.origin])
     app = mcp.streamable_http_app(stateless_http=True, json_response=True, transport_security=security)
+    app.add_exception_handler(HTTPException, http_error)
+    app.add_exception_handler(500, http_error)
     original_lifespan = app.router.lifespan_context
 
     @asynccontextmanager
@@ -295,7 +312,10 @@ def create_app(settings: Settings | None = None):
 
     app.router.lifespan_context = lifespan
     app.router.routes.extend([
+        *DISCOVERY_ROUTES,
         *HOSTED_ROUTES,
+        Route("/api/v1/call", api_call, methods=["POST"]), Route("/api/v1/wait", wait_events, methods=["POST"]),
+        Route("/api/v1/export", export_events, methods=["POST"]), Route("/api/v1/tools", tools_catalog),
         Route("/health", health), Route("/metrics", metrics_response), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),
         Route("/api/export", export_events, methods=["POST"]),
         Route("/api/wait", wait_events, methods=["POST"]),

@@ -19,6 +19,20 @@ def openapi_schema(origin, call_model, wait_model):
     components = {"WebCall": call_model.model_json_schema(), "WaitCall": wait_model.model_json_schema(),
                   "ExportCall": {"type": "object", "required": ["token"], "properties": {"token": {"type": "string"}}}}
 
+    components["Problem"] = {"type": "object", "required": ["type", "title", "status", "code", "detail", "resolution", "success", "message"],
+        "properties": {"type": {"type": "string", "format": "uri-reference"}, "title": {"type": "string"},
+                       "status": {"type": "integer"}, "code": {"type": "string"}, "detail": {"type": "string"},
+                       "resolution": {"type": "string"}, "success": {"const": False}, "message": {"type": "string"}}}
+    components["Success"] = {"type": "object", "required": ["success", "data"],
+        "properties": {"success": {"const": True}, "data": {"type": "object", "additionalProperties": True}}}
+    components["EventExport"] = {"type": "object", "required": ["requests"],
+        "properties": {"requests": {"type": "array", "items": {"type": "object"}}}}
+    components["ToolCatalog"] = {"type": "object", "required": ["tools"],
+        "properties": {"tools": {"type": "array", "items": {"type": "object"}}}}
+    components["Health"] = {"type": "object", "required": ["status", "product", "version", "storage", "email", "dns"],
+        "properties": {**{key: {"type": "string"} for key in ("status", "product", "version", "storage")},
+                       "email": {"type": "boolean"}, "dns": {"type": "boolean"}}}
+
     def post(operation, summary, model):
         return {"operationId": operation, "summary": summary,
                 "requestBody": {"required": True, "content": {"application/json": {
@@ -57,7 +71,39 @@ def openapi_schema(origin, call_model, wait_model):
                              "413": {"description": "Body too large"}, "429": {"description": "Rate limit reached"}}}
     paths["/h/{identifier}"] = {method: {**capture, "operationId": "capture" + method.title()}
                                for method in ("get", "head", "post", "put", "patch", "delete", "options")}
+    response_models = {"/api/call": "Success", "/api/wait": "Success", "/api/export": "EventExport",
+                       "/api/tools": "ToolCatalog", "/health": "Health"}
+    for path, model in response_models.items():
+        for operation in paths[path].values():
+            operation["responses"]["200"]["content"] = {"application/json": {"schema": {"$ref": "#/components/schemas/" + model}}}
+    for path, operations in paths.items():
+        for method, operation in operations.items():
+            for code in ("400", "401", "403", "404", "405", "413", "429", "500", "503"):
+                response = operation["responses"].setdefault(code, {"description": "Request could not be completed; read resolution before retrying."})
+                response["content"] = {"application/problem+json": {"schema": {"$ref": "#/components/schemas/Problem"}}}
+            if path.startswith("/api/"):
+                operation["responses"]["200"]["headers"] = {
+                    name: {"description": description, "schema": {"type": "string"}} for name, description in {
+                        "RateLimit-Policy": "Per-IP rolling request budget: 120 requests in 60 seconds.",
+                        "RateLimit": "Remaining quota and seconds until the next slot is available.",
+                        "RateLimit-Limit": "Compatibility limit header.", "RateLimit-Remaining": "Compatibility remaining quota.",
+                        "RateLimit-Reset": "Seconds until the next slot is available."}.items()}
+                operation["responses"]["429"]["headers"] = {"Retry-After": {"description": "Seconds to wait for an HTTP rate limit; capacity errors may need cleanup or renewal instead.", "schema": {"type": "integer"}}}
+            if path.startswith("/h/"):
+                operation["responses"]["200"]["content"] = {"text/plain": {"schema": {"type": "string"}},
+                    "application/json": {"schema": {}, "example": {"received": True}}}
+                operation["responses"]["200"]["description"] = "Default is text/plain. JSON is returned only if the inbox owner configures a JSON response body and content type; status and body are owner-controlled. HEAD returns no body."
+                if method in {"post", "put", "patch"}:
+                    operation["parameters"] = [*operation["parameters"], {"name": "Idempotency-Key", "in": "header", "required": False,
+                        "description": "Optional source event ID. Repeated deliveries with the same ID in this inbox return the retained original event; deduplication ends when that event is deleted or expires.", "schema": {"type": "string"}}]
+    # Keep original paths as compatible aliases while publishing an explicit v1 contract.
+    for path in list(paths):
+        if path.startswith("/api/"):
+            operations = json.loads(json.dumps(paths[path]))
+            for operation in operations.values():
+                operation["operationId"] += "V1"
+            paths[path.replace("/api/", "/api/v1/", 1)] = operations
     return {"openapi": "3.1.1", "info": {"title": "Openhook native API", "version": "0.1.0",
-            "description": "Webhook inboxes for agents. For MCP use the Streamable HTTP endpoint /mcp. Each inbox has its own private management token.",
+            "description": "Webhook inboxes for agents. For MCP use the Streamable HTTP endpoint /mcp. Each inbox has its own private management token. Stable inbox operations use /api/v1; /api paths remain supported aliases. Breaking changes require a new major version. Deprecation and Sunset headers will announce a removal at least 90 days in advance. No removal is scheduled.",
             "license": {"name": "MIT", "identifier": "MIT"}}, "servers": [{"url": origin}], "paths": paths,
             "components": {"schemas": components}, "externalDocs": {"url": origin + "/agents.md"}}
