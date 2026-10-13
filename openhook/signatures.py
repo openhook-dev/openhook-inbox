@@ -18,4 +18,3 @@ def verify_signature(body: bytes, signature: str, secret: str) -> None:
     expected = hmac.new(secret.encode(), sent.encode() + b"." + body, hashlib.sha256).hexdigest()
     if not any(hmac.compare_digest(value, expected) for key, _, value in values if key == "v1"):
         raise InboxError("Invalid Stripe signature.", 401)
-
