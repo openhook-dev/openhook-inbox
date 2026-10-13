@@ -1,6 +1,11 @@
 name: Build distribution
 on:
   workflow_dispatch:
+    inputs:
+      publish_registry:
+        description: Publish the public remote MCP listing after the build
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -11,8 +16,39 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - run: uv build
+      - run: uv build --all-packages
       - uses: actions/upload-artifact@v4
         with:
           name: openhook-distribution
           path: dist/*
+  publish-registry:
+    if: inputs.publish_registry && github.repository == 'openhook-dev/openhook-inbox'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the listing identity and live endpoint
+        run: |
+          python3 - <<'PYCODE'
+          import json
+          import urllib.request
+          from pathlib import Path
+          server = json.loads(Path('server.json').read_text())
+          assert server['name'] == 'io.github.openhook-dev/openhook-inbox'
+          assert server['remotes'] == [{'type': 'streamable-http', 'url': 'https://openhook.dev/mcp'}]
+          with urllib.request.urlopen('https://openhook.dev/api/tools', timeout=20) as response:
+              tools = json.load(response)['tools']
+          assert any(tool['name'] == 'create_webhook' for tool in tools)
+          PYCODE
+      - name: Install the pinned official MCP publisher
+        run: |
+          curl --fail --location --retry 2 --output publisher.tar.gz https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz
+          echo 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  publisher.tar.gz' | sha256sum --check
+          tar -xzf publisher.tar.gz mcp-publisher
+      - name: Authenticate with GitHub workload identity
+        run: ./mcp-publisher login github-oidc
+      - name: Publish the remote listing
+        run: ./mcp-publisher publish server.json
