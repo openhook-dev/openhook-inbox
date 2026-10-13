@@ -20,7 +20,7 @@ a matching payload, then cleaned up its disposable inbox on 2026-10-13.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
-| heilcheng/awesome-agent-skills | [PR #586](https://github.com/heilcheng/awesome-agent-skills/pull/586) open under Community Skills / Development and Testing; required website build passed. | Respond to maintainer feedback; verify after merge. |
+| heilcheng/awesome-agent-skills | [PR #586](https://github.com/heilcheng/awesome-agent-skills/pull/586) open under Community Skills / Development and Testing; local required website build passed. Vercel's preview check is blocked on authorization by the collection owner's team, per its [bot comment](https://github.com/heilcheng/awesome-agent-skills/pull/586#issuecomment-6151302619). | Maintainer must authorize their preview; respond to review and verify after merge. |
 | junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) open; matching English/Chinese entries; GitHub-verified commit. | Respond to maintainer feedback; verify the listing after merge. |
 | realadeel/awesome-webhooks | [PR #91](https://github.com/realadeel/awesome-webhooks/pull/91) open under Development Tools. | Respond to maintainer feedback; verify after merge. |
 | punkpeye/awesome-mcp-servers | [PR #16343](https://github.com/punkpeye/awesome-mcp-servers/pull/16343) drafted. Its submission bot additionally requires Glama validation and a real badge. | Complete free Glama setup and server validation, add its actual badge, then mark ready. |
@@ -29,6 +29,22 @@ a matching payload, then cleaned up its disposable inbox on 2026-10-13.
 
 Glama authentication and any new account terms require approval before completing
 that setup. No Glama listing, passing grade, or badge is claimed yet.
+
+## Existing third-party discovery
+
+The [M8ven Trust Index listing](https://m8ven.ai/mcp/openhook-dev/openhook-inbox)
+was verified publicly on 2026-10-13. M8ven found the repository through GitHub
+search; this was not a submission from this campaign. The listing remains
+unclaimed and live monitoring is not connected.
+
+It displays 74/100 (grade C) for commit `f6ac7c7`, scanned on 2026-10-11.
+M8ven reports no concerning findings and says new projects are capped at C
+until they earn adoption. This is their static assessment of an older commit,
+not a current-release security guarantee or evidence of independent users.
+
+No new human maintainer feedback was present on the three review-ready
+collection PRs at the latest 2026-10-13 check. The remaining actions on the
+selected channels require the publisher approvals above or external review.
 
 ## Deferred destinations
 
