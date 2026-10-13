@@ -1,6 +1,7 @@
 ---
 name: openhook
 description: Creates webhook inboxes, receives callbacks, and forwards events for AI agents with Openhook. Use when testing a local webhook integration, inspecting external callbacks, or waiting for an asynchronous event.
+license: MIT
 ---
 
 # Openhook
@@ -30,10 +31,11 @@ Openhook restarts a stopped agent session.
 
 - No MCP client: follow the REST quickstart at `{{origin}}/agents.md` and the
   request schemas at `{{origin}}/openapi.json`.
-- Local handler: keep `openhook-listen --url {{origin}} --forward
+- Local handler: keep `uv run openhook-listen --url {{origin}} --forward
   http://127.0.0.1:8080/webhook` running from the source checkout after `uv sync`.
   Set `OPENHOOK_TOKEN` privately. Delivery is at least once; make side effects
   idempotent. The source acknowledgement does not prove local delivery.
+  Source and setup: https://github.com/openhook-dev/openhook-inbox.
 - Background agent: connect the listener to a configured local agent hook.
   `--openclaw` additionally needs `OPENCLAW_HOOKS_TOKEN`. A normal MCP wait only
   returns to a running agent. Do not invent a session wakeup capability.

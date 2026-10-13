@@ -9,8 +9,8 @@ Events live in its SQLite database. No external webhook service is involved.
 ## Try it or host it
 
 [Create a free inbox](https://openhook.dev/app) without an account, or
-[connect your agent](https://openhook.dev/connect). Optional hosted Pro is being
-prepared for persistent inboxes and account recovery; see the current
+[connect your agent](https://openhook.dev/connect). Optional hosted Pro provides
+persistent inboxes and account recovery; see the current
 [availability and plans](https://openhook.dev/pricing). Self-hosting remains MIT
 licensed with no Openhook account or subscription.
 
@@ -32,6 +32,18 @@ It creates a free inbox on `openhook.dev`, sends a real callback, verifies the
 original bytes, then deletes its inbox and payload. The private token stays in
 memory. No account, API key, or Python dependencies are needed for this example.
 Minimal operational activity metadata remains after deletion.
+
+## Install the agent skill
+
+For Codex, Claude Code, and other compatible Agent Skills clients:
+
+```sh
+npx skills add openhook-dev/openhook-inbox --skill openhook
+```
+
+The [skill setup and permissions](skills/openhook/README.md) explain MCP connection,
+REST fallback, local forwarding, and handling private inbox tokens. Installing
+the skill does not install or start the server.
 
 ## Run it
 
