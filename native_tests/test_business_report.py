@@ -1,5 +1,5 @@
 from openhook.accounts import Accounts
-from openhook.settings import Settings
+from openhook_hosted.settings import HostedSettings as Settings
 from openhook.store import Store
 from scripts.business_report import report
 

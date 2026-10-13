@@ -9,8 +9,9 @@ from xml.etree import ElementTree
 from starlette.testclient import TestClient
 
 from openhook.pages import PUBLIC_PATHS
-from openhook.settings import Settings
-from openhook.web import WebCall, WaitCall, create_app
+from openhook_hosted.settings import HostedSettings as Settings
+from openhook.web import WebCall, WaitCall
+from openhook_hosted.app import create_app
 
 
 def test_public_html_metadata_and_schema(tmp_path):

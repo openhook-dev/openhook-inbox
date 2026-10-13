@@ -42,3 +42,29 @@ def test_openclaw_receives_wakeup_payload():
     event = {"uuid": "event-1", "type": "web", "method": "POST", "url": "https://openhook.dev/h/abc", "content": "event"}
     with httpx.Client(transport=httpx.MockTransport(receive)) as client:
         deliver(client, event, "http://127.0.0.1:18789/hooks/agent", openclaw=True, hooks_token="local-secret")
+
+
+@pytest.mark.parametrize("openclaw", [False, True])
+def test_listener_reads_hook_token_only_for_openclaw(monkeypatch, tmp_path, openclaw):
+    from types import SimpleNamespace
+    from openhook import listener
+
+    reads = []
+
+    def getenv(name, default):
+        reads.append(name)
+        return "hook-secret"
+
+    class StopBeforeNetwork(Exception):
+        pass
+
+    def stop(**kwargs):
+        raise StopBeforeNetwork
+
+    monkeypatch.setattr(listener.os, "getenv", getenv)
+    monkeypatch.setattr(listener.httpx, "Client", stop)
+    args = SimpleNamespace(forward="" if openclaw else "http://localhost:8080", openclaw=openclaw,
+                           url="https://example.com", state_directory=str(tmp_path))
+    with pytest.raises(StopBeforeNetwork):
+        listener.run_client(args, "inbox-token")
+    assert ("OPENCLAW_HOOKS_TOKEN" in reads) == openclaw

@@ -27,7 +27,6 @@ dependencies = [
     "dnslib>=0.9.26",
     "uvicorn>=0.35.0",
     "starlette>=0.47.0",
-    "standardwebhooks>=1.0.0,<2",
     "prometheus-client>=0.21,<1",
     "markdownify>=1.2,<2",
 ]
@@ -66,3 +65,12 @@ asyncio_mode = "auto"
 testpaths = ["native_tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+[tool.uv.workspace]
+members = ["hosted"]
+
+[tool.uv.sources]
+openhook-mcp = { workspace = true }
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/hosted"]

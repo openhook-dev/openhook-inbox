@@ -1,4 +1,4 @@
-"""Explicit configuration shared by HTTP, MCP, SMTP, and DNS."""
+"""Core configuration: no hosted login or payment credentials."""
 
 from __future__ import annotations
 
@@ -20,25 +20,11 @@ class Settings:
     event_limit: int = 1000
     inbox_limit: int = 10000
     storage_limit: int = 1_073_741_824
-    hosted_enabled: bool = False
-    github_client_id: str = ""
-    github_client_secret: str = field(default="", repr=False)
+    hosted_enabled: bool = field(default=False, init=False)
     support_email: str = ""
     umami_script_url: str = ""
     umami_website_id: str = ""
     metrics_token: str = field(default="", repr=False)
-    billing_enabled: bool = False
-    billing_provider: str = "stripe"
-    polar_access_token: str = field(default="", repr=False)
-    polar_webhook_secret: str = field(default="", repr=False)
-    polar_organization_id: str = ""
-    polar_product_id: str = ""
-    polar_price_id: str = ""
-    polar_sandbox: bool = True
-    stripe_secret_key: str = field(default="", repr=False)
-    stripe_webhook_secret: str = field(default="", repr=False)
-    stripe_price_id: str = ""
-    stripe_live: bool = False
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -50,38 +36,20 @@ class Settings:
             dns_address=os.getenv("OPENHOOK_DNS_ADDRESS", cls.dns_address),
             smtp_port=int(os.getenv("OPENHOOK_SMTP_PORT", cls.smtp_port)),
             dns_port=int(os.getenv("OPENHOOK_DNS_PORT", cls.dns_port)),
-            hosted_enabled=os.getenv("OPENHOOK_HOSTED", "").lower() in {"1", "true"},
-            github_client_id=os.getenv("OPENHOOK_GITHUB_CLIENT_ID", ""),
-            github_client_secret=os.getenv("OPENHOOK_GITHUB_CLIENT_SECRET", ""),
             support_email=os.getenv("OPENHOOK_SUPPORT_EMAIL", ""),
             umami_script_url=os.getenv("OPENHOOK_UMAMI_SCRIPT_URL", ""),
             umami_website_id=os.getenv("OPENHOOK_UMAMI_WEBSITE_ID", ""),
             metrics_token=os.getenv("OPENHOOK_METRICS_TOKEN", ""),
-            billing_enabled=os.getenv("OPENHOOK_BILLING_ENABLED", "").lower() in {"1", "true"},
-            billing_provider=os.getenv("OPENHOOK_BILLING_PROVIDER", "stripe"),
-            polar_access_token=os.getenv("OPENHOOK_POLAR_ACCESS_TOKEN", ""),
-            polar_webhook_secret=os.getenv("OPENHOOK_POLAR_WEBHOOK_SECRET", ""),
-            polar_organization_id=os.getenv("OPENHOOK_POLAR_ORGANIZATION_ID", ""),
-            polar_product_id=os.getenv("OPENHOOK_POLAR_PRODUCT_ID", ""),
-            polar_price_id=os.getenv("OPENHOOK_POLAR_PRICE_ID", ""),
-            polar_sandbox=os.getenv("OPENHOOK_POLAR_SANDBOX", "true").lower() in {"1", "true"},
-            stripe_secret_key=os.getenv("OPENHOOK_STRIPE_SECRET_KEY", ""),
-            stripe_webhook_secret=os.getenv("OPENHOOK_STRIPE_WEBHOOK_SECRET", ""),
-            stripe_price_id=os.getenv("OPENHOOK_STRIPE_PRICE_ID", ""),
-            stripe_live=os.getenv("OPENHOOK_STRIPE_LIVE", "").lower() in {"1", "true"},
             storage_limit=int(os.getenv("OPENHOOK_STORAGE_LIMIT", cls.storage_limit)),
         )
 
     @property
-    def billing_configured(self) -> bool:
-        if self.billing_provider == "polar":
-            credentials = (self.polar_access_token, self.polar_webhook_secret,
-                           self.polar_organization_id, self.polar_product_id, self.polar_price_id)
-        elif self.billing_provider == "stripe":
-            credentials = (self.stripe_secret_key, self.stripe_price_id, self.stripe_webhook_secret)
-        else:
-            return False
-        return self.hosted_enabled and all(credentials)
+    def billing_ready(self) -> bool:
+        return False
+
+    @property
+    def billing_provider_label(self) -> str:
+        return ""
 
     def prepare(self) -> None:
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)

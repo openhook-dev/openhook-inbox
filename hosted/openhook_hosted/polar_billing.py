@@ -13,7 +13,7 @@ from uuid import UUID, uuid4
 import httpx
 from standardwebhooks import Webhook, WebhookVerificationError
 
-from openhook.billing import BillingBase
+from openhook_hosted.billing import BillingBase
 from openhook.errors import InboxError
 from openhook.hosted_store import PRO_RETENTION_SECONDS
 

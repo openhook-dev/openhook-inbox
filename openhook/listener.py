@@ -50,7 +50,7 @@ def run_client(args, token: str):
     destination = args.forward or ("http://127.0.0.1:18789/hooks/agent" if args.openclaw else "")
     wait_url = args.url.rstrip("/") + "/api/wait"
     cursor = Cursor(Path(args.state_directory), token, wait_url + "|" + destination)
-    hooks_token = os.getenv("OPENCLAW_HOOKS_TOKEN", "")
+    hooks_token = os.getenv("OPENCLAW_HOOKS_TOKEN", "") if args.openclaw else ""
     if args.openclaw and not hooks_token:
         raise ValueError("Set OPENCLAW_HOOKS_TOKEN before using --openclaw.")
     with httpx.Client(timeout=35, follow_redirects=False) as source, httpx.Client(timeout=15, follow_redirects=False) as local:

@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 from starlette.testclient import TestClient
 
 from openhook.pages import PUBLIC_PATHS
-from openhook.settings import Settings
-from openhook.web import create_app
+from openhook_hosted.settings import HostedSettings as Settings
+from openhook_hosted.app import create_app
 
 
 def test_public_links_and_guide_schema(tmp_path):

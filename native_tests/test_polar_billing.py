@@ -14,12 +14,12 @@ from standardwebhooks import Webhook
 from starlette.testclient import TestClient
 
 from openhook.accounts import Accounts
-from openhook.billing import billing_for
+from openhook_hosted.billing import billing_for
 from openhook.errors import InboxError
-from openhook.polar_billing import POLAR_VERSION, PolarBilling
-from openhook.settings import Settings
+from openhook_hosted.polar_billing import POLAR_VERSION, PolarBilling
+from openhook_hosted.settings import HostedSettings as Settings
 from openhook.store import Store
-from openhook.web import create_app
+from openhook_hosted.app import create_app
 
 API = 'https://sandbox-api.polar.sh/v1/'
 ORG, PRODUCT, PRICE, CUSTOMER, SUB, ORDER, CHECKOUT = [str(uuid4()) for _ in range(7)]
