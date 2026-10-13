@@ -440,7 +440,7 @@ class Store:
                 raise InboxError("Signing secret is not configured.", 503)
             return
         if provider == "stripe":
-            from openhook.billing import verify_signature
+            from openhook.signatures import verify_signature
             verify_signature(body, headers.get("stripe-signature", ""), secret)
             valid = True
         else:

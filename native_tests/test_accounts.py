@@ -13,10 +13,10 @@ import respx
 from starlette.testclient import TestClient
 
 from openhook.accounts import Accounts
-from openhook.hosted_web import cookie_name
-from openhook.settings import Settings
+from openhook_hosted.hosted_web import cookie_name
+from openhook_hosted.settings import HostedSettings as Settings
 from openhook.store import InboxError, Store
-from openhook.web import create_app
+from openhook_hosted.app import create_app
 
 
 @pytest.fixture

@@ -6,8 +6,8 @@ import pytest
 from starlette.testclient import TestClient
 
 from openhook.pages import PUBLIC_PATHS, prefers_markdown
-from openhook.settings import Settings
-from openhook.web import create_app
+from openhook_hosted.settings import HostedSettings as Settings
+from openhook_hosted.app import create_app
 from server import build_mcp
 
 

@@ -1,6 +1,8 @@
 services:
   openhook:
-    build: .
+    build:
+      context: .
+      target: hosted
     restart: unless-stopped
     environment:
       OPENHOOK_ORIGIN: ${OPENHOOK_ORIGIN:-https://openhook.dev}

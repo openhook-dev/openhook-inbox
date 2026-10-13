@@ -6,8 +6,6 @@ same SQLite transaction as entitlements, so retries cannot grant twice.
 
 from __future__ import annotations
 
-import hashlib
-import hmac
 import json
 import time
 from urllib.parse import quote, urlsplit
@@ -17,21 +15,9 @@ import httpx
 
 from openhook.errors import InboxError
 from openhook.hosted_store import PRO_RETENTION_SECONDS
+from openhook.signatures import verify_signature
 
 STRIPE_VERSION = "2025-06-30.basil"
-
-
-def verify_signature(body: bytes, signature: str, secret: str) -> None:
-    values = [value.strip().partition("=") for value in signature.split(",")]
-    sent = next((value for key, _, value in values if key == "t"), "")
-    try:
-        if not secret or abs(time.time() - int(sent)) > 300:
-            raise ValueError
-    except ValueError:
-        raise InboxError("Invalid or expired Stripe signature.", 401) from None
-    expected = hmac.new(secret.encode(), sent.encode() + b"." + body, hashlib.sha256).hexdigest()
-    if not any(hmac.compare_digest(value, expected) for key, _, value in values if key == "v1"):
-        raise InboxError("Invalid Stripe signature.", 401)
 
 
 class BillingBase:
@@ -232,6 +218,6 @@ class Billing(BillingBase):
 
 def billing_for(store):
     if store.settings.billing_provider == "polar":
-        from openhook.polar_billing import PolarBilling
+        from openhook_hosted.polar_billing import PolarBilling
         return PolarBilling(store)
     return Billing(store)

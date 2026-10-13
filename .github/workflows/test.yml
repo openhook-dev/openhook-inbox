@@ -17,10 +17,14 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
-      - run: uv sync --frozen --extra dev
-      - run: uv run pytest -q
+      - run: uv sync --frozen --all-packages --extra dev
+      - run: uv run --no-sync pytest -q
       - run: uv run python scripts/generate_docs.py --check
       - run: node --check web/assets/app.js
       - run: node --check web/assets/home.js
       - run: node --check web/assets/account.js
       - run: node --test native_tests/analytics.test.mjs
+      - run: uv build --all-packages
+      - run: uv venv /tmp/openhook-core-check
+      - run: uv pip install --python /tmp/openhook-core-check/bin/python dist/openhook_mcp-*.whl
+      - run: /tmp/openhook-core-check/bin/python -I scripts/check_core_distribution.py dist/openhook_mcp-*.whl

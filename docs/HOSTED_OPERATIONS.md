@@ -5,6 +5,33 @@ and self-hostable. Do not enable live checkout until the launch checks below pas
 The application adds tables alongside existing inboxes; it does not convert free
 inboxes or change their expiry.
 
+## Install and upgrade
+
+Login and payment adapters live in the separate `hosted/` package. The default
+`uv sync`, `openhook --http`, `openhook` (stdio), and `Dockerfile` install/run only
+the core. They do not load GitHub login, Stripe billing, or Polar credentials.
+
+For a hosted deployment, keep the existing database, environment variables and
+volume, and explicitly run the hosted entry point:
+
+```sh
+uv sync --package openhook-hosted
+uv run --package openhook-hosted openhook-hosted --host 0.0.0.0 --port 8788
+```
+
+Containers must use `docker build --target hosted .`; `compose.dokploy.yaml`
+selects this target.
+For ASGI deployments replace `web_app:create_app` with
+`openhook_hosted.app:create_app` (factory mode). Change the build/entry point in
+the same release as this package split. Do not deploy the core-only image against
+a hosted customer database: owned inboxes deliberately prevent core startup.
+There is no schema migration or payment-provider change in this split.
+
+`OPENHOOK_HOSTED=false` prevents loading operator login/payment credentials.
+With hosted mode enabled, only `OPENHOOK_BILLING_PROVIDER`'s credentials are
+loaded. Disabling new sales still keeps payment reconciliation and the portal
+working for existing customers.
+
 ## Polar (openhook.dev)
 
 Set `OPENHOOK_BILLING_PROVIDER=polar`. The default remains `stripe` for existing

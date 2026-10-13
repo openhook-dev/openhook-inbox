@@ -133,7 +133,8 @@ for the configured zone and does not provide recursion.
 
 ## Deploy
 
-Use the Dockerfile and `compose.dokploy.yaml` in a separate Dokploy project.
+Use `Dockerfile` for the core service. Hosted deployments build its
+`hosted` target; `compose.dokploy.yaml` selects that image in a separate Dokploy project.
 Attach the Openhook domain to service `openhook`, port 8788. Its named data
 volume survives releases. See [deployment notes](docs/deployment.md).
 
@@ -174,7 +175,7 @@ bun run build
 ```
 
 ```sh
-uv run --extra dev pytest
+uv run --all-packages --extra dev pytest
 node --check web/assets/app.js
 ```
 
@@ -185,7 +186,8 @@ MIT licensed. Required third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD
 
 ## Hosted development and contributing
 
-Accounts and billing are disabled by default. The optional hosted edition adds
+The core package does not include billing adapters or read operator payment/login
+credentials. The separately installed [`hosted/`](hosted/) package adds
 GitHub identity, revocable agent keys, owned inboxes, and verified paid-invoice
 entitlements. See [hosted operations](docs/HOSTED_OPERATIONS.md) for configuration,
 limits, test-mode requirements, and launch dependencies. No real merchant or paid

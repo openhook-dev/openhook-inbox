@@ -8,10 +8,11 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.routing import Route
 
-from openhook.accounts import Accounts, OAUTH_SECONDS, SESSION_SECONDS, github_identity
+from openhook.accounts import Accounts, OAUTH_SECONDS, SESSION_SECONDS
+from openhook_hosted.oauth import github_identity
 from openhook.store import InboxError
 from openhook.http_errors import problem
-from openhook.billing import Billing, billing_for
+from openhook_hosted.billing import Billing, billing_for
 
 
 class KeyCall(BaseModel):

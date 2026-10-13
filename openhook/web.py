@@ -29,7 +29,6 @@ from server import build_mcp
 from openhook.discovery import openapi_schema, tools_markdown
 from openhook.pages import CSP, PAGES, PUBLIC_PATHS, PRIVATE_PATHS, WEB_ROOT, render_page, template, markdown_page, prefers_markdown
 from openhook.accounts import Accounts
-from openhook.hosted_web import ROUTES as HOSTED_ROUTES
 from openhook.metrics import RequestMetrics, metrics_response
 from openhook.http_errors import http_error, problem
 from openhook.agent_discovery import ROUTES as DISCOVERY_ROUTES
@@ -304,7 +303,7 @@ class PublicCompression:
         await app(scope, receive, send)
 
 
-def create_app(settings: Settings | None = None):
+def create_app(settings: Settings | None = None, *, hosted_routes=()):
     settings = settings or Settings.from_env()
     if settings.metrics_token and len(settings.metrics_token) < 32:
         raise ValueError("OPENHOOK_METRICS_TOKEN must have at least 32 characters.")
@@ -341,7 +340,7 @@ def create_app(settings: Settings | None = None):
     app.router.lifespan_context = lifespan
     app.router.routes.extend([
         *DISCOVERY_ROUTES,
-        *HOSTED_ROUTES,
+        *hosted_routes,
         Route("/api/v1/call", api_call, methods=["POST"]), Route("/api/v1/wait", wait_events, methods=["POST"]),
         Route("/api/v1/export", export_events, methods=["POST"]), Route("/api/v1/tools", tools_catalog),
         Route("/health", health), Route("/metrics", metrics_response), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),

@@ -13,10 +13,10 @@ import respx
 from starlette.testclient import TestClient
 
 from openhook.accounts import Accounts
-from openhook.billing import Billing, STRIPE_VERSION
-from openhook.settings import Settings
+from openhook_hosted.billing import Billing, STRIPE_VERSION
+from openhook_hosted.settings import HostedSettings as Settings
 from openhook.store import InboxError, Store
-from openhook.web import create_app
+from openhook_hosted.app import create_app
 
 API = 'https://api.stripe.com/v1/'
 

@@ -14,8 +14,8 @@ capture must preserve raw bytes, private-token isolation, idempotency, and atomi
 activity history. Do not introduce a hosted dependency into self-hosted core flows.
 
 ```sh
-uv sync --extra dev
-uv run pytest -q
+uv sync --all-packages --extra dev
+uv run --all-packages --extra dev pytest -q
 uv run python scripts/generate_docs.py --check
 bun run build
 node --check web/assets/app.js

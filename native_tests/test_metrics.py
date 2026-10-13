@@ -5,8 +5,8 @@ from dataclasses import replace
 from starlette.testclient import TestClient
 
 from openhook.metrics import CAPTURES, REGISTRY
-from openhook.settings import Settings
-from openhook.web import create_app
+from openhook_hosted.settings import HostedSettings as Settings
+from openhook_hosted.app import create_app
 
 
 def test_metrics_auth_redaction_and_accepted_events(tmp_path):

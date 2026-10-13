@@ -94,9 +94,8 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     values["guide_links"] = "\n".join(
         f'<li><a href="{url}">{escape(meta[1].split(" — ")[0])}</a><p>{escape(meta[2])}</p></li>'
         for url, meta in PAGES.items() if url.startswith("/guides/"))
-    billing_ready = bool(settings.billing_enabled and settings.billing_configured
-                         and settings.github_client_id and settings.github_client_secret)
-    values["billing_provider"] = "Polar" if settings.billing_provider == "polar" else "Stripe"
+    billing_ready = settings.billing_ready
+    values["billing_provider"] = settings.billing_provider_label
     values["support_link"] = (f'<a href="mailto:{escape(settings.support_email, quote=True)}">Support</a>'
                               if settings.support_email else '')
     values["support_contact"] = (f'Email <a href="mailto:{escape(settings.support_email, quote=True)}">{escape(settings.support_email)}</a> for hosted service questions or private reports.'

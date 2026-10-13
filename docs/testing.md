@@ -1,6 +1,6 @@
 # Testing Openhook
 
-Run `uv run --extra dev pytest -q`, `uv run python scripts/generate_docs.py --check`,
+Run `uv run --all-packages --extra dev pytest -q`, `uv run python scripts/generate_docs.py --check`,
 and `node --check web/assets/app.js`.
 
 The suite covers native persistence, capability isolation, raw-byte signatures,
@@ -64,3 +64,8 @@ Validated locally on 2026-10-10:
   `get_webhook_activity`.
 
 These are local checks; the dated public release evidence above is separate.
+
+CI also builds both packages and installs only the core wheel in an isolated
+Python environment. `scripts/check_core_distribution.py` rejects hosted imports
+and credential reads while exercising signed HTTP capture and MCP reads. This
+catches dependencies accidentally masked by a developer's full workspace.

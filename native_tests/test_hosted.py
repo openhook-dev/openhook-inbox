@@ -11,7 +11,7 @@ from starlette.testclient import TestClient
 
 from openhook import hosted_store
 from openhook.accounts import Accounts
-from openhook.settings import Settings
+from openhook_hosted.settings import HostedSettings as Settings
 from openhook.store import InboxError, Store
 
 
@@ -51,7 +51,7 @@ def test_free_account_cannot_create_paid_inbox_or_impersonate_owner(hosted):
     assert exc.value.status==402
     assert store.create()['hosted'] is False
     key=service.create_key(account,'agent')
-    from openhook.web import create_app
+    from openhook_hosted.app import create_app
     with TestClient(create_app(store.settings),base_url=store.settings.origin) as client:
         created=client.post('/api/account/inboxes',headers={'Authorization':'Bearer '+key['key']},json={'name':'Agent inbox'})
         assert created.status_code==201
@@ -163,7 +163,7 @@ def test_notes_cannot_bypass_retained_storage_limit(hosted,monkeypatch):
 def test_hosted_mcp_uses_owned_inboxes_and_rejects_revoked_account_keys(hosted):
     store,service,account=hosted
     key=service.create_key(account,'MCP')
-    from openhook.web import create_app
+    from openhook_hosted.app import create_app
     with TestClient(create_app(store.settings),base_url=store.settings.origin) as client:
         def tool(name,arguments):
             response=client.post('/mcp',headers={'Accept':'application/json, text/event-stream'},json={
