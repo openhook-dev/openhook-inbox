@@ -6,6 +6,7 @@ import asyncio
 import json
 import time
 import math
+import re
 from collections import deque
 from contextlib import asynccontextmanager
 from html import escape
@@ -15,6 +16,7 @@ from urllib.parse import urlsplit
 from mcp.server.transport_security import TransportSecuritySettings
 from pydantic import BaseModel, Field, ValidationError
 from starlette.exceptions import HTTPException
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response, StreamingResponse
 from starlette.routing import Mount, Route
@@ -192,7 +194,7 @@ async def openapi(request):
 
 
 async def robots(request):
-    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /account\nDisallow: /auth/\nDisallow: /billing/\nDisallow: /mcp\nDisallow: /health\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
+    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nAllow: /api/v1/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /account\nDisallow: /auth/\nDisallow: /billing/\nDisallow: /mcp\nDisallow: /health\nDisallow: /metrics\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
 
 
 async def sitemap(request):
@@ -222,6 +224,15 @@ class WebBoundary:
             query = scope.get("query_string", b"").decode()
             target = self.settings.origin + path + ("?" + query if query else "")
             return await RedirectResponse(target, status_code=308)(scope, receive, send)
+        if scope["method"] in {"GET", "HEAD"}:
+            canonical_path = path.rstrip("/")
+            if path.endswith("/") and canonical_path in PUBLIC_PATHS:
+                query = scope.get("query_string", b"").decode()
+                target = canonical_path + ("?" + query if query else "")
+                return await RedirectResponse(target, status_code=308)(scope, receive, send)
+            # Old indexed account links now lead to the current sign-in/access flow.
+            if self.settings.hosted_enabled and path in {"/signup", "/login", "/dashboard", "/settings", "/settings/api-keys"}:
+                return await RedirectResponse("/account", status_code=308)(scope, receive, send)
         protected = path.startswith(("/api/", "/mcp"))
         if protected and headers.get("origin") not in {None, self.settings.origin}:
             return await problem(403, "Origin is not allowed.")(scope, receive, send)
@@ -270,10 +281,27 @@ class WebBoundary:
                 if protected or path in {"/app", "/account"} or path.startswith("/auth/"):
                     message["headers"].append((b"cache-control", b"no-store"))
                 elif path.startswith("/assets/"):
-                    message["headers"].append((b"cache-control", b"no-cache"))
+                    versioned = re.fullmatch(rb"v=[0-9a-f]{12}", scope.get("query_string", b""))
+                    policy = b"public, max-age=31536000, immutable" if versioned and message["status"] in {200, 304} else b"no-cache"
+                    message["headers"].append((b"cache-control", policy))
             await send(message)
 
         await self.app(scope, bounded_receive, secure_send)
+
+
+class PublicCompression:
+    """Compress public documents/assets; never buffer MCP or private responses."""
+
+    def __init__(self, app):
+        self.app = app
+        self.compressed = GZipMiddleware(app, minimum_size=1000, compresslevel=5)
+
+    async def __call__(self, scope, receive, send):
+        path = scope.get("path", "")
+        public = path in PUBLIC_PATHS or path.startswith("/assets/") or path in {
+            "/sitemap.xml", "/openapi.json", "/llms.txt", "/llms-full.txt", "/agents.md", "/docs.md", "/skill.md"}
+        app = self.compressed if scope["type"] == "http" and public else self.app
+        await app(scope, receive, send)
 
 
 def create_app(settings: Settings | None = None):
@@ -327,5 +355,6 @@ def create_app(settings: Settings | None = None):
         Mount("/assets", StaticFiles(directory=WEB_ROOT / "assets")),
     ])
     app.add_middleware(WebBoundary, settings=settings)
+    app.add_middleware(PublicCompression)
     app.add_middleware(RequestMetrics)
     return app

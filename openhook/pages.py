@@ -20,7 +20,7 @@ CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' d
 PAGES = {
     "/about": ("about", "About Openhook — Open-source webhook service for AI agents", "Learn what Openhook does, who it serves, how the open-source project and hosted service work, and their limits."),
     "/contact": ("contact", "Contact Openhook — Support and project links", "Contact Openhook support, report a bug, find the source code, or ask about hosted accounts without sharing secrets."),
-    "/": ("home", "Openhook — Webhooks for AI agents", "Give your agent a public webhook URL. Test local integrations, wait for callbacks, and forward events without exposing your laptop. Open source."),
+    "/": ("home", "Openhook — Webhook testing and MCP inbox for AI agents", "Test webhooks with a free public URL. Inspect requests, receive callbacks through MCP, and forward events to localhost. Open source and self-hostable."),
     "/connect": ("connect", "Connect your AI agent — Openhook", "Connect Claude Code, Cursor, VS Code, or a local MCP client to Openhook. Create a webhook inbox and receive your first event."),
     "/docs": ("docs", "Webhook MCP tools and API documentation — Openhook", "Create webhook inboxes, inspect payloads, wait with a cursor, and forward events locally. Live MCP tool schemas and REST API documentation."),
     "/agents": ("agents", "Webhook testing and notifications for agents — Openhook", "A practical guide for AI agents: public webhook URLs, local testing, event waits, local notifications, private tokens, and resumable delivery."),
@@ -28,6 +28,11 @@ PAGES = {
     "/app": ("app", "Your webhook inboxes — Openhook", "Create a webhook inbox and inspect captured events on this device."),
     "/account": ("account", "Your hosted account — Openhook", "Manage your Openhook hosted account and agent access."),
     "/pricing": ("pricing", "Hosted plans and self-hosting — Openhook", "Try a free webhook inbox, run Openhook yourself, or explore persistent hosted inboxes for your agent."),
+    "/guides": ("guides", "Webhook testing guides — Openhook", "Practical guides to testing webhooks, forwarding events to localhost, verifying GitHub deliveries, and self-hosting an MCP inbox with Openhook."),
+    "/guides/webhook-testing": ("webhook-testing", "Test webhooks with curl and an AI agent — Openhook", "Create a free webhook URL, send a JSON request, inspect its body and headers, and clean up. A working curl and MCP walkthrough using Openhook."),
+    "/guides/local-webhooks": ("local-webhooks", "Receive webhooks on localhost without a tunnel — Openhook", "Forward captured webhook requests to a local HTTP handler with Openhook. Understand retries, signing secrets, cursors, and the limits of queued delivery."),
+    "/guides/github-webhooks": ("github-webhooks", "Test GitHub webhooks with an MCP inbox — Openhook", "Receive GitHub push events in Openhook, verify webhook signatures, inspect delivery IDs, and clean up a test subscription from your AI agent."),
+    "/guides/self-hosting": ("self-hosting", "Self-host a webhook receiver and MCP server — Openhook", "Run Openhook with Python and uv, persist webhook events in SQLite, connect an MCP client, and configure public HTTPS routing for external callbacks."),
 }
 PRIVATE_PATHS = {"/app", "/account"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
@@ -86,6 +91,9 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
               "canonical": escape(canonical), "alternate": alternate, "alternate_type": alternate_type,
               "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit),
               "tool_count": str(len(tools)), "tools": tool_rows(tools)}
+    values["guide_links"] = "\n".join(
+        f'<li><a href="{url}">{escape(meta[1].split(" — ")[0])}</a><p>{escape(meta[2])}</p></li>'
+        for url, meta in PAGES.items() if url.startswith("/guides/"))
     billing_ready = bool(settings.billing_enabled and settings.billing_configured
                          and settings.github_client_id and settings.github_client_secret)
     values["billing_provider"] = "Polar" if settings.billing_provider == "polar" else "Stripe"
@@ -121,10 +129,24 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
              "inLanguage": "en", "isPartOf": {"@id": origin + "/#website"}, "about": {"@id": origin + "/#software"}},
         ]
         if path != "/":
+            crumbs = [("Openhook", origin + "/")]
+            if path.startswith("/guides/"):
+                crumbs.append(("Guides", origin + "/guides"))
+            crumbs.append((title.split(" — ")[0], canonical))
             graph.append({"@type": "BreadcrumbList", "itemListElement": [
-                {"@type": "ListItem", "position": 1, "name": "Openhook", "item": origin + "/"},
-                {"@type": "ListItem", "position": 2, "name": title.split(" — ")[0], "item": canonical},
-            ]})
+                {"@type": "ListItem", "position": i, "name": label, "item": url}
+                for i, (label, url) in enumerate(crumbs, 1)]})
+        if path.startswith("/guides/"):
+            graph.append({"@type": "TechArticle", "@id": canonical + "#article", "headline": title.split(" — ")[0],
+                          "description": description, "inLanguage": "en", "url": canonical,
+                          "mainEntityOfPage": {"@id": canonical + "#page"}, "about": {"@id": origin + "/#software"},
+                          "author": {"@id": origin + "/#organization"}, "publisher": {"@id": origin + "/#organization"}})
+        if path in {"/", "/pricing"}:
+            graph[2]["offers"] = [{"@type": "Offer", "name": "Free hosted inbox", "price": "0", "priceCurrency": "USD", "url": origin + "/pricing"}]
+            if billing_ready:
+                graph[2]["offers"].append({"@type": "Offer", "name": "Hosted Pro monthly subscription", "url": origin + "/pricing",
+                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "19", "priceCurrency": "USD",
+                                           "billingDuration": "P1M", "valueAddedTaxIncluded": False}})
         if settings.support_email:
             graph[0]["contactPoint"] = {"@type": "ContactPoint", "contactType": "customer support", "email": settings.support_email, "url": origin + "/contact"}
         data = json.dumps({"@context": "https://schema.org", "@graph": graph}, separators=(",", ":")).replace("<", "\\u003c")
