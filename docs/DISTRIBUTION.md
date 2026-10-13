@@ -1,6 +1,6 @@
 # Openhook distribution tracker
 
-Last checked: 2026-10-13. Submission does not mean curator acceptance or new users.
+Last checked: 2026-10-14 (Europe/Berlin). Submission does not mean curator acceptance or new users.
 
 ## Published installation
 
@@ -14,12 +14,27 @@ npx skills add openhook-dev/openhook-inbox --skill openhook
 Verified public discovery with `npx skills add openhook-dev/openhook-inbox --list`.
 The project passed 97 Python tests and the generated-docs check. Both CI runs
 passed before merge. The hosted first-callback example successfully sent and read
-a matching payload, then cleaned up its disposable inbox on 2026-10-13.
+a matching payload, then cleaned up its disposable inbox again on 2026-10-14.
+
+## Official MCP Registry
+
+Published version `0.1.0` of `io.github.openhook-dev/openhook-inbox` and verified
+its [public registry record](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.openhook-dev/openhook-inbox)
+is `active` and latest. It points to `https://openhook.dev/mcp`, this repository,
+and the Openhook website. Publication completed in
+[workflow run 38479763582](https://github.com/openhook-dev/openhook-inbox/actions/runs/38479763582)
+using GitHub workload identity. Registry presence is not a security certification
+or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 ## Submissions
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| agentskillexchange/skills | [PR #113](https://github.com/agentskillexchange/skills/pull/113) open. Skill metadata validator and 79-pattern security scan passed with no findings. Maintainer affiliation disclosed; verification level is `listed`. | Respond to curator feedback; verify after merge. |
+| OpenAgentSkill | [Submission form](https://www.openagentskill.com/submit) confirmed saved for review; receipt `a9f8ce40`. Human review required for credential instructions and network execution. | Follow the existing receipt; submission is not publication or installation approval. |
+| Skillboard | [Submission form](https://www.skillboard.lol/submit) confirmed “Thanks – submitted for review.” Canonical skill directory submitted. | Check for curator publication; do not resubmit while pending. |
+| AgentNDX | [Submission form](https://agentndx.ai/submit/) confirmed “Submission received.” MCP server submitted with maintainer disclosure; optional contact email omitted. | Check after its stated 48-hour review window; publication is not yet verified. |
+| MCP.Directory | [Submission form](https://mcp.directory/submit) confirmed “Server Submitted!” Repository and description submitted; optional email and unpublished package names omitted. | Check after its stated 24-hour review window; reconcile with any official Registry import. |
 | heilcheng/awesome-agent-skills | [PR #586](https://github.com/heilcheng/awesome-agent-skills/pull/586) open under Community Skills / Development and Testing; local required website build passed. Vercel's preview check is blocked on authorization by the collection owner's team, per its [bot comment](https://github.com/heilcheng/awesome-agent-skills/pull/586#issuecomment-6151302619). | Maintainer must authorize their preview; respond to review and verify after merge. |
 | junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) open; matching English/Chinese entries; GitHub-verified commit. | Respond to maintainer feedback; verify the listing after merge. |
 | realadeel/awesome-webhooks | [PR #91](https://github.com/realadeel/awesome-webhooks/pull/91) open under Development Tools. | Respond to maintainer feedback; verify after merge. |
@@ -42,12 +57,18 @@ M8ven reports no concerning findings and says new projects are capped at C
 until they earn adoption. This is their static assessment of an older commit,
 not a current-release security guarantee or evidence of independent users.
 
-No new human maintainer feedback was present on the three review-ready
-collection PRs at the latest 2026-10-13 check. The remaining actions on the
-selected channels require the publisher approvals above or external review.
+No new human maintainer feedback was present on the three earlier review-ready
+collection PRs at the latest 2026-10-14 check. The Agent Skill Exchange PR also
+had no feedback at submission. Check existing receipts and PRs before following up.
 
 ## Deferred destinations
 
+- [Launch MCP](https://launchmcp.co/submit): duplicate check found no listing or
+  pending submission. Free submission is prepared but was blocked by automatic
+  approval review because it requires sending the support email to a new third
+  party. Await specific approval; no submission occurred.
+- [Skills Directory](https://www.skillsdirectory.com/): submission redirects to
+  sign-in/account creation. No account or listing was created.
 - [PulseMCP](https://www.pulsemcp.com/): homepage explicitly says new server
   submissions and listing changes are paused. Revisit when submissions reopen.
 - [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills):
