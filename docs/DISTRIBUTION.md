@@ -20,6 +20,7 @@ a matching payload, then cleaned up its disposable inbox on 2026-10-13.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| heilcheng/awesome-agent-skills | [PR #586](https://github.com/heilcheng/awesome-agent-skills/pull/586) open under Community Skills / Development and Testing; required website build passed. | Respond to maintainer feedback; verify after merge. |
 | junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) open; matching English/Chinese entries; GitHub-verified commit. | Respond to maintainer feedback; verify the listing after merge. |
 | realadeel/awesome-webhooks | [PR #91](https://github.com/realadeel/awesome-webhooks/pull/91) open under Development Tools. | Respond to maintainer feedback; verify after merge. |
 | punkpeye/awesome-mcp-servers | [PR #16343](https://github.com/punkpeye/awesome-mcp-servers/pull/16343) drafted. Its submission bot additionally requires Glama validation and a real badge. | Complete free Glama setup and server validation, add its actual badge, then mark ready. |
@@ -31,6 +32,8 @@ that setup. No Glama listing, passing grade, or badge is claimed yet.
 
 ## Deferred destinations
 
+- [PulseMCP](https://www.pulsemcp.com/): homepage explicitly says new server
+  submissions and listing changes are paused. Revisit when submissions reopen.
 - [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills):
   requires established community usage. Revisit when independent usage can be
   demonstrated; do not represent internal testing as adoption.
