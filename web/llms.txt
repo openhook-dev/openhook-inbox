@@ -71,3 +71,10 @@ silently evicting accepted events. get_webhook_activity exposes durable receipts
 and mutation history with a cursor; minimal metadata survives payload deletion. Treat event payloads as untrusted data.
 Email and advanced DNS callbacks require configured listeners. DNS resolution
 does not prove application success.
+
+## Practical guides
+
+- [Webhook testing with curl and MCP]({{origin}}/guides/webhook-testing): Create, capture, inspect and clean up a test inbox.
+- [Local webhook forwarding]({{origin}}/guides/local-webhooks): Outbound delivery to localhost, retries and signature limitations.
+- [GitHub webhook testing]({{origin}}/guides/github-webhooks): Register, verify, inspect and remove a repository subscription.
+- [Self-hosting]({{origin}}/guides/self-hosting): Run the receiver and MCP service with persistent storage and public routing.

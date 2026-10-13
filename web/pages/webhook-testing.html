@@ -1,0 +1,24 @@
+<div class="page-head"><div><p class="eyebrow"><a href="/">Openhook</a> / <a href="/guides">Guides</a></p><h1>Test a webhook with curl and an AI agent.</h1><p>Create a public receiver, send a JSON payload, and inspect exactly what arrived. The free hosted workflow needs no account or credit card.</p></div></div>
+<div class="page-body reading">
+  <section><h2>What you need</h2><p>Use curl, jq and a POSIX shell, or connect an MCP client through the <a href="/connect">setup guide</a>. A webhook is an HTTP callback: the sending service posts an event to your public URL. An inbox lets you inspect that request before connecting it to application logic.</p></section>
+  <section><h2>1. Create an inbox</h2><p>Run this in one shell session. The private token stays in a variable; do not enable shell tracing or paste the response into a public issue.</p><pre>OPENHOOK_URL='{{origin}}'
+INBOX=$(curl --fail-with-body -sS "$OPENHOOK_URL/api/v1/call" \
+  -H 'Content-Type: application/json' -d '{"action":"create"}')
+OPENHOOK_TOKEN=$(printf '%s' "$INBOX" | jq -er '.data.token')
+CAPTURE_URL=$(printf '%s' "$INBOX" | jq -er '.data.url')</pre><p>Share <code>CAPTURE_URL</code> with the sender. The capture address cannot read stored events. <code>OPENHOOK_TOKEN</code> can read and delete them, so treat it as a password.</p></section>
+  <section><h2>2. Send a test request</h2><pre>curl --fail-with-body -sS "$CAPTURE_URL" \
+  -H 'Content-Type: application/json' \
+  -d '{"event":"example.completed","test":true}'</pre><p>A successful capture means Openhook stored the request. It does not prove that your application processed it. Use provider sandbox events when testing an actual payment or account workflow.</p></section>
+  <section><h2>3. Read the captured event</h2><pre>jq -nc --arg token "$OPENHOOK_TOKEN" \
+  '{token:$token,since:0,timeout_seconds:5}' | \
+  curl --fail-with-body -sS "$OPENHOOK_URL/api/v1/wait" \
+    -H 'Content-Type: application/json' --data-binary @- | \
+  jq '.data | {request, next_since, timeout}'</pre><p>The event includes the method, URL, headers, a text <code>content</code> view and <code>body_base64</code> for exact bytes. Starting at <code>since: 0</code> includes requests that arrived before the wait. Store <code>next_since</code> after processing succeeds and pass it to the next wait.</p><p>If the wait times out, <code>request</code> is null. Check the capture URL, sender delivery log and inbox expiry before sending another request. A 429 response includes <code>Retry-After</code>; a full inbox needs cleanup.</p></section>
+  <section><h2>The same workflow through MCP</h2><p>Ask your connected agent:</p><pre>Create an Openhook inbox for a webhook test. Keep its private
+token with this task and give me only the public capture URL.
+Wait with since: 0, inspect the method, headers and JSON body,
+and tell me whether event is example.completed.</pre><p>The underlying tools are <code>create_webhook</code> and <code>wait_for_request</code>. A wait continues a running agent session; it does not restart a closed session. See the <a href="/docs">tool reference</a> for schemas.</p></section>
+  <section><h2>4. Clean up</h2><pre>jq -nc --arg token "$OPENHOOK_TOKEN" '{action:"delete",token:$token}' | \
+  curl --fail-with-body -sS "$OPENHOOK_URL/api/v1/call" \
+    -H 'Content-Type: application/json' --data-binary @-</pre><p>Remove any provider webhook subscription before deleting its inbox. Free inboxes expire within seven days and retain up to {{event_limit}} events. For recurring tests with a stable address, compare <a href="/pricing">hosted plans</a>.</p><p>Next: <a href="/guides/local-webhooks">send captured events to a local handler</a> or <a href="/guides/github-webhooks">connect GitHub events</a>.</p></section>
+</div>

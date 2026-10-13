@@ -1,6 +1,6 @@
 <div class="text-home">
   <section class="intro" aria-labelledby="intro-title">
-    <h1 id="intro-title">An inbox for your agent.</h1>
+    <h1 id="intro-title">A webhook inbox for your AI agent.</h1>
     <p>Give your agent a webhook URL.<br>Let it continue when the event arrives.</p>
     <div class="actions"><a href="/app">Create an inbox</a><a href="/connect">Connect your agent</a></div>
     <p class="quiet">Open source. No account needed.</p>
@@ -38,5 +38,13 @@
     <p>Openhook receives and stores its own events. Use this service or run it on your server. Receive email too.</p>
     <p><a href="https://github.com/openhook-dev/openhook-inbox">Source on GitHub</a></p>
     <p class="quiet">Free inboxes last up to seven days. Keep your reading key private. <a href="/pricing">Compare hosted plans and self-hosting</a>.</p>
+  </section>
+  <section class="home-section" aria-labelledby="guides-title">
+    <h2 id="guides-title">Build and debug webhook integrations.</h2>
+    <p>Start with a <a href="/guides/webhook-testing">curl webhook test</a>, <a href="/guides/local-webhooks">forward events to localhost</a>, or <a href="/guides/github-webhooks">receive a GitHub push</a>. For your own infrastructure, follow the <a href="/guides/self-hosting">self-hosting guide</a>.</p>
+    <h2>What is a webhook inbox?</h2>
+    <p>A webhook inbox is a public URL that receives HTTP requests and stores their bodies and headers for inspection. Openhook gives your AI agent access through MCP, alongside a browser inspector and REST API.</p>
+    <h2>Does Openhook replace a tunnel?</h2>
+    <p>For inspecting or forwarding stored callbacks, you can use Openhook without opening an inbound port on your laptop. It acknowledges the sender before forwarding. Use a tunnel when the sender needs your local handler’s immediate response.</p>
   </section>
 </div>
