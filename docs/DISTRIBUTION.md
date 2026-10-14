@@ -30,6 +30,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| ComposioHQ/awesome-claude-skills | [PR #2218](https://github.com/ComposioHQ/awesome-claude-skills/pull/2218) open in Development & Code Tools. Listing validation and Socket checks passed; repository automation applied `ready-to-merge`. 77,048 stars at the 2026-10-14 check. | Await maintainer merge; the label is not acceptance or publication. |
+| yzfly/Awesome-MCP-ZH | [PR #733](https://github.com/yzfly/Awesome-MCP-ZH/pull/733) open in Development & Code Execution. Chinese description, license, runtime and authorization details included. 7,728 stars at the 2026-10-14 check. | Respond to review; verify the default-branch listing after merge. |
 | rohitg00/awesome-devops-mcp-servers | [PR #365](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365) submitted under Testing & Chaos Engineering, with Python and hosted/self-hosted scope icons. Maintainer affiliation and AI assistance disclosed. CodeRabbit's check passed with no actionable changes, but its [comment](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365#issuecomment-6162889166) flags possible promotional spam. | Await human maintainer review; do not duplicate or auto-reply to the bot. |
 | TensorBlock/awesome-mcp-servers | [PR #3674](https://github.com/TensorBlock/awesome-mcp-servers/pull/3674) submitted under Developer Productivity & Utilities. Includes structured metadata distinguishing unauthenticated MCP connection from private per-inbox authorization. Catalog build: 8,493 entries, zero errors; generated Openhook record verified. | Respond to review; verify the hosted catalog profile after merge/deployment. |
 | agentskillexchange/skills | [PR #113](https://github.com/agentskillexchange/skills/pull/113) open. Skill metadata validator and 79-pattern security scan passed with no findings. Maintainer affiliation disclosed; verification level is `listed`. | Respond to curator feedback; verify after merge. |
@@ -65,6 +67,22 @@ had no feedback at submission. Check existing receipts and PRs before following 
 
 ## Deferred destinations
 
+- [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code/blob/main/CONTRIBUTING.md)
+  (55,642 stars): recommendations must be made by a human through its web issue
+  form. Also requires 14 days of default-branch history plus subsequent development,
+  or 100 stars. Openhook currently has zero stars and its repository was created
+  on 2026-10-03. No automated submission; confirm first-commit age before a future
+  human recommendation.
+- [github/awesome-copilot](https://github.com/github/awesome-copilot/blob/main/CONTRIBUTING.md)
+  (39,998 stars): a relevant skill contribution is possible, but its checklist
+  requires actual testing with GitHub Copilot. Current protocol-level validation
+  is not a Copilot test; no submission or checked testing attestation.
+- [travisvn/awesome-claude-skills](https://github.com/travisvn/awesome-claude-skills/blob/main/CONTRIBUTING.md)
+  (15,396 stars): requires at least 10 stars and prohibits AI-assisted submissions.
+  No automated contribution; do not disguise authorship or buy stars.
+- dipakkr/awesome-ai-engineering (22,380 stars): inspected default-branch content
+  is primarily a broad student/developer resource list. No strong matching MCP
+  category was found; deprioritized despite its star count.
 - block/agent-skills is archived as checked on 2026-10-14; no submission.
 - JackyST0/awesome-agent-skills requires 64 GitHub stars by default; defer until
   eligibility is established rather than requesting an exception for promotion.
@@ -111,3 +129,22 @@ platform rules. No article or social post has been published to an external
 account. The tutorial's callback example passed again on 2026-10-14. HN requires
 human-written posts; DEV's published AI-content policy restricts business promotion.
 The selected publishing account is still pending.
+
+## High-visibility campaign
+
+Prioritize audience fit and a valid contribution path alongside star count.
+Stars are a reach proxy, not measured impressions or users. Existing larger
+channels include punkpeye/awesome-mcp-servers (96,311 stars; Glama gate),
+VoltAgent/awesome-agent-skills (35,675 stars; proven-usage gate), and
+heilcheng/awesome-agent-skills (6,273 stars; existing PR awaiting review).
+Counts are a dated snapshot from 2026-10-14.
+
+Before the new high-visibility submissions, a direct MCP SDK check successfully
+initialized the hosted connection, discovered tools, created a disposable inbox,
+sent a real synthetic HTTP callback, waited with `since: 0`, verified exact body
+bytes, and deleted the inbox. Tokens were not printed. This establishes protocol
+behavior, not a Claude or Copilot UI test or independent adoption.
+
+External maintainers control their merges. Address actionable review feedback
+and verify default-branch publication; do not request collaborator privileges,
+bypass branch protection, or merge a fork and call it upstream acceptance.
