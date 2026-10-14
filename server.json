@@ -2,7 +2,17 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.openhook-dev/openhook-inbox",
   "title": "Openhook",
-  "description": "Self-hosted webhook, email, and DNS inboxes for AI agents.",
+  "description": "Webhook, email and DNS inboxes for AI agents to capture callbacks and test integrations.",
   "version": "0.1.0",
-  "remotes": [{"type": "streamable-http", "url": "https://openhook.dev/mcp"}]
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://openhook.dev/mcp"
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/openhook-dev/openhook-inbox",
+    "source": "github"
+  },
+  "websiteUrl": "https://openhook.dev"
 }
