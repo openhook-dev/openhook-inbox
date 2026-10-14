@@ -30,6 +30,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| rohitg00/awesome-devops-mcp-servers | [PR #365](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365) submitted under Testing & Chaos Engineering, with Python and hosted/self-hosted scope icons. Maintainer affiliation and AI assistance disclosed. CodeRabbit's check passed with no actionable changes, but its [comment](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365#issuecomment-6162889166) flags possible promotional spam. | Await human maintainer review; do not duplicate or auto-reply to the bot. |
+| TensorBlock/awesome-mcp-servers | [PR #3674](https://github.com/TensorBlock/awesome-mcp-servers/pull/3674) submitted under Developer Productivity & Utilities. Includes structured metadata distinguishing unauthenticated MCP connection from private per-inbox authorization. Catalog build: 8,493 entries, zero errors; generated Openhook record verified. | Respond to review; verify the hosted catalog profile after merge/deployment. |
 | agentskillexchange/skills | [PR #113](https://github.com/agentskillexchange/skills/pull/113) open. Skill metadata validator and 79-pattern security scan passed with no findings. Maintainer affiliation disclosed; verification level is `listed`. | Respond to curator feedback; verify after merge. |
 | OpenAgentSkill | [Submission form](https://www.openagentskill.com/submit) confirmed saved for review; receipt `a9f8ce40`. Human review required for credential instructions and network execution. | Follow the existing receipt; submission is not publication or installation approval. |
 | Skillboard | [Submission form](https://www.skillboard.lol/submit) confirmed “Thanks – submitted for review.” Canonical skill directory submitted. | Check for curator publication; do not resubmit while pending. |
@@ -63,6 +65,9 @@ had no feedback at submission. Check existing receipts and PRs before following 
 
 ## Deferred destinations
 
+- block/agent-skills is archived as checked on 2026-10-14; no submission.
+- JackyST0/awesome-agent-skills requires 64 GitHub stars by default; defer until
+  eligibility is established rather than requesting an exception for promotion.
 - [Launch MCP](https://launchmcp.co/submit): duplicate check found no listing or
   pending submission. Free submission is prepared but was blocked by automatic
   approval review because it requires sending the support email to a new third
@@ -97,3 +102,12 @@ agents to capture callbacks, inspect payloads, and forward events to local handl
 For acquisition measurement, compare referral traffic in Umami with new account
 and product-usage evidence. Page views, internal QA, and anonymous test inboxes
 are not proof of independent users or paid customers.
+
+## Articles and social posts
+
+The [posting plan](gtm/posting-plan.md) includes one complete callback tutorial,
+short X and LinkedIn drafts, two follow-on article experiments, and current
+platform rules. No article or social post has been published to an external
+account. The tutorial's callback example passed again on 2026-10-14. HN requires
+human-written posts; DEV's published AI-content policy restricts business promotion.
+The selected publishing account is still pending.
