@@ -74,6 +74,7 @@ does not prove application success.
 
 ## Practical guides
 
+- [Prove a callback arrived]({{origin}}/guides/callback-proof): Reproducible Python callback test, original-byte comparison, MCP cursors, and application verification.
 - [Webhook testing with curl and MCP]({{origin}}/guides/webhook-testing): Create, capture, inspect and clean up a test inbox.
 - [Local webhook forwarding]({{origin}}/guides/local-webhooks): Outbound delivery to localhost, retries and signature limitations.
 - [GitHub webhook testing]({{origin}}/guides/github-webhooks): Register, verify, inspect and remove a repository subscription.

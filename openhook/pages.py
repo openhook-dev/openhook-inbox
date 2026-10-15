@@ -29,6 +29,7 @@ PAGES = {
     "/account": ("account", "Your hosted account — Openhook", "Manage your Openhook hosted account and agent access."),
     "/pricing": ("pricing", "Hosted plans and self-hosting — Openhook", "Try a free webhook inbox, run Openhook yourself, or explore persistent hosted inboxes for your agent."),
     "/guides": ("guides", "Webhook testing guides — Openhook", "Practical guides to testing webhooks, forwarding events to localhost, verifying GitHub deliveries, and self-hosting an MCP inbox with Openhook."),
+    "/guides/callback-proof": ("callback-proof", "Prove a webhook arrived before your agent continues — Openhook", "Run a reproducible callback test, compare original payload bytes, and use MCP cursors to give your coding agent evidence of webhook receipt."),
     "/guides/webhook-testing": ("webhook-testing", "Test webhooks with curl and an AI agent — Openhook", "Create a free webhook URL, send a JSON request, inspect its body and headers, and clean up. A working curl and MCP walkthrough using Openhook."),
     "/guides/local-webhooks": ("local-webhooks", "Receive webhooks on localhost without a tunnel — Openhook", "Forward captured webhook requests to a local HTTP handler with Openhook. Understand retries, signing secrets, cursors, and the limits of queued delivery."),
     "/guides/github-webhooks": ("github-webhooks", "Test GitHub webhooks with an MCP inbox — Openhook", "Receive GitHub push events in Openhook, verify webhook signatures, inspect delivery IDs, and clean up a test subscription from your AI agent."),
