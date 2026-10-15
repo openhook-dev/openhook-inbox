@@ -1,7 +1,8 @@
 # Prove a webhook arrived before your coding agent continues
 
-Publication status: draft. Prepared for the Openhook blog or a reviewed Hashnode
-article; not published to an external account. Suggested tags: webhooks, mcp,
+Publication status: syndication draft. An adapted version is live at
+https://openhook.dev/guides/callback-proof (verified 2026-10-16). This longer draft
+has not been published to an external account. Suggested tags: webhooks, mcp,
 python, opensource. Do not use this AI-assisted draft on Hacker News.
 
 ---

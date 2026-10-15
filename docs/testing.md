@@ -69,3 +69,25 @@ CI also builds both packages and installs only the core wheel in an isolated
 Python environment. `scripts/check_core_distribution.py` rejects hosted imports
 and credential reads while exercising signed HTTP capture and MCP reads. This
 catches dependencies accidentally masked by a developer's full workspace.
+
+## Callback-guide release, 2026-10-16
+
+[PR #19](https://github.com/openhook-dev/openhook-inbox/pull/19) merged and deployed
+revision `13e723e9be3e148279670673410d8f6270ce1521` through the dedicated Dokploy
+Compose service. The deployment record completed successfully and its new
+container was healthy. A consistent SQLite backup was retained privately in the
+existing data volume before the upgrade; the existing account count and Polar
+production-mode record were preserved.
+
+- 104 local Python tests, generated docs, both package builds, JavaScript syntax
+  and both analytics checks passed. Both PR CI runs passed, including isolated
+  core-package installation.
+- The live callback-guide HTML hash matches source. Its canonical URL,
+  TechArticle schema, guide index, sitemap, llms.txt and Markdown representation
+  were verified publicly.
+- The documented Python example and a separate MCP initialize/discover/create/
+  HTTP callback/wait/exact-byte check succeeded. Public SMTP and authoritative
+  DNS over UDP and TCP were also received and read back.
+- All disposable verification inboxes and payloads were deleted. These synthetic
+  maintainer checks are not customer adoption. This run did not create a provider
+  subscription or exercise a live payment.
