@@ -1,6 +1,6 @@
 # Openhook distribution tracker
 
-Last checked: 2026-10-14 (Europe/Berlin). Submission does not mean curator acceptance or new users.
+Last checked: 2026-10-16 (Europe/Berlin). Submission does not mean curator acceptance or new users.
 
 ## Published installation
 
@@ -30,17 +30,22 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| libukai/awesome-agent-skills | [PR #198](https://github.com/libukai/awesome-agent-skills/pull/198) submitted under Programming & Development with matching Chinese, English and Japanese entries pointing to the canonical skill. 5,173 stars at the 2026-10-16 check. Maintainer and AI assistance disclosed. | Await curator review; three focused additions and duplicate check verified. |
+| YuzeHao2023/Awesome-MCP-Servers | [PR #646](https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/646) submitted as one Development Tools entry. 1,074 stars at the 2026-10-16 check. Hosted/self-hosted operation and per-inbox authorization explained in the PR. | Await maintainer review and verify default-branch publication. |
+| MCP.so | [Submission comment](https://github.com/chatmcp/mcpso/issues/1#issuecomment-6204523280) posted in its designated public submission thread on 2026-10-16. Source, docs, endpoint, feature scope and authorization boundaries included. Existing-issue search found no Openhook submission. | Await directory publication; the comment is a receipt, not a live mcp.so listing. |
+| mcpHQ/awesome-mcp-servers | [PR #278](https://github.com/mcpHQ/awesome-mcp-servers/pull/278) submitted under Developer Tools and Code Intelligence, with hosted endpoint metadata and generated README/LLM catalogs. Local validation and generated-file checks passed: 327 entries across 13 categories. | Await maintainer review; submission is not publication on mcphq.org. |
+| MobinX/awesome-mcp-list | [PR #793](https://github.com/MobinX/awesome-mcp-list/pull/793) submitted as one README bullet under Developer Tools. Exact required format, public source, duplicate check and focused diff verified. 892 stars at the 2026-10-16 check. | Await maintainer review and verify default-branch publication. |
 | ComposioHQ/awesome-claude-skills | [PR #2218](https://github.com/ComposioHQ/awesome-claude-skills/pull/2218) open in Development & Code Tools. Listing validation and Socket checks passed; repository automation applied `ready-to-merge`. 77,048 stars at the 2026-10-14 check. | Await maintainer merge; the label is not acceptance or publication. |
-| yzfly/Awesome-MCP-ZH | [PR #733](https://github.com/yzfly/Awesome-MCP-ZH/pull/733) open in Development & Code Execution. Chinese description, license, runtime and authorization details included. 7,728 stars at the 2026-10-14 check. | Respond to review; verify the default-branch listing after merge. |
+| yzfly/Awesome-MCP-ZH | [PR #733](https://github.com/yzfly/Awesome-MCP-ZH/pull/733) **merged 2026-10-15**. Openhook entry verified on the default-branch README on 2026-10-16. 7,731 stars at this check. | Published repository listing; measure referral and product activity separately. |
 | rohitg00/awesome-devops-mcp-servers | [PR #365](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365) submitted under Testing & Chaos Engineering, with Python and hosted/self-hosted scope icons. Maintainer affiliation and AI assistance disclosed. CodeRabbit's check passed with no actionable changes, but its [comment](https://github.com/rohitg00/awesome-devops-mcp-servers/pull/365#issuecomment-6162889166) flags possible promotional spam. | Await human maintainer review; do not duplicate or auto-reply to the bot. |
-| TensorBlock/awesome-mcp-servers | [PR #3674](https://github.com/TensorBlock/awesome-mcp-servers/pull/3674) submitted under Developer Productivity & Utilities. Includes structured metadata distinguishing unauthenticated MCP connection from private per-inbox authorization. Catalog build: 8,493 entries, zero errors; generated Openhook record verified. | Respond to review; verify the hosted catalog profile after merge/deployment. |
+| TensorBlock/awesome-mcp-servers | [PR #3674](https://github.com/TensorBlock/awesome-mcp-servers/pull/3674) **merged 2026-10-14**. Openhook metadata verified on the upstream default branch on 2026-10-16. Catalog validation before submission built 8,493 entries with zero errors. | Verify hosted catalog deployment separately; upstream merge is confirmed. |
 | agentskillexchange/skills | [PR #113](https://github.com/agentskillexchange/skills/pull/113) open. Skill metadata validator and 79-pattern security scan passed with no findings. Maintainer affiliation disclosed; verification level is `listed`. | Respond to curator feedback; verify after merge. |
 | OpenAgentSkill | [Submission form](https://www.openagentskill.com/submit) confirmed saved for review; receipt `a9f8ce40`. Human review required for credential instructions and network execution. | Follow the existing receipt; submission is not publication or installation approval. |
 | Skillboard | [Submission form](https://www.skillboard.lol/submit) confirmed “Thanks – submitted for review.” Canonical skill directory submitted. | Check for curator publication; do not resubmit while pending. |
 | AgentNDX | [Submission form](https://agentndx.ai/submit/) confirmed “Submission received.” MCP server submitted with maintainer disclosure; optional contact email omitted. | Check after its stated 48-hour review window; publication is not yet verified. |
 | MCP.Directory | [Submission form](https://mcp.directory/submit) confirmed “Server Submitted!” Repository and description submitted; optional email and unpublished package names omitted. | Check after its stated 24-hour review window; reconcile with any official Registry import. |
 | heilcheng/awesome-agent-skills | [PR #586](https://github.com/heilcheng/awesome-agent-skills/pull/586) open under Community Skills / Development and Testing; local required website build passed. Vercel's preview check is blocked on authorization by the collection owner's team, per its [bot comment](https://github.com/heilcheng/awesome-agent-skills/pull/586#issuecomment-6151302619). | Maintainer must authorize their preview; respond to review and verify after merge. |
-| junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) open; matching English/Chinese entries; GitHub-verified commit. | Respond to maintainer feedback; verify the listing after merge. |
+| junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) **merged 2026-10-15**. English Openhook skill entry verified on the default branch on 2026-10-16. | Published repository listing; measure independent installation and usage separately. |
 | realadeel/awesome-webhooks | [PR #91](https://github.com/realadeel/awesome-webhooks/pull/91) open under Development Tools. | Respond to maintainer feedback; verify after merge. |
 | punkpeye/awesome-mcp-servers | [PR #16343](https://github.com/punkpeye/awesome-mcp-servers/pull/16343) drafted. Its submission bot additionally requires Glama validation and a real badge. | Complete free Glama setup and server validation, add its actual badge, then mark ready. |
 | mcpservers.org | Free MCP submission accepted by the [submission form](https://mcpservers.org/submit); success screen named Openhook. Review estimate: within two weeks. | Check hello@openhook.dev for review outcome; do not resubmit while pending. |
@@ -61,11 +66,20 @@ M8ven reports no concerning findings and says new projects are capped at C
 until they earn adoption. This is their static assessment of an older commit,
 not a current-release security guarantee or evidence of independent users.
 
-No new human maintainer feedback was present on the three earlier review-ready
-collection PRs at the latest 2026-10-14 check. The Agent Skill Exchange PR also
-had no feedback at submission. Check existing receipts and PRs before following up.
+On 2026-10-16, GitHub confirmed merges for Awesome-MCP-ZH, TensorBlock and
+junminhong. Composio, heilcheng, realadeel, DevOps MCP and Agent Skill Exchange
+still appeared in the open-PR search. Composio was additionally checked directly:
+validation and Socket checks passed, with no human comments or reviews. Check
+individual reviews before following up.
 
 ## Deferred destinations
+
+- [jaw9c/awesome-remote-mcp-servers](https://github.com/jaw9c/awesome-remote-mcp-servers)
+  (1,145 stars at the 2026-10-16 check): contribution rules require MCP OAuth
+  and evidence of production use and an active community. Openhook uses private
+  per-inbox tokens rather than MCP OAuth; no submission or compatibility claim.
+- Christian-Sidak/awesome-mcp-tools (0 stars) and Sagargupta16/awesome-mcp-servers
+  (7 stars) were inspected on 2026-10-16 and deprioritized for audience reach.
 
 - [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code/blob/main/CONTRIBUTING.md)
   (55,642 stars): recommendations must be made by a human through its web issue
