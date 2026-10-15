@@ -1,14 +1,15 @@
 # Openhook posting plan
 
-Prepared 2026-10-14. Article and social copy below are drafts, not publication
-receipts. The two repository contributions are tracked in [DISTRIBUTION](../DISTRIBUTION.md).
+Updated 2026-10-16. The Openhook-site guide is published; social and cross-post
+copy remain drafts. Publication receipts are tracked in [DISTRIBUTION](../DISTRIBUTION.md).
 
 ## First article
 
-Use [Prove a webhook arrived before your coding agent continues](callback-proof-article.md).
-It explains a verified, reproducible callback and the limits of that evidence.
-Prefer Openhook's own site first; use the final live article URL as the canonical
-URL when cross-posting. Do not invent a canonical URL before publication.
+Published on Openhook's site: [Prove a webhook arrived before your agent continues](https://openhook.dev/guides/callback-proof).
+Use that verified live URL as the canonical URL for any later cross-post. The
+[long-form draft](callback-proof-article.md) remains available for adapting to a
+selected external account. The callback example and live guide were verified
+on 2026-10-16.
 
 The user has been asked which publishing account to use. No external publishing
 account has been selected or authenticated for this article.
@@ -17,7 +18,7 @@ account has been selected or authenticated for this article.
 
 | Channel | Suitable contribution | Current next step |
 | --- | --- | --- |
-| Openhook site | Publish the full verified walkthrough, linked from existing guides. | Review the article and integrate it using the existing page system; merging source is separate from deployment. |
+| Openhook site | Callback-proof walkthrough published, linked from the guide index, tool docs and llms.txt. | Live URL and deployment verified on 2026-10-16; measure readers and first-callback outcomes. |
 | Hashnode | One original technical article, reviewed by the maintainer, with affiliation and AI-assistance disclosure. | Select/sign in to the author's account, review the prepared article, then publish. [Code of conduct](https://hashnode.com/code-of-conduct) permits reviewed AI content but rejects bulk posting and primarily promotional use. |
 | DEV Community | A human-owned technical contribution subject to its AI content rules. | Do not publish this GTM draft: [AI guidelines](https://dev.to/devteam/guidelines-for-ai-assisted-articles-on-dev-17n6) say AI-assisted articles should not promote a business. Its newer [disclosure tiers](https://dev.to/devteam/introducing-ai-disclosure-on-dev-tools-for-nuance-clarity-and-better-feeds-34mk/) do not remove that restriction. |
 | Hacker News / Show HN | The working product with a personal explanation from its maker; direct demo access. | Author must write and submit their own text. [HN guidelines](https://news.ycombinator.com/newsguidelines.html) prohibit generated text and automated posting; [Show HN](https://news.ycombinator.com/showhn.html) excludes blog posts and signup-only pages. Do not paste the drafts here. |

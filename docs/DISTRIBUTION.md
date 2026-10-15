@@ -48,7 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 | junminhong/awesome-agent-skills | [PR #73](https://github.com/junminhong/awesome-agent-skills/pull/73) **merged 2026-10-15**. English Openhook skill entry verified on the default branch on 2026-10-16. | Published repository listing; measure independent installation and usage separately. |
 | realadeel/awesome-webhooks | [PR #91](https://github.com/realadeel/awesome-webhooks/pull/91) open under Development Tools. | Respond to maintainer feedback; verify after merge. |
 | punkpeye/awesome-mcp-servers | [PR #16343](https://github.com/punkpeye/awesome-mcp-servers/pull/16343) drafted. Its submission bot additionally requires Glama validation and a real badge. | Complete free Glama setup and server validation, add its actual badge, then mark ready. |
-| mcpservers.org | Free MCP submission accepted by the [submission form](https://mcpservers.org/submit); success screen named Openhook. Review estimate: within two weeks. | Check hello@openhook.dev for review outcome; do not resubmit while pending. |
+| mcpservers.org | **Published** [Openhook listing](https://mcpservers.org/servers/openhook-dev/openhook-inbox), verified publicly on 2026-10-16. Includes the hosted endpoint, skill installation and source link. | Measure referral traffic and independent usage separately; no resubmission needed. |
 | ClawHub openhook-cli | Existing listing is still 1.0.2. Corrected 2.0.0 package prepared, but publishing was rejected pending MIT-0 terms acceptance. No new version was published. | Obtain explicit approval for MIT-0 skill publication and the new read-only organization scope requested by browser login; complete setup and retry once. |
 
 Glama authentication and any new account terms require approval before completing
@@ -137,12 +137,16 @@ are not proof of independent users or paid customers.
 
 ## Articles and social posts
 
-The [posting plan](gtm/posting-plan.md) includes one complete callback tutorial,
-short X and LinkedIn drafts, two follow-on article experiments, and current
-platform rules. No article or social post has been published to an external
-account. The tutorial's callback example passed again on 2026-10-14. HN requires
-human-written posts; DEV's published AI-content policy restricts business promotion.
-The selected publishing account is still pending.
+The [callback-proof guide](https://openhook.dev/guides/callback-proof) is live
+on Openhook's site as of 2026-10-16, merged in [PR #19](https://github.com/openhook-dev/openhook-inbox/pull/19)
+and deployed as `13e723e`. HTML, canonical metadata, article schema, sitemap,
+Markdown response and the real MCP callback loop were verified. Google Search
+Console accepted an indexing request for the guide and resubmission of the updated
+14-URL sitemap on 2026-10-16; acceptance is not confirmed indexing. The [posting
+plan](gtm/posting-plan.md) includes X and LinkedIn drafts and two follow-on article
+experiments. No social post or cross-post has been published to an external
+account; the intended account is still pending. HN requires human-written posts;
+DEV's published AI-content policy restricts business promotion.
 
 ## High-visibility campaign
 
