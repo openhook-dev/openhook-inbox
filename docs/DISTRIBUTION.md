@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| JSONbored/awesome-claude (HeyClaude) | [PR #5845](https://github.com/JSONbored/awesome-claude/pull/5845) submitted on 2026-10-16 as one source-backed MCP entry. 300 stars at discovery; also publishes a searchable website and registry. The entry documents the free MIT self-hosted server, local Claude Code setup, callback verification, token/data boundaries and optional paid hosting. Affiliation and Codex assistance disclosed. | Strict content validation passed for 1,389 files, with 24 existing warnings unrelated to Openhook; five source/documentation links return HTTP 200. No generated files or package artifacts included. Await the private maintainer gate and verify website publication separately; protocol tests are not a model-driven evaluation. |
 | Ezeafk/awesome-agent-skills | [PR #65](https://github.com/Ezeafk/awesome-agent-skills/pull/65) submitted on 2026-10-16 under MCP and Tool Integration. 104 stars at discovery. One canonical-repository entry, six-column format, High risk for deletion/provider changes, private-token caveat and proposed 9/10 evaluation with evidence. Affiliation and AI assistance disclosed. | New link returns HTTP 200 and diff checks pass. Open with no checks at initial verification; full upstream link scan was not run locally. Await curator review. |
 | Anthropic official plugin directory | Prepared a first-party Claude plugin and marketplace from the canonical skills/openhook folder on 2026-10-16. The official 39,194-star repository routes submissions to the [developer portal](https://claude.ai/directory/manage), which currently requires sign-in to a paid Claude account. No official listing or submission receipt exists. | Local strict plugin and marketplace validation, isolated installation, skill discovery and hosted MCP connection passed. Standard Skills CLI installation still selects the canonical skill. Complete portal login and validation before submission. The separate MCP connector route requires every-tool Inspector and Claude connector tests; current protocol discovery is not sufficient to check that requirement. |
 | ZeroPointRepo/awesome-hermes-skills | [PR #131](https://github.com/ZeroPointRepo/awesome-hermes-skills/pull/131) submitted on 2026-10-16 under Community Skills / Dev & Skill Authoring, alphabetically with the beta tag. 625 stars at discovery. Linked the canonical skill directory; followed all five template items and the upstream format regex. Maintainer affiliation and AI assistance disclosed. | Current Hermes commit acc3cada installed the unchanged public skill with skills-guard-v10 SAFE / ALLOWED and no force; installed bytes match the source. Isolated MCP setup and saved-config test discovered 29 tools. Older local Hermes incorrectly blocked documentation links, so current upstream was tested separately without updating the user installation. Await curator review; scanner verdict and connection checks are not security endorsement or model evaluation. |
@@ -157,6 +158,13 @@ individual reviews before following up.
 - [karanb192/awesome-claude-skills](https://github.com/karanb192/awesome-claude-skills/blob/main/CONTRIBUTING.md)
   requires testing the skill with Claude. Protocol-level MCP checks do not satisfy
   that attestation; no submission on 2026-10-16.
+
+- [philipbankier/awesome-agent-skills](https://github.com/philipbankier/awesome-agent-skills)
+  (20 stars; also publishes awesomeagentskills.dev) requires at least ten stars
+  or an official source. Openhook had one star at the 2026-10-16 check; no
+  exception was inferred from being the project maintainer, and no PR was sent.
+  Its Official MCP Registry sync may discover the existing published record;
+  an Openhook website entry has not been verified.
 
 - [jaw9c/awesome-remote-mcp-servers](https://github.com/jaw9c/awesome-remote-mcp-servers)
   (1,145 stars at the 2026-10-16 check): contribution rules require MCP OAuth
