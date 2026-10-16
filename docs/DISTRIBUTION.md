@@ -30,6 +30,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| toolsdk-ai/toolsdk-mcp-registry | [PR #876](https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/876) submitted with one developer-tools JSON file for the hosted Streamable HTTP endpoint. Registry identity is `@toolsdk-remote/openhook`; runtime Python, no OAuth or connection-header requirements claimed, private inbox tokens described as tool arguments. Local registry validation: one file, zero errors and warnings. 197 stars at the 2026-10-16 discovery check. | Schema and Biome CI checks passed. Await curator review; the registry requires a separate manual catalog publication after merge. Neither merge nor catalog publication is claimed yet. |
+| devtoolsd/awesome-devtools | [PR #442](https://github.com/devtoolsd/awesome-devtools/pull/442) submitted as one Testing & Quality entry. 686 stars at the 2026-10-16 discovery check. Maintainer affiliation and AI assistance disclosed; duplicate search and focused diff verified. | Await curator review; no checks or comments at submission verification. |
 | BehiSecc/awesome-claude-skills | [PR #952](https://github.com/BehiSecc/awesome-claude-skills/pull/952) submitted as one Development & Code Tools entry linking directly to the skill. 10,255 stars at the 2026-10-16 check. Maintainer affiliation and AI assistance disclosed. | Await curator review; submission is not publication. |
 | ripienaar/free-for-dev | [PR #5001](https://github.com/ripienaar/free-for-dev/pull/5001) submitted under Testing at the user's explicit request after explaining the repository's ban on AI-written submissions. Template AI checkbox checked and AI assistance disclosed. Public free limits, pricing, contact and privacy pages verified; one README addition. 139,603 stars at the 2026-10-16 check. | Open at verification; acceptance is unlikely under its stated policy. Do not conceal authorship, resubmit after rejection, or argue with maintainers. |
 | libukai/awesome-agent-skills | [PR #198](https://github.com/libukai/awesome-agent-skills/pull/198) submitted under Programming & Development with matching Chinese, English and Japanese entries pointing to the canonical skill. 5,173 stars at the 2026-10-16 check. Maintainer and AI assistance disclosed. | Await curator review; three focused additions and duplicate check verified. |
@@ -75,6 +77,11 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [public-apis/public-apis](https://github.com/public-apis/public-apis/blob/master/CONTRIBUTING.md)
+  (489,117 stars at the 2026-10-16 check) explicitly excludes marketing-driven
+  submissions. Inspected its API and MCP formats but made no contribution as
+  part of this promotion campaign.
 
 - [awesome-selfhosted/awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/CONTRIBUTING.md)
   requires a first release older than four months. Openhook does not yet qualify;
@@ -175,3 +182,8 @@ behavior, not a Claude or Copilot UI test or independent adoption.
 External maintainers control their merges. Address actionable review feedback
 and verify default-branch publication; do not request collaborator privileges,
 bypass branch protection, or merge a fork and call it upstream acceptance.
+
+On 2026-10-16, the recent BehiSecc #952, libukai #198 and YuzeHao #646
+submissions were checked directly: no review comments or checks were present.
+No reminder comments were posted. The broader PR search still showed the three
+previously confirmed external merges and the other submitted PRs awaiting review.
