@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| AIAnytime/Awesome-MCP-Servers | [PR #229](https://github.com/AIAnytime/Awesome-MCP-Servers/pull/229) submitted on 2026-10-16 under developer-tools. 72 stars at discovery; recent curator merges on October 15. Added one JSON definition and regenerated the README. Source, hosted endpoint, official Registry identity, private inbox-token requirements, MIT self-hosting and optional paid hosting are explicit. Affiliation and Codex assistance disclosed. | Python 3.14 generation and lint passed for all 172 entries; ten existing entries warn about missing endpoints. Public source and real MCP initialize returned HTTP 200. No duplicate name/domain or prior PR found. Verified open; GitGuardian initially running. Await curator acceptance and separate publication on mcp.aianytime.net; connectivity is not model evaluation or adoption. |
 | SkillForAgents | [Submission issue #18](https://github.com/A-K0DER/AiAgentCatalog/issues/18) opened on 2026-10-16 through the site's official structured GitHub intake. Runtime, conditional self-hosting configuration, private-token access, pricing and MIT license documented. Claude Code and OpenCode installation/connection evidence is explicitly distinguished from unrun model-driven evaluations. Affiliation and Codex assistance disclosed. | Existing catalog and issue search showed no Openhook duplicate. Tagline meets the template's 140-character limit. The template's submission label is absent upstream, so no replacement label was applied. Issue verified open with no comments; await curator review and website publication. Repository itself had zero stars; directory relevance, not measured audience reach, motivated this submission. |
 | MCPizy | **Submission received** on 2026-10-16. [Receipt](https://mcpizy.com/submit/thanks?ref=web_mvaextrp_vy5cr3&tier=standard), reference `web_mvaextrp_vy5cr3`, explicitly says recorded in the review queue. Full published directory HTML contained no Openhook entry before submission. Submitted under Developer tools with canonical source, a hosted Claude Code connection command, local setup documentation, pricing limits and private-token requirements. Affiliation and Codex assistance disclosed. | Free standard listing. The provider states a 24-hour review/publication window; acceptance and publication remain unverified. The receipt says a transactional email is sent, but delivery was not independently checked. Await the review window; do not resubmit. |
 | MyMCPTools | **Submission received** through the [free form](https://mymcptools.com/submit) on 2026-10-16. Directory search returned zero Openhook results before submission. Submitted under API & Web with Hosted / remote endpoint installation, canonical source and website links, hosted MCP endpoint and public business contact. Description explains callback inspection, private inbox tokens, MIT self-hosting and optional paid hosting; affiliation and Codex assistance disclosed. | Receipt says it is in the hand-review queue with no set date and an email if listed. No publication, email delivery or customer reach is claimed. No paid upgrade selected. Await review; do not resubmit. |
@@ -143,6 +144,19 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [haoruilee/awesome-agent-native-services](https://github.com/haoruilee/awesome-agent-native-services/blob/main/CONTRIBUTING.md)
+  (370 stars, active October 15) requires agent-specific primitives and distinct
+  agent identity, delegated permissions and attributable audit trails. Openhook's
+  callback inboxes and bearer-token access do not establish all those guarantees.
+  No proposal was submitted merely because MCP is supported. New service PRs
+  also require an explicitly approved proposal issue.
+- [skillmatic-ai/awesome-agent-skills](https://github.com/skillmatic-ai/awesome-agent-skills)
+  (684 stars) primarily catalogs learning resources, skill collections and tools
+  for authoring skills. No suitable existing section for Openhook's individual
+  callback skill was identified. The latest observed merged PR was February 16;
+  newer submissions remain open. No entry was forced into Popular Collections
+  or Developer Tools, which concern skill authoring and loading.
 
 - [Claude Skills GitHub](https://claudeskillsgithub.com/blog/how-to-submit-repository)
   explicitly rejects submissions made primarily for backlinks or commercial
