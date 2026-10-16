@@ -45,6 +45,26 @@ The [skill setup and permissions](skills/openhook/README.md) explain MCP connect
 REST fallback, local forwarding, and handling private inbox tokens. Installing
 the skill does not install or start the server.
 
+## Install for Gemini CLI
+
+```sh
+gemini extensions install https://github.com/openhook-dev/openhook-inbox --ref main
+```
+
+Restart Gemini CLI after installation. The extension connects to the hosted
+`https://openhook.dev/mcp` endpoint; it does not start a local capture server.
+It also includes the Openhook agent skill for callback testing workflows.
+No Openhook account or API key is needed to connect or create a disposable inbox.
+Keep the private token returned by `create_webhook` secret: reading and deleting
+that inbox requires the token as a tool argument. Persistent hosted inboxes
+require a separate Openhook account key.
+
+Ask the agent to create a disposable inbox, then give its public URL to the
+system you are testing. Capturing a callback proves it arrived at Openhook;
+check your application's state separately to confirm that its handler worked.
+
+Remove the extension with `gemini extensions uninstall openhook-inbox`.
+
 ## Run it
 
 From the checkout, install [uv](https://docs.astral.sh/uv/getting-started/installation/)
