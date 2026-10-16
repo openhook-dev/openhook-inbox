@@ -25,6 +25,15 @@ SMTP/DNS test rerun with local socket access, and both CI runs passed. A fresh
 public-main install selected skills/openhook/SKILL.md and matched its contents.
 This proves installation and rendered instructions, not a model evaluation.
 
+On 2026-10-16, [PR #50](https://github.com/openhook-dev/openhook-inbox/pull/50)
+added human-readable titles to all 29 tools and marked every mutation with a
+destructive hint so clients can request confirmation. Both CI runs and 105 local
+tests passed. Production revision `55a9214` and its healthy container were
+verified. Live discovery returned all titles and annotations; a disposable real
+HTTP callback passed exact-body comparison and cleanup. This is protocol proof,
+not the per-tool Inspector and Claude custom-connector testing required by the
+separate official connector directory.
+
 ## Official MCP Registry
 
 Published version `0.1.0` of `io.github.openhook-dev/openhook-inbox` and verified
@@ -39,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| Ezeafk/awesome-agent-skills | [PR #65](https://github.com/Ezeafk/awesome-agent-skills/pull/65) submitted on 2026-10-16 under MCP and Tool Integration. 104 stars at discovery. One canonical-repository entry, six-column format, High risk for deletion/provider changes, private-token caveat and proposed 9/10 evaluation with evidence. Affiliation and AI assistance disclosed. | New link returns HTTP 200 and diff checks pass. Open with no checks at initial verification; full upstream link scan was not run locally. Await curator review. |
 | Anthropic official plugin directory | Prepared a first-party Claude plugin and marketplace from the canonical skills/openhook folder on 2026-10-16. The official 39,194-star repository routes submissions to the [developer portal](https://claude.ai/directory/manage), which currently requires sign-in to a paid Claude account. No official listing or submission receipt exists. | Local strict plugin and marketplace validation, isolated installation, skill discovery and hosted MCP connection passed. Standard Skills CLI installation still selects the canonical skill. Complete portal login and validation before submission. The separate MCP connector route requires every-tool Inspector and Claude connector tests; current protocol discovery is not sufficient to check that requirement. |
 | ZeroPointRepo/awesome-hermes-skills | [PR #131](https://github.com/ZeroPointRepo/awesome-hermes-skills/pull/131) submitted on 2026-10-16 under Community Skills / Dev & Skill Authoring, alphabetically with the beta tag. 625 stars at discovery. Linked the canonical skill directory; followed all five template items and the upstream format regex. Maintainer affiliation and AI assistance disclosed. | Current Hermes commit acc3cada installed the unchanged public skill with skills-guard-v10 SAFE / ALLOWED and no force; installed bytes match the source. Isolated MCP setup and saved-config test discovered 29 tools. Older local Hermes incorrectly blocked documentation links, so current upstream was tested separately without updating the user installation. Await curator review; scanner verdict and connection checks are not security endorsement or model evaluation. |
 | ccplugins/awesome-claude-code-plugins | [PR #730](https://github.com/ccplugins/awesome-claude-code-plugins/pull/730) submitted on 2026-10-16 as one external entry under MCP Servers. 973 stars at discovery. The collection welcomes plugins and MCP servers; a comparable one-line MCP entry was merged in August. Public source, hosted endpoint and hosted/self-hosted scope included. Maintainer affiliation and AI assistance disclosed. | Duplicate search and one-line whitespace check passed. Claude Code 2.1.288 connection evidence is distinguished from model-driven evaluation. Open with no checks, comments or reviews at initial verification. Await curator review and verify default-branch publication after acceptance. |
