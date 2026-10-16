@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| ZoranPandovski/awesome-testing-tools | [PR #178](https://github.com/ZoranPandovski/awesome-testing-tools/pull/178) submitted on 2026-10-16 as one alphabetical entry under Automated Testing Tools. 376 stars at discovery; recent curator merges on October 7. Contribution guide and duplicate suggestions checked. Affiliation, Codex assistance and optional paid hosting disclosed. | Upstream site generator parsed 120 tools across eight categories and produced exactly one Openhook entry in the intended category; generated JSON excluded from the diff. Canonical source link returns HTTP 200 and diff check passes. Open with no checks, comments or reviews at initial verification. Existing Pages workflow watches master while default branch is main; noted in the PR without changing workflows. Await curator review, then verify README and website publication separately. |
 | PostLaunchKit | **Submitted for review** on 2026-10-16 through the [free directory form](https://postlaunchkit.com/directory/submit/). Receipt reference: `19a15161-36ad-4c11-a5ea-4fd6d217cfe5`. Submitted as an authorized agent under Developer tools / Multiple platforms, using the official website and public business contact. Describes callback inspection, free MIT self-hosting, temporary hosted inbox limits and optional paid hosting. | Directory search found no existing Openhook entry before submission. The receipt explicitly says pending, not public, with no guaranteed review time. No paid placement, backlink commitment or notification opt-in. Await human review; do not resubmit. |
 | Glama remote connector | **Published** [Openhook connector](https://glama.ai/mcp/connectors/io.github.openhook-dev/openhook-inbox), verified directly on 2026-10-16. Correct repository and public endpoint, 29 tools, and resolving SVG badge. The page's latest health check is dated 2026-10-15 09:36; its tool-definition grade is C (2.9/5), scored at 10:06 that day. | This unclaimed public connector is distinct from the source-server listing/ownership gate for punkpeye/awesome-mcp-servers. No owner sign-in, manual submission or independent security certification is claimed. It resolves the connector/badge prerequisite for the separate remote collection; star permission remains pending. |
 | Socketlist | **Published** [Openhook detail page](https://socketlist.com/server/io-github-openhook-dev-openhook-inbox/), verified directly on 2026-10-16 and linked from its new-servers page. Shows the correct hosted Streamable HTTP endpoint, MIT license, source identity and description. | Discovered through public search; no new submission was needed. Its displayed score and metadata are directory signals, not a security audit or independent usage. |
@@ -139,6 +140,12 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [punkpeye/awesome-mcp-devtools](https://github.com/punkpeye/awesome-mcp-devtools)
+  (488 stars at the 2026-10-16 check) focuses on tools for building, testing and
+  operating MCP servers. Openhook provides callback inspection through MCP;
+  it is not an MCP implementation-testing tool. No entry submitted solely to
+  gain another placement; its server collections remain the closer fit.
 
 - [aaif-goose/goose](https://github.com/aaif-goose/goose/blob/main/AGENTS.md)
   (55,324 stars at the 2026-10-16 check) has retired new third-party directory
