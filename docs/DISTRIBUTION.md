@@ -39,6 +39,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| MCP Market | [Free submission form](https://mcpmarket.com/submit) confirmed “Submitted! You're in the free queue” on 2026-10-16 for the public Openhook repository. Selected MCP Server, GitHub repo and the $0 Free Queue. | The receipt estimates 4–6 weeks and says notification will follow when live. Public listing and email delivery are not verified. No paid placement or badge purchased. |
 | docker/mcp-registry | [PR #5746](https://github.com/docker/mcp-registry/pull/5746) submitted on 2026-10-16 through the official remote-server route. Includes server.yaml, empty tools.json and readme.md with the hosted endpoint, MIT source, private-inbox token boundaries and documentation. 572 stars at discovery; this is a Docker Toolkit distribution route, not just a link collection. Maintainer affiliation and AI assistance disclosed. | Official validator, remote build path, catalog generation and go test ./... passed. Docker's own RemoteTools client discovered 29 live tools when the empty tools file was temporarily set aside and then restored. Docker Desktop import/full Toolkit workflow was not tested because the MCP CLI plugin is absent. Upstream CI and Security Review Trigger runs require maintainer approval. Await Docker-team review. The PR flags the upstream generator's hardcoded Apache license/docker owner defaults for remote entries; Openhook is MIT and maintained by openhook-dev. No catalog publication claimed. |
 | MCPfinder.org | [Free submission form](https://www.mcpfinder.org/submit) confirmed “Submitted successfully” on 2026-10-16 and redirected to /submit?submitted=1. Used the canonical README opening as the tagline under its permitted canonical-source policy, the public repository and Development category. Affiliation and AI assistance disclosed. | The page reports a confirmation email was sent; delivery and public listing are not independently verified. Await review. No paid placement or account creation. This is mcpfinder.org, separate from the mcpfinder.dev discovery tool. |
 | spencerpauly/awesome-cursor-skills | [PR #111](https://github.com/spencerpauly/awesome-cursor-skills/pull/111) submitted on 2026-10-16 as one entry at the bottom of Testing. 853 stars at discovery. Links to the canonical skill; maintainer affiliation and AI assistance disclosed. | After fixing the template discovery collision in PR #36, skills CLI 1.7.2 installed public main for Cursor in an isolated project. Its lockfile selects skills/openhook/SKILL.md; installed content matches the rendered source byte for byte. Telemetry disabled. No Cursor model evaluation claimed. Await curator acceptance. |
@@ -169,6 +170,9 @@ individual reviews before following up.
   party. Await specific approval; no submission occurred.
 - [Skills Directory](https://www.skillsdirectory.com/): submission redirects to
   sign-in/account creation. No account or listing was created.
+- [AIBase MCP](https://mcp.aibase.com/submit): the form redirected to sign-in
+  when interaction began on 2026-10-16. No submission receipt, account creation
+  or public listing verified; resume after authentication.
 - [PulseMCP](https://www.pulsemcp.com/): homepage explicitly says new server
   submissions and listing changes are paused. Revisit when submissions reopen.
 - [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills):
