@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| SkillForAgents | [Submission issue #18](https://github.com/A-K0DER/AiAgentCatalog/issues/18) opened on 2026-10-16 through the site's official structured GitHub intake. Runtime, conditional self-hosting configuration, private-token access, pricing and MIT license documented. Claude Code and OpenCode installation/connection evidence is explicitly distinguished from unrun model-driven evaluations. Affiliation and Codex assistance disclosed. | Existing catalog and issue search showed no Openhook duplicate. Tagline meets the template's 140-character limit. The template's submission label is absent upstream, so no replacement label was applied. Issue verified open with no comments; await curator review and website publication. Repository itself had zero stars; directory relevance, not measured audience reach, motivated this submission. |
 | MCPizy | **Submission received** on 2026-10-16. [Receipt](https://mcpizy.com/submit/thanks?ref=web_mvaextrp_vy5cr3&tier=standard), reference `web_mvaextrp_vy5cr3`, explicitly says recorded in the review queue. Full published directory HTML contained no Openhook entry before submission. Submitted under Developer tools with canonical source, a hosted Claude Code connection command, local setup documentation, pricing limits and private-token requirements. Affiliation and Codex assistance disclosed. | Free standard listing. The provider states a 24-hour review/publication window; acceptance and publication remain unverified. The receipt says a transactional email is sent, but delivery was not independently checked. Await the review window; do not resubmit. |
 | MyMCPTools | **Submission received** through the [free form](https://mymcptools.com/submit) on 2026-10-16. Directory search returned zero Openhook results before submission. Submitted under API & Web with Hosted / remote endpoint installation, canonical source and website links, hosted MCP endpoint and public business contact. Description explains callback inspection, private inbox tokens, MIT self-hosting and optional paid hosting; affiliation and Codex assistance disclosed. | Receipt says it is in the hand-review queue with no set date and an email if listed. No publication, email delivery or customer reach is claimed. No paid upgrade selected. Await review; do not resubmit. |
 | ZoranPandovski/awesome-testing-tools | [PR #178](https://github.com/ZoranPandovski/awesome-testing-tools/pull/178) submitted on 2026-10-16 as one alphabetical entry under Automated Testing Tools. 376 stars at discovery; recent curator merges on October 7. Contribution guide and duplicate suggestions checked. Affiliation, Codex assistance and optional paid hosting disclosed. | Upstream site generator parsed 120 tools across eight categories and produced exactly one Openhook entry in the intended category; generated JSON excluded from the diff. Canonical source link returns HTTP 200 and diff check passes. Open with no checks, comments or reviews at initial verification. Existing Pages workflow watches master while default branch is main; noted in the PR without changing workflows. Await curator review, then verify README and website publication separately. |
@@ -142,6 +143,17 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [ClaudSkills](https://claudskills.com/) asks submissions to include
+  `allowed-tools` in skill frontmatter. Openhook's canonical skill currently has
+  name, description and license fields, without that client-specific tool
+  declaration. No submission made on 2026-10-16; do not add broad tool
+  permissions merely to qualify for a directory. Search UI requires membership;
+  its separate read-only public API is documented.
+- [MCPSafe](https://mcpsafe.dev/) documents a public search API, but requests to
+  `/api/v1/servers?q=openhook` returned HTTP 500 twice on 2026-10-16. Duplicate
+  status and the claimed scan workflow could not be established. No submission
+  or security grade claimed; revisit after the directory API is functional.
 
 - [Few Servers](https://www.fewservers.com/mcp/submit/): public API search returned
   zero Openhook results and direct registry-name lookup returned 404 on
