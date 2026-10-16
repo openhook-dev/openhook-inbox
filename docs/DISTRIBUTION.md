@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| jqueryscript/awesome-claude-code | [PR #788](https://github.com/jqueryscript/awesome-claude-code/pull/788) submitted on 2026-10-16 as one entry under Claude Plugins. 531 stars at discovery. Uses the existing bold-name format and the current one-star project count. Public plugin manifests and canonical skill URL were verified. Affiliation and Codex assistance disclosed. | Existing Claude Code 2.1.288 installation/connection proof is linked and distinguished from the unrun model-driven workflow test. One-line diff check passed; await curator review and default-branch publication. |
 | 0xNyk/awesome-agent-cortex | [PR #122](https://github.com/0xNyk/awesome-agent-cortex/pull/122) submitted on 2026-10-16 as one alphabetical entry under Agent Protocols and MCP Ecosystem. 224 stars at discovery. Required rubric included as a proposed self-assessment: 3.6/5 average, with production maturity explicitly scored 2/5 because internal checks do not establish broad independent use. Affiliation and AI assistance disclosed. | Alphabetical validator passed across 27 blocks; internal-link checker passed across 56 Markdown files. Canonical GitHub URL returns HTTP 200 without redirect. Open with no check results or comments at initial verification; await curator review. |
 | michielhdoteth/awesome-ai-agent-tools | **Merged and present in the public JSON catalog**: [PR #117](https://github.com/michielhdoteth/awesome-ai-agent-tools/pull/117) merged on 2026-10-16 at 03:01 UTC as 671cecf6, verified directly on main under Developer Tools. 42 stars at discovery; the catalog provides connection/install commands. One JSON entry, current one-star project count, community provenance and verified=false. Affiliation and AI assistance disclosed. | All eight catalogs validated with zero errors or warnings. MCP and category totals updated; generated README untouched. The command connects Claude Code to hosted MCP rather than installing a local server, with private-token and optional hosted-plan limits explained in the PR. Upstream validator and triage passed. Public main contains the exact entry; generated README does not yet contain Openhook and no new Generate README run was observed. Track that downstream publication separately; acceptance is not independent adoption. |
 | JSONbored/awesome-claude (HeyClaude) | [PR #5845](https://github.com/JSONbored/awesome-claude/pull/5845) submitted on 2026-10-16 as one source-backed MCP entry. 300 stars at discovery; also publishes a searchable website and registry. The entry documents the free MIT self-hosted server, local Claude Code setup, callback verification, token/data boundaries and optional paid hosting. Affiliation and Codex assistance disclosed. | Strict content validation passed for 1,389 files, with 24 existing warnings unrelated to Openhook; five source/documentation links return HTTP 200. No generated files or package artifacts included. Await the private maintainer gate and verify website publication separately; protocol tests are not a model-driven evaluation. |
@@ -160,6 +161,11 @@ individual reviews before following up.
 - [karanb192/awesome-claude-skills](https://github.com/karanb192/awesome-claude-skills/blob/main/CONTRIBUTING.md)
   requires testing the skill with Claude. Protocol-level MCP checks do not satisfy
   that attestation; no submission on 2026-10-16.
+
+- [kyrolabs/awesome-agents](https://github.com/kyrolabs/awesome-agents/blob/main/CONTRIBUTING.md)
+  (2,928 stars at the 2026-10-16 check) explicitly excludes new projects without
+  demonstrated traction. Openhook's internal tests and directory acceptances do
+  not establish that traction; no submission was made.
 
 - [philipbankier/awesome-agent-skills](https://github.com/philipbankier/awesome-agent-skills)
   (20 stars; also publishes awesomeagentskills.dev) requires at least ten stars
@@ -349,3 +355,8 @@ The large punkpeye collection submission remains a draft pending Glama. The
 non-root container build and network-disabled stdio discovery of 29 tools and
 3 resources. Glama Add Server still requires account sign-in, requested from the
 user; no Glama submission, passing platform grade or badge is claimed.
+
+Claude Code 2.1.288 CLI authentication was checked on 2026-10-16 and reported
+signed out. A user sign-in request is pending so the actual Claude workflow test
+can be run for the collections requiring it. No model call or successful
+model-driven evaluation is claimed.
