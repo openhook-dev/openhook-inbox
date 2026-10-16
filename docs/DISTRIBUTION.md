@@ -39,6 +39,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| docker/mcp-registry | [PR #5746](https://github.com/docker/mcp-registry/pull/5746) submitted on 2026-10-16 through the official remote-server route. Includes server.yaml, empty tools.json and readme.md with the hosted endpoint, MIT source, private-inbox token boundaries and documentation. 572 stars at discovery; this is a Docker Toolkit distribution route, not just a link collection. Maintainer affiliation and AI assistance disclosed. | Official validator, remote build path, catalog generation and go test ./... passed. Docker's own RemoteTools client discovered 29 live tools when the empty tools file was temporarily set aside and then restored. Docker Desktop import/full Toolkit workflow was not tested because the MCP CLI plugin is absent. Upstream CI and Security Review Trigger runs require maintainer approval. Await Docker-team review. The PR flags the upstream generator's hardcoded Apache license/docker owner defaults for remote entries; Openhook is MIT and maintained by openhook-dev. No catalog publication claimed. |
+| MCPfinder.org | [Free submission form](https://www.mcpfinder.org/submit) confirmed “Submitted successfully” on 2026-10-16 and redirected to /submit?submitted=1. Used the canonical README opening as the tagline under its permitted canonical-source policy, the public repository and Development category. Affiliation and AI assistance disclosed. | The page reports a confirmation email was sent; delivery and public listing are not independently verified. Await review. No paid placement or account creation. This is mcpfinder.org, separate from the mcpfinder.dev discovery tool. |
 | spencerpauly/awesome-cursor-skills | [PR #111](https://github.com/spencerpauly/awesome-cursor-skills/pull/111) submitted on 2026-10-16 as one entry at the bottom of Testing. 853 stars at discovery. Links to the canonical skill; maintainer affiliation and AI assistance disclosed. | After fixing the template discovery collision in PR #36, skills CLI 1.7.2 installed public main for Cursor in an isolated project. Its lockfile selects skills/openhook/SKILL.md; installed content matches the rendered source byte for byte. Telemetry disabled. No Cursor model evaluation claimed. Await curator acceptance. |
 | atinfo/awesome-test-automation | [PR #613](https://github.com/atinfo/awesome-test-automation/pull/613) submitted on 2026-10-16 as one API-testing entry in general-purpose-test-automation-tools.md. 7,176 stars at discovery. Contribution rules, existing entries and previous suggestions checked; maintainer affiliation and AI assistance disclosed. | Focused diff and public source/example links verified. Synthetic callback receipt and cleanup previously checked through MCP; application side effects and adoption are separate. Await curator acceptance. |
 | awesome-opencode/awesome-opencode | [PR #875](https://github.com/awesome-opencode/awesome-opencode/pull/875) submitted on 2026-10-16 as one Project YAML entry. 10,606 stars at discovery. The tested OpenCode setup recipe is public on main through [PR #34](https://github.com/openhook-dev/openhook-inbox/pull/34). Maintainer affiliation and AI assistance disclosed. | All 230 collection YAML entries passed local validation. OpenCode 1.19.1 reported the hosted MCP server connected using an isolated temporary profile; no model-driven workflow or adoption claimed. Generated README left to upstream automation. Upstream YAML CI is waiting for curator approval ([action-required run](https://github.com/awesome-opencode/awesome-opencode/actions/runs/38834020777)); local validation does not clear that gate. Await curator acceptance. |
@@ -195,6 +197,13 @@ individual reviews before following up.
   No login or submission performed.
 - ichangyou/awesome-codex (5 stars) and ranbot-ai/awesome-skills (7 stars) were
   deprioritized for reach on 2026-10-16.
+
+- [ToolHive catalog](https://github.com/stacklok/toolhive-catalog/blob/main/docs/server-criteria.md)
+  requires pinned dependencies and GitHub Actions pinned to SHAs. Openhook's
+  current test/release workflows still use action tags. Its shared criteria also
+  weigh sustained organic adoption and warn against bulk listing campaigns.
+  No submission made on 2026-10-16; revisit after supply-chain hardening and
+  stronger independent usage evidence.
 
 ## Submission conventions
 
