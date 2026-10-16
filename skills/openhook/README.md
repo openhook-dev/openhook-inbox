@@ -51,6 +51,6 @@ cross-client evaluations:
 ## Maintenance and license
 
 MIT licensed under the repository's [LICENSE](../../LICENSE).
-`SKILL.md` is generated from `web/skill.md`; edit that template and run
+`SKILL.md` is generated from `web/agent-skill.md`; edit that template and run
 `uv run python scripts/generate_docs.py`. CI checks that the published skill
 and source template stay synchronized.
