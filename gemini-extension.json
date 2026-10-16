@@ -1,0 +1,10 @@
+{
+  "name": "openhook-inbox",
+  "version": "0.1.0",
+  "description": "Capture webhook, email, and DNS callbacks in private inboxes and inspect them while testing integrations.",
+  "mcpServers": {
+    "openhook": {
+      "httpUrl": "https://openhook.dev/mcp"
+    }
+  }
+}
