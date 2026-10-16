@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| PostLaunchKit | **Submitted for review** on 2026-10-16 through the [free directory form](https://postlaunchkit.com/directory/submit/). Receipt reference: `19a15161-36ad-4c11-a5ea-4fd6d217cfe5`. Submitted as an authorized agent under Developer tools / Multiple platforms, using the official website and public business contact. Describes callback inspection, free MIT self-hosting, temporary hosted inbox limits and optional paid hosting. | Directory search found no existing Openhook entry before submission. The receipt explicitly says pending, not public, with no guaranteed review time. No paid placement, backlink commitment or notification opt-in. Await human review; do not resubmit. |
 | Glama remote connector | **Published** [Openhook connector](https://glama.ai/mcp/connectors/io.github.openhook-dev/openhook-inbox), verified directly on 2026-10-16. Correct repository and public endpoint, 29 tools, and resolving SVG badge. The page's latest health check is dated 2026-10-15 09:36; its tool-definition grade is C (2.9/5), scored at 10:06 that day. | This unclaimed public connector is distinct from the source-server listing/ownership gate for punkpeye/awesome-mcp-servers. No owner sign-in, manual submission or independent security certification is claimed. It resolves the connector/badge prerequisite for the separate remote collection; star permission remains pending. |
 | Socketlist | **Published** [Openhook detail page](https://socketlist.com/server/io-github-openhook-dev-openhook-inbox/), verified directly on 2026-10-16 and linked from its new-servers page. Shows the correct hosted Streamable HTTP endpoint, MIT license, source identity and description. | Discovered through public search; no new submission was needed. Its displayed score and metadata are directory signals, not a security audit or independent usage. |
 | HagglyAI | **Published** in the [messaging comparison](https://hagglyai.com/compare/messaging), verified in live HTML on 2026-10-16 with Openhook's endpoint and callback-inbox description. The page reports four unpaid health checks. | Health checks and comparison inclusion do not establish paid usage or customers. No submission or purchase was made. |
@@ -114,8 +115,10 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 | mcpservers.org | **Published** [Openhook listing](https://mcpservers.org/servers/openhook-dev/openhook-inbox), verified publicly on 2026-10-16. Includes the hosted endpoint, skill installation and source link. | Measure referral traffic and independent usage separately; no resubmission needed. |
 | ClawHub openhook-cli | Existing listing is still 1.0.2. Corrected 2.0.0 package prepared, but publishing was rejected pending MIT-0 terms acceptance. No new version was published. | Obtain explicit approval for MIT-0 skill publication and the new read-only organization scope requested by browser login; complete setup and retry once. |
 
-Glama authentication and any new account terms require approval before completing
-that setup. No Glama listing, passing grade, or badge is claimed yet.
+Glama source-server authentication and any new account terms require approval
+before completing that setup. The separate public remote connector and its
+badge are verified above; no source-server submission or security certification
+is claimed.
 
 ## Existing third-party discovery
 
@@ -339,11 +342,14 @@ external merges; the refreshed audit below includes the later Chat2AnyLLM merge.
 
 ## Review audit — 2026-10-16
 
-A refreshed GitHub audit found 33 open external Openhook PRs and four merged
-external PRs. The two other closed search matches predate this campaign; they
-are not counted as newly accepted listings. Direct GraphQL inspection of all 33
-open PRs found no new maintainer comments or formal review requests to address.
-No reminder comments or duplicate PRs were posted.
+The latest GitHub search audit found 37 open external Openhook PRs and five
+merged external PRs. The two other closed search matches predate this campaign;
+they are not counted as newly accepted listings. This updates the earlier
+33-open/four-merged snapshot after the subsequent submissions and catalog merge.
+Direct GraphQL inspection at that earlier snapshot found no new maintainer
+comments or formal review requests to address across those 33 open PRs. The
+later technical publication note on the accepted JSON catalog is linked above;
+it is not a reminder or a duplicate submission.
 
 The failed Vercel contexts on heilcheng #586 and sickn33 #1943 explicitly require
 a member of those owners' teams to authorize preview deployment. They are not
@@ -365,7 +371,8 @@ The large punkpeye collection submission remains a draft pending Glama. The
 [validator preparation](gtm/glama-validation.md) now records a successful local
 non-root container build and network-disabled stdio discovery of 29 tools and
 3 resources. Glama Add Server still requires account sign-in, requested from the
-user; no Glama submission, passing platform grade or badge is claimed.
+user; no source-server submission is claimed. The separate remote connector,
+its dated tool-definition grade and its badge are verified in the table above.
 
 Claude Code 2.1.288 CLI authentication was checked on 2026-10-16 and reported
 signed out. A user sign-in request is pending so the actual Claude workflow test
