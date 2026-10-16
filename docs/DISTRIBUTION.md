@@ -144,6 +144,23 @@ individual reviews before following up.
 
 ## Deferred destinations
 
+- [Claude Skills GitHub](https://claudeskillsgithub.com/blog/how-to-submit-repository)
+  explicitly rejects submissions made primarily for backlinks or commercial
+  promotion. This campaign's stated purpose is promotion, so no submission
+  was made on 2026-10-16. Do not disguise the campaign's purpose to qualify.
+- [Claude Skill Guide](https://www.claudeskillguide.com/submit.html) displays a
+  free submission form, but its public HTML posts to the same page (`action="#"`)
+  and the only application script inspected has no submission handler. Its
+  referenced GitHub repository returns 404. Delivery remains unverified; this
+  is not proof that a server-side handler cannot exist. No form was submitted,
+  and no receipt or listing is claimed. Revisit if a working intake can be
+  established.
+- [GuildSkills](https://guildskills.com/) exposes a public bulk catalog. On
+  2026-10-16 it contained no Openhook match. Its linked GitHub repository,
+  `kinkyb/guildskills`, returned 404, and no direct submission form was found
+  on the inspected homepage. No account, email, submission or listing created.
+  Search UI is membership-gated; public catalog browsing does not require it.
+
 - [ClaudSkills](https://claudskills.com/) asks submissions to include
   `allowed-tools` in skill frontmatter. Openhook's canonical skill currently has
   name, description and license fields, without that client-specific tool
