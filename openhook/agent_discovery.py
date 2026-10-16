@@ -10,7 +10,7 @@ from openhook.pages import template
 
 
 def skill_text(settings):
-    return template("skill.md", {"origin": settings.origin, "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit)})
+    return template("agent-skill.md", {"origin": settings.origin, "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit)})
 
 
 def server_manifest(settings):

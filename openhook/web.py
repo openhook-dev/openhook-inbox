@@ -184,7 +184,7 @@ async def llms(request):
     elif path == "/llms-full.txt":
         text = template("agent-guide.md", values) + "\n\n" + tools_markdown(await request.app.state.mcp.list_tools())
     else:
-        text = template({"/llms.txt": "llms.txt", "/agents.md": "agent-guide.md", "/skill.md": "skill.md"}[path], values)
+        text = template({"/llms.txt": "llms.txt", "/agents.md": "agent-guide.md", "/skill.md": "agent-skill.md"}[path], values)
     return Response(text, media_type="text/markdown" if path.endswith(".md") else "text/plain")
 
 

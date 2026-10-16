@@ -4,6 +4,7 @@ import base64
 import hashlib
 import json
 import re
+from pathlib import Path
 from xml.etree import ElementTree
 
 from starlette.testclient import TestClient
@@ -12,6 +13,16 @@ from openhook.pages import PUBLIC_PATHS
 from openhook_hosted.settings import HostedSettings as Settings
 from openhook.web import WebCall, WaitCall
 from openhook_hosted.app import create_app
+
+
+def test_skill_installers_only_discover_rendered_instructions():
+    root = Path(__file__).resolve().parents[1]
+    # Case-insensitive filesystems can expose a lowercase web template as SKILL.md.
+    candidates = [path.relative_to(root) for folder in ("web", "skills")
+                  for path in (root / folder).rglob("*")
+                  if path.is_file() and path.name.casefold() == "skill.md"]
+    assert candidates == [Path("skills/openhook/SKILL.md")]
+    assert "{{" not in (root / candidates[0]).read_text()
 
 
 def test_public_html_metadata_and_schema(tmp_path):
