@@ -30,6 +30,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| BehiSecc/awesome-claude-skills | [PR #952](https://github.com/BehiSecc/awesome-claude-skills/pull/952) submitted as one Development & Code Tools entry linking directly to the skill. 10,255 stars at the 2026-10-16 check. Maintainer affiliation and AI assistance disclosed. | Await curator review; submission is not publication. |
+| ripienaar/free-for-dev | [PR #5001](https://github.com/ripienaar/free-for-dev/pull/5001) submitted under Testing at the user's explicit request after explaining the repository's ban on AI-written submissions. Template AI checkbox checked and AI assistance disclosed. Public free limits, pricing, contact and privacy pages verified; one README addition. 139,603 stars at the 2026-10-16 check. | Open at verification; acceptance is unlikely under its stated policy. Do not conceal authorship, resubmit after rejection, or argue with maintainers. |
 | libukai/awesome-agent-skills | [PR #198](https://github.com/libukai/awesome-agent-skills/pull/198) submitted under Programming & Development with matching Chinese, English and Japanese entries pointing to the canonical skill. 5,173 stars at the 2026-10-16 check. Maintainer and AI assistance disclosed. | Await curator review; three focused additions and duplicate check verified. |
 | YuzeHao2023/Awesome-MCP-Servers | [PR #646](https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/646) submitted as one Development Tools entry. 1,074 stars at the 2026-10-16 check. Hosted/self-hosted operation and per-inbox authorization explained in the PR. | Await maintainer review and verify default-branch publication. |
 | MCP.so | [Submission comment](https://github.com/chatmcp/mcpso/issues/1#issuecomment-6204523280) posted in its designated public submission thread on 2026-10-16. Source, docs, endpoint, feature scope and authorization boundaries included. Existing-issue search found no Openhook submission. | Await directory publication; the comment is a receipt, not a live mcp.so listing. |
@@ -73,6 +75,13 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [awesome-selfhosted/awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/CONTRIBUTING.md)
+  requires a first release older than four months. Openhook does not yet qualify;
+  no submission on 2026-10-16.
+- [karanb192/awesome-claude-skills](https://github.com/karanb192/awesome-claude-skills/blob/main/CONTRIBUTING.md)
+  requires testing the skill with Claude. Protocol-level MCP checks do not satisfy
+  that attestation; no submission on 2026-10-16.
 
 - [jaw9c/awesome-remote-mcp-servers](https://github.com/jaw9c/awesome-remote-mcp-servers)
   (1,145 stars at the 2026-10-16 check): contribution rules require MCP OAuth
