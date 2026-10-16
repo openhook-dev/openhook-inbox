@@ -39,6 +39,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| JayLZhou/Awesome-Agent-Skills | [PR #59](https://github.com/JayLZhou/Awesome-Agent-Skills/pull/59) submitted on 2026-10-16 as one Ecosystem Platforms and Resources row linking to the canonical callback-testing skill. 153 stars at discovery; a comparable resource was merged on 2026-10-13. Included the requested title, project type/year and category, plus maintainer affiliation and AI-assistance disclosure. | Public skill link, duplicate search and one-row diff verified; existing line endings preserved. Open with no CI checks at initial verification. Await curator acceptance; protocol and installation checks are not model evaluations or adoption. |
 | MCP Market | [Free submission form](https://mcpmarket.com/submit) confirmed “Submitted! You're in the free queue” on 2026-10-16 for the public Openhook repository. Selected MCP Server, GitHub repo and the $0 Free Queue. | The receipt estimates 4–6 weeks and says notification will follow when live. Public listing and email delivery are not verified. No paid placement or badge purchased. |
 | docker/mcp-registry | [PR #5746](https://github.com/docker/mcp-registry/pull/5746) submitted on 2026-10-16 through the official remote-server route. Includes server.yaml, empty tools.json and readme.md with the hosted endpoint, MIT source, private-inbox token boundaries and documentation. 572 stars at discovery; this is a Docker Toolkit distribution route, not just a link collection. Maintainer affiliation and AI assistance disclosed. | Official validator, remote build path, catalog generation and go test ./... passed. Docker's own RemoteTools client discovered 29 live tools when the empty tools file was temporarily set aside and then restored. Docker Desktop import/full Toolkit workflow was not tested because the MCP CLI plugin is absent. Upstream CI and Security Review Trigger runs require maintainer approval. Await Docker-team review. The PR flags the upstream generator's hardcoded Apache license/docker owner defaults for remote entries; Openhook is MIT and maintained by openhook-dev. No catalog publication claimed. |
 | MCPfinder.org | [Free submission form](https://www.mcpfinder.org/submit) confirmed “Submitted successfully” on 2026-10-16 and redirected to /submit?submitted=1. Used the canonical README opening as the tagline under its permitted canonical-source policy, the public repository and Development category. Affiliation and AI assistance disclosed. | The page reports a confirmation email was sent; delivery and public listing are not independently verified. Await review. No paid placement or account creation. This is mcpfinder.org, separate from the mcpfinder.dev discovery tool. |
@@ -170,6 +171,9 @@ individual reviews before following up.
   party. Await specific approval; no submission occurred.
 - [Skills Directory](https://www.skillsdirectory.com/): submission redirects to
   sign-in/account creation. No account or listing was created.
+- [Cursor Directory](https://cursor.directory/plugins/new): its current plugin
+  submission route redirected to sign-in on 2026-10-16. No account or submission
+  created. This is separate from the awesome-cursor-skills PR above.
 - [AIBase MCP](https://mcp.aibase.com/submit): the form redirected to sign-in
   when interaction began on 2026-10-16. No submission receipt, account creation
   or public listing verified; resume after authentication.
