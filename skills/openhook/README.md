@@ -23,6 +23,27 @@ For a local server or listener, follow the [source setup](../../README.md#run-it
 (Python 3.10+ and uv). Use your own server's origin instead of openhook.dev when
 self-hosting. No unrelated PyPI package is required.
 
+## Hermes setup
+
+With a current Hermes installation:
+
+```sh
+hermes skills install openhook-dev/openhook-inbox/skills/openhook
+hermes mcp add openhook --url https://openhook.dev/mcp
+hermes mcp test openhook
+```
+
+Answer **No** when asked whether the MCP connection requires authentication,
+then review and enable the tools. Private inbox tokens still control access to
+created inboxes. Installing the skill alone does not configure the connection.
+
+Installation and MCP discovery were verified on 2026-10-16 against
+[Hermes commit acc3cada](https://github.com/NousResearch/hermes-agent/commit/acc3cada0da86c81efc8aa6c5a291989549ca900)
+using an isolated configuration. The installed skill matched the source, and
+Hermes discovered 29 tools. This is not a model-driven workflow evaluation.
+Older Hermes scanners may incorrectly block documentation links in this skill;
+update Hermes before retrying, without forcing a blocked installation.
+
 ## Permissions and data
 
 - Hosted use sends callback bodies and headers to openhook.dev. Use authorized
