@@ -10,18 +10,37 @@ Requires Node.js/npm for the optional installer. Select your installed agent
 when prompted, or target Codex or Claude Code explicitly:
 
 ```sh
-npx skills add openhook-dev/openhook-inbox --skill openhook -a codex
-npx skills add openhook-dev/openhook-inbox --skill openhook -a claude-code
+npx skills@1.7.2 add openhook-dev/openhook-inbox --skill openhook -a codex
+npx skills@1.7.2 add openhook-dev/openhook-inbox --skill openhook -a claude-code
 ```
 
 Alternatively, copy this folder into your client's Agent Skills directory.
 Connect the client's Streamable HTTP MCP configuration to
 `https://openhook.dev/mcp`. The skill includes a REST fallback if MCP is unavailable.
-It does not automatically configure MCP, install a daemon, or restart closed sessions.
+Installing the skill alone does not automatically configure MCP, install a
+daemon, or restart closed sessions.
 
-For a local server or listener, follow the [source setup](../../README.md#run-it)
+For a local server or listener, follow the [source setup](https://github.com/openhook-dev/openhook-inbox#run-it)
 (Python 3.10+ and uv). Use your own server's origin instead of openhook.dev when
 self-hosting. No unrelated PyPI package is required.
+
+## Claude Code plugin
+
+Install the skill and hosted MCP connection together:
+
+```sh
+claude plugin marketplace add openhook-dev/openhook-inbox
+claude plugin install openhook@openhook
+```
+
+Start a new Claude Code session after installation, then ask it to create a
+disposable inbox, send a synthetic callback, inspect the payload and delete the
+inbox. `claude mcp list` checks the connection. The plugin uses
+`https://openhook.dev/mcp` without a global API key; created inboxes still require
+their private management tokens. No background processes or hooks are installed.
+
+This is Openhook's own marketplace. Inclusion in Anthropic's official directory
+is a separate review and is not implied by this installation command.
 
 ## Hermes setup
 
@@ -71,7 +90,8 @@ cross-client evaluations:
 
 ## Maintenance and license
 
-MIT licensed under the repository's [LICENSE](../../LICENSE).
-`SKILL.md` is generated from `web/agent-skill.md`; edit that template and run
-`uv run python scripts/generate_docs.py`. CI checks that the published skill
+MIT licensed under the repository's [LICENSE](LICENSE).
+`SKILL.md` is generated from `web/agent-skill.md`, and the packaged LICENSE
+is copied from the repository license. Edit those sources and run
+`uv run --locked python scripts/generate_docs.py`. CI checks that the published skill
 and source template stay synchronized.

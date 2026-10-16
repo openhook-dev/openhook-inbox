@@ -15,6 +15,7 @@ async def main():
     root = Path(__file__).resolve().parent.parent
     outputs = {
         "docs/TOOLS.md": tools_markdown(tools),
+        "skills/openhook/LICENSE": (root / "LICENSE").read_text(),
         "skills/openhook/SKILL.md": template("agent-skill.md", {"origin": "https://openhook.dev"}),
     }
     for filename, output in outputs.items():

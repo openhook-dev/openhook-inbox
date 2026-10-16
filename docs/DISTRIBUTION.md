@@ -39,6 +39,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| Anthropic official plugin directory | Prepared a first-party Claude plugin and marketplace from the canonical skills/openhook folder on 2026-10-16. The official 39,194-star repository routes submissions to the [developer portal](https://claude.ai/directory/manage), which currently requires sign-in to a paid Claude account. No official listing or submission receipt exists. | Local strict plugin and marketplace validation, isolated installation, skill discovery and hosted MCP connection passed. Standard Skills CLI installation still selects the canonical skill. Complete portal login and validation before submission. The separate MCP connector route requires every-tool Inspector and Claude connector tests; current protocol discovery is not sufficient to check that requirement. |
 | ZeroPointRepo/awesome-hermes-skills | [PR #131](https://github.com/ZeroPointRepo/awesome-hermes-skills/pull/131) submitted on 2026-10-16 under Community Skills / Dev & Skill Authoring, alphabetically with the beta tag. 625 stars at discovery. Linked the canonical skill directory; followed all five template items and the upstream format regex. Maintainer affiliation and AI assistance disclosed. | Current Hermes commit acc3cada installed the unchanged public skill with skills-guard-v10 SAFE / ALLOWED and no force; installed bytes match the source. Isolated MCP setup and saved-config test discovered 29 tools. Older local Hermes incorrectly blocked documentation links, so current upstream was tested separately without updating the user installation. Await curator review; scanner verdict and connection checks are not security endorsement or model evaluation. |
 | ccplugins/awesome-claude-code-plugins | [PR #730](https://github.com/ccplugins/awesome-claude-code-plugins/pull/730) submitted on 2026-10-16 as one external entry under MCP Servers. 973 stars at discovery. The collection welcomes plugins and MCP servers; a comparable one-line MCP entry was merged in August. Public source, hosted endpoint and hosted/self-hosted scope included. Maintainer affiliation and AI assistance disclosed. | Duplicate search and one-line whitespace check passed. Claude Code 2.1.288 connection evidence is distinguished from model-driven evaluation. Open with no checks, comments or reviews at initial verification. Await curator review and verify default-branch publication after acceptance. |
 | composio-community/awesome-claude-plugins | [PR #570](https://github.com/composio-community/awesome-claude-plugins/pull/570) submitted on 2026-10-16 under Code Quality & Testing. 1,945 stars at discovery. Includes a plugin manifest, hosted HTTP MCP configuration, unchanged canonical skill with pinned provenance, original MIT license, setup README and both marketplace entries. Maintainer affiliation and AI assistance disclosed. | Claude Code 2.1.288 passed strict plugin validation, isolated marketplace installation, skill/server inventory and live MCP connection health. Installed skill bytes match the source. Existing catalog entries remain unchanged; full marketplace validation has nine pre-existing missing-version warnings on other plugins. Await curator review; no model-driven workflow or marketplace publication claimed. |
@@ -237,6 +238,12 @@ individual reviews before following up.
   passing tests, clean security status and real community usage. The pending
   ClawHub correction and absent independent usage evidence remain gates; no PR
   submitted.
+
+- [skills.sh](https://skills.sh/openhook-dev/openhook-inbox/openhook): the detail
+  URL returned HTTP 200 with an explicit not-available/404 page on 2026-10-16,
+  so a public listing is not established. Its [FAQ](https://skills.sh/docs/faq)
+  describes install telemetry as the listing mechanism. Local QA installs used
+  telemetry opt-out; do not manufacture install counts to obtain ranking.
 
 ## Submission conventions
 
