@@ -30,6 +30,8 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| agentskills.in | **Published** [Openhook skill](https://www.agentskills.in/marketplace/@openhook-dev/openhook), verified 2026-10-16 after submitting the public repository through its designated form. Search before submission showed no matches. The receipt said zero indexed skills, but the public detail page resolves with the correct source folder, branch, complete instructions and scoped install command. | Treat the verified public page as publication evidence. The page says Not scanned; no security endorsement or independent installation is claimed. The importer also exposes a separate `web` entry from the repository's web skill file. |
+| agentskill.sh | Repository import attempted on 2026-10-16 after its search returned zero Openhook matches. The form returned “Too many submissions. Please try again in an hour.” No success receipt or listing was verified. | Wait for the directory's stated one-hour cooldown before checking again. Do not bypass the limit or resubmit through another identity. |
 | Agent-Skills.md | **Published** [Openhook skill](https://agent-skills.md/skills/openhook-dev/openhook-inbox/openhook) on 2026-10-16. Submitted the public `skills/` folder through its designated intake form after a search found no Openhook entry. Receipt: repository captured with one skill. Public search and detail page verified, including source, MIT license, complete skill text, install command and download link. | Measure referrals and independent installations separately. The importer currently assigns Uncategorized; listing is not a security certification. |
 | kodustech/awesome-agent-skills | [PR #152](https://github.com/kodustech/awesome-agent-skills/pull/152) submitted as one Testing & QA row. 108 stars at the 2026-10-16 check. README welcomes contributions; its separate CONTRIBUTING.md link is absent, also confirmed by GitHub community metadata. Maintainer affiliation and AI assistance disclosed. | Await curator review. No duplicate entry or prior PR found; focused diff checked. |
 | toolsdk-ai/toolsdk-mcp-registry | [PR #876](https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/876) submitted with one developer-tools JSON file for the hosted Streamable HTTP endpoint. Registry identity is `@toolsdk-remote/openhook`; runtime Python, no OAuth or connection-header requirements claimed, private inbox tokens described as tool arguments. Local registry validation: one file, zero errors and warnings. 197 stars at the 2026-10-16 discovery check. | Schema and Biome CI checks passed. Await curator review; the registry requires a separate manual catalog publication after merge. Neither merge nor catalog publication is claimed yet. |
@@ -79,6 +81,10 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [skillsdir.dev](https://skillsdir.dev/add) directs submissions to
+  `brunogalvao/claude-skills-directory` through an issue template. The linked
+  repository and issue-template route returned 404 on 2026-10-16; no submission.
 
 - [public-apis/public-apis](https://github.com/public-apis/public-apis/blob/master/CONTRIBUTING.md)
   (489,117 stars at the 2026-10-16 check) explicitly excludes marketing-driven
