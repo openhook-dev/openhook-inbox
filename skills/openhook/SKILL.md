@@ -31,7 +31,7 @@ Openhook restarts a stopped agent session.
 
 - No MCP client: follow the REST quickstart at `https://openhook.dev/agents.md` and the
   request schemas at `https://openhook.dev/openapi.json`.
-- Local handler: keep `uv run openhook-listen --url https://openhook.dev --forward
+- Local handler: keep `uv run --locked openhook-listen --url https://openhook.dev --forward
   http://127.0.0.1:8080/webhook` running from the source checkout after `uv sync`.
   Set `OPENHOOK_TOKEN` privately. Delivery is at least once; make side effects
   idempotent. The source acknowledgement does not prove local delivery.

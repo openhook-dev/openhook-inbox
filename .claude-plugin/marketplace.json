@@ -1,0 +1,17 @@
+{
+  "name": "openhook",
+  "owner": {
+    "name": "Openhook",
+    "url": "https://github.com/openhook-dev"
+  },
+  "plugins": [
+    {
+      "name": "openhook",
+      "source": "./skills/openhook",
+      "description": "Test webhook callbacks with disposable inboxes, inspect received payloads, and clean up through Openhook MCP."
+    }
+  ],
+  "metadata": {
+    "description": "Openhook webhook callback testing for Claude Code."
+  }
+}
