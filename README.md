@@ -65,6 +65,36 @@ check your application's state separately to confirm that its handler worked.
 
 Remove the extension with `gemini extensions uninstall openhook-inbox`.
 
+## Connect OpenCode
+
+Merge this entry into your project's `opencode.json` (preserve existing settings):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "openhook": {
+      "type": "remote",
+      "url": "https://openhook.dev/mcp",
+      "enabled": true
+    }
+  }
+}
+```
+
+Run `opencode mcp list` from that project to check the connection, then ask
+OpenCode to create a disposable inbox and inspect a synthetic callback. No
+Openhook account is needed for a disposable inbox. Keep its private token out
+of the config and committed files; only give the public callback URL to senders.
+Delete the test inbox after checking its contents. Receipt at Openhook does not
+prove that your application's handler processed the event.
+
+This configuration connected successfully with OpenCode 1.19.1. That verifies
+the MCP connection, not a model-driven end-to-end workflow. See the
+[OpenCode MCP documentation](https://opencode.ai/docs/mcp-servers/) for client
+configuration. To disconnect, remove the `mcp.openhook` entry or set its `enabled`
+value to `false`.
+
 ## Run it
 
 From the checkout, install [uv](https://docs.astral.sh/uv/getting-started/installation/)
