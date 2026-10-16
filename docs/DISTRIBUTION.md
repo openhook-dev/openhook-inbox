@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| MyMCPTools | **Submission received** through the [free form](https://mymcptools.com/submit) on 2026-10-16. Directory search returned zero Openhook results before submission. Submitted under API & Web with Hosted / remote endpoint installation, canonical source and website links, hosted MCP endpoint and public business contact. Description explains callback inspection, private inbox tokens, MIT self-hosting and optional paid hosting; affiliation and Codex assistance disclosed. | Receipt says it is in the hand-review queue with no set date and an email if listed. No publication, email delivery or customer reach is claimed. No paid upgrade selected. Await review; do not resubmit. |
 | ZoranPandovski/awesome-testing-tools | [PR #178](https://github.com/ZoranPandovski/awesome-testing-tools/pull/178) submitted on 2026-10-16 as one alphabetical entry under Automated Testing Tools. 376 stars at discovery; recent curator merges on October 7. Contribution guide and duplicate suggestions checked. Affiliation, Codex assistance and optional paid hosting disclosed. | Upstream site generator parsed 120 tools across eight categories and produced exactly one Openhook entry in the intended category; generated JSON excluded from the diff. Canonical source link returns HTTP 200 and diff check passes. Open with no checks, comments or reviews at initial verification. Existing Pages workflow watches master while default branch is main; noted in the PR without changing workflows. Await curator review, then verify README and website publication separately. |
 | PostLaunchKit | **Submitted for review** on 2026-10-16 through the [free directory form](https://postlaunchkit.com/directory/submit/). Receipt reference: `19a15161-36ad-4c11-a5ea-4fd6d217cfe5`. Submitted as an authorized agent under Developer tools / Multiple platforms, using the official website and public business contact. Describes callback inspection, free MIT self-hosting, temporary hosted inbox limits and optional paid hosting. | Directory search found no existing Openhook entry before submission. The receipt explicitly says pending, not public, with no guaranteed review time. No paid placement, backlink commitment or notification opt-in. Await human review; do not resubmit. |
 | Glama remote connector | **Published** [Openhook connector](https://glama.ai/mcp/connectors/io.github.openhook-dev/openhook-inbox), verified directly on 2026-10-16. Correct repository and public endpoint, 29 tools, and resolving SVG badge. The page's latest health check is dated 2026-10-15 09:36; its tool-definition grade is C (2.9/5), scored at 10:06 that day. | This unclaimed public connector is distinct from the source-server listing/ownership gate for punkpeye/awesome-mcp-servers. No owner sign-in, manual submission or independent security certification is claimed. It resolves the connector/badge prerequisite for the separate remote collection; star permission remains pending. |
@@ -140,6 +141,12 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [agamm/awesome-developer-first](https://github.com/agamm/awesome-developer-first/blob/main/CONTRIBUTING.md)
+  (1,848 stars, recent curator merges on October 13) requires a significant
+  milestone such as 1,000 GitHub stars, 1,000 followers, a Product Hunt award or
+  SOC-2 compliance. None is established for Openhook; no submission made on
+  2026-10-16. Revisit when an eligible milestone can be substantiated.
 
 - [punkpeye/awesome-mcp-devtools](https://github.com/punkpeye/awesome-mcp-devtools)
   (488 stars at the 2026-10-16 check) focuses on tools for building, testing and
