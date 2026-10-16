@@ -31,7 +31,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
 | denji/awesome-http-benchmark | [PR #79](https://github.com/denji/awesome-http-benchmark/pull/79) submitted on 2026-10-16 as one HTTP testing/debugging toolkit entry. 3,783 stars and a September upstream merge verified. Root contains README and MIT license; GitHub community metadata showed no separate contribution guide or PR template. No duplicate entry or PR found; maintainer affiliation and AI assistance disclosed. | Focused diff passed. Await curator review and verify the default-branch entry after any merge. Openhook is described as a callback inspection tool, not a load generator. |
-| TheJambo/awesome-testing | [PR #303](https://github.com/TheJambo/awesome-testing/pull/303) submitted on 2026-10-16 as one API Testing entry beside existing webhook tools. 2,391 stars; recent upstream merges verified. Read contribution rules and code of conduct, searched previous suggestions, disclosed maintainer affiliation and AI assistance, and followed CC0 terms for the README contribution. | Open and awaiting curator review. Focused diff passed; the upstream dead-link checker was running at initial verification. Source remains MIT licensed. |
+| TheJambo/awesome-testing | [PR #303](https://github.com/TheJambo/awesome-testing/pull/303) submitted on 2026-10-16 as one API Testing entry beside existing webhook tools. 2,391 stars; recent upstream merges verified. Read contribution rules and code of conduct, searched previous suggestions, disclosed maintainer affiliation and AI assistance, and followed CC0 terms for the README contribution. | Open and awaiting curator review. Focused diff passed; the upstream dead-link checker passed on 2026-10-16. Source remains MIT licensed. |
 | yosriady/awesome-api-devtools | [PR #227](https://github.com/yosriady/awesome-api-devtools/pull/227) submitted on 2026-10-16 as one API Debugging and Mocking / Hosted entry. 4,014 stars. README welcomes contributions; GitHub community metadata showed no separate contribution guide or PR template. No existing entry or PR found; maintainer affiliation and AI assistance disclosed. | Open with no checks or reviews at initial verification. This collection has an older activity date, so review timing is uncertain. Submission is not a published listing or measured reach. |
 | cline/marketplace | [PR #248](https://github.com/cline/marketplace/pull/248) submitted on 2026-10-16 to Cline's CLI marketplace catalog with one MCP entry and the existing Openhook logo. Hosted Streamable HTTP install command, per-inbox token requirements, and callback-receipt boundary are explicit. Both verified and featured flags are false; maintainer affiliation and AI assistance disclosed. | Local validation and generation passed for all 204 entries. Open with no checks or reviews at the initial verification. Await Cline review, then separately verify the published catalog. This new catalog repository has 8 stars; client distribution, not repository star count, is the reason for submission. |
 | agentskills.in | **Published** [Openhook skill](https://www.agentskills.in/marketplace/@openhook-dev/openhook), verified 2026-10-16 after submitting the public repository through its designated form. Search before submission showed no matches. The receipt said zero indexed skills, but the public detail page resolves with the correct source folder, branch, complete instructions and scoped install command. | Treat the verified public page as publication evidence. The page says Not scanned; no security endorsement or independent installation is claimed. The importer also exposes a separate `web` entry from the repository's web skill file. |
@@ -148,6 +148,8 @@ individual reviews before following up.
 - [cline/mcp-marketplace](https://github.com/cline/mcp-marketplace) is a separate, older intake route requiring an actual Cline setup test. No such test or submission was claimed. The newer [cline/marketplace contribution guide](https://github.com/cline/marketplace/blob/main/CONTRIBUTING.md) permits a metadata PR, submitted above with protocol-test evidence explicitly distinguished from Cline client testing.
 - [LobeHub MCP Marketplace](https://lobehub.com/mcp) was inspected on 2026-10-16. Its current owner publication route uses the market CLI and requires browser login plus GitHub ownership connection; the older lobe-chat-plugins repository targets function-calling plugins, not this MCP intake. No LobeHub login, account creation or publication was performed. See the [official publication instructions](https://lobehub.com/publish-mcp/skill.md).
 
+- [QASkills.sh](https://qaskills.sh/how-to-publish) is a relevant testing-skill directory. Its official publishing guide and repository contribution section direct new skills through authenticated dashboard/CLI publication; PRs are invited for improving existing skills. No account was created and no new-skill PR was sent through the wrong route.
+
 ## Submission conventions
 
 Read each destination's current contribution rules and search for existing
@@ -202,3 +204,18 @@ On 2026-10-16, the recent BehiSecc #952, libukai #198 and YuzeHao #646
 submissions were checked directly: no review comments or checks were present.
 No reminder comments were posted. The broader PR search still showed the three
 previously confirmed external merges and the other submitted PRs awaiting review.
+
+## Review audit — 2026-10-16
+
+Direct inspection of all 19 currently open external PRs found no formal reviews
+or requested code changes and no additional merges. Awesome Testing's dead-link
+check passed; Composio, ToolSDK and Kodus checks remain successful. Heilcheng's
+Vercel preview still requires its owner's authorization. A positive inspection
+comment on that PR is from an account with association `NONE`, not a maintainer
+approval. No reminder comments were posted.
+
+The large punkpeye collection submission remains a draft pending Glama. The
+[validator preparation](gtm/glama-validation.md) now records a successful local
+non-root container build and network-disabled stdio discovery of 29 tools and
+3 resources. Glama Add Server still requires account sign-in, requested from the
+user; no Glama submission, passing platform grade or badge is claimed.
