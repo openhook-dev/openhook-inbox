@@ -31,7 +31,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
 | MCP.tc | **Published** [Openhook listing](https://mcp.tc/i/openhook), verified 2026-10-16. Directory search initially showed zero matches; submitted the public endpoint through its no-account form with source, guide, token requirements, maintainer affiliation and AI-assistance disclosure. Receipt progressed from checking to listed. | Public page verified with correct Streamable HTTP endpoint, 29 tools, source attribution, private inbox-token explanation and client setup links. Listing is not independent adoption or a security certification. No account, contact email or payment was needed. |
-| TrackMCP | Free submission prepared on 2026-10-16 after directory search returned zero matches. Submit was rejected by automatic approval review because the form requires sharing the support contact with this new third party. No successful submission receipt. | Specific contact-sharing approval requested. Leave paid placement unselected; do not retry or use an alternate route until approval arrives. |
+| TrackMCP | **Submitted for review** on 2026-10-16 after the user approved the prepared free listing and required support contact. The form confirmed: “Your tool has been submitted. We'll review it and email you a confirmation.” Canonical GitHub repository submitted; paid placement was not selected. | Await review and verify the public directory entry separately. The earlier automatic approval gate is resolved; receipt is not publication or adoption. Do not submit again while pending. |
 | denji/awesome-http-benchmark | [PR #79](https://github.com/denji/awesome-http-benchmark/pull/79) submitted on 2026-10-16 as one HTTP testing/debugging toolkit entry. 3,783 stars and a September upstream merge verified. Root contains README and MIT license; GitHub community metadata showed no separate contribution guide or PR template. No duplicate entry or PR found; maintainer affiliation and AI assistance disclosed. | Focused diff passed. Await curator review and verify the default-branch entry after any merge. Openhook is described as a callback inspection tool, not a load generator. |
 | TheJambo/awesome-testing | [PR #303](https://github.com/TheJambo/awesome-testing/pull/303) submitted on 2026-10-16 as one API Testing entry beside existing webhook tools. 2,391 stars; recent upstream merges verified. Read contribution rules and code of conduct, searched previous suggestions, disclosed maintainer affiliation and AI assistance, and followed CC0 terms for the README contribution. | Open and awaiting curator review. Focused diff passed; the upstream dead-link checker passed on 2026-10-16. Source remains MIT licensed. |
 | yosriady/awesome-api-devtools | [PR #227](https://github.com/yosriady/awesome-api-devtools/pull/227) submitted on 2026-10-16 as one API Debugging and Mocking / Hosted entry. 4,014 stars. README welcomes contributions; GitHub community metadata showed no separate contribution guide or PR template. No existing entry or PR found; maintainer affiliation and AI assistance disclosed. | Open with no checks or reviews at initial verification. This collection has an older activity date, so review timing is uncertain. Submission is not a published listing or measured reach. |
@@ -87,6 +87,18 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [aaif-goose/goose](https://github.com/aaif-goose/goose/blob/main/AGENTS.md)
+  (55,324 stars at the 2026-10-16 check) has retired new third-party directory
+  additions in favor of the official MCP Registry. No listing PR submitted.
+  Openhook's official Registry record was reverified as active and latest,
+  version 0.1.0 with the correct hosted endpoint. This does not establish that
+  Goose's registry-backed client discovery has shipped or been tested.
+- [marmelab/awesome-rest](https://github.com/marmelab/awesome-rest/blob/master/.github/pull_request_template.md)
+  (3,920 stars at the 2026-10-16 check) has a relevant webhook testing category,
+  but its PR template excludes young tools until they prove widely useful.
+  No existing Openhook PR found; no submission made. Revisit with evidence of
+  independent usage rather than treating internal tests as adoption.
 
 - [skillsdir.dev](https://skillsdir.dev/add) directs submissions to
   `brunogalvao/claude-skills-directory` through an issue template. The linked
