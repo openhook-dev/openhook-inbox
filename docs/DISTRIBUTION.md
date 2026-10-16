@@ -297,17 +297,32 @@ bypass branch protection, or merge a fork and call it upstream acceptance.
 
 On 2026-10-16, the recent BehiSecc #952, libukai #198 and YuzeHao #646
 submissions were checked directly: no review comments or checks were present.
-No reminder comments were posted. The broader PR search still showed the three
-previously confirmed external merges and the other submitted PRs awaiting review.
+No reminder comments were posted. That earlier PR search showed three
+external merges; the refreshed audit below includes the later Chat2AnyLLM merge.
 
 ## Review audit — 2026-10-16
 
-Direct inspection of all 19 currently open external PRs found no formal reviews
-or requested code changes and no additional merges. Awesome Testing's dead-link
-check passed; Composio, ToolSDK and Kodus checks remain successful. Heilcheng's
-Vercel preview still requires its owner's authorization. A positive inspection
-comment on that PR is from an account with association `NONE`, not a maintainer
-approval. No reminder comments were posted.
+A refreshed GitHub audit found 33 open external Openhook PRs and four merged
+external PRs. The two other closed search matches predate this campaign; they
+are not counted as newly accepted listings. Direct GraphQL inspection of all 33
+open PRs found no new maintainer comments or formal review requests to address.
+No reminder comments or duplicate PRs were posted.
+
+The failed Vercel contexts on heilcheng #586 and sickn33 #1943 explicitly require
+a member of those owners' teams to authorize preview deployment. They are not
+reported test regressions. Sickn33's Socket and Snyk contexts passed. Other
+submissions remain in curator review or require owner approval to start checks.
+
+The older [jezweb/claude-skills #50](https://github.com/jezweb/claude-skills/pull/50)
+was closed after unresolved requested changes, with an invitation to resubmit.
+Its [maintainer review](https://github.com/jezweb/claude-skills/pull/50#pullrequestreview-4025103371)
+asked for safer installation, service stability/self-hosting, complete inline
+instructions and an actual Claude Code end-to-end session test. The current
+native skill no longer uses the old curl-pipe-shell installer or claims to
+restart stopped sessions. However, installation and MCP discovery still do not
+satisfy the requested model-driven workflow test. No replacement PR was opened;
+revisit after that evidence is available. The repository had 1,065 stars and an
+October 2026 update at this check.
 
 The large punkpeye collection submission remains a draft pending Glama. The
 [validator preparation](gtm/glama-validation.md) now records a successful local
