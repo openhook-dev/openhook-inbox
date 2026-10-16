@@ -1,0 +1,17 @@
+To: hello@fewservers.com
+Subject: Missing Openhook entry in the MCP directory
+
+Hi Few Servers team,
+
+I'm helping the Openhook maintainer get its listing up to date. Your search API returned no results for "openhook", and the direct lookup for io.github.openhook-dev/openhook-inbox returned 404 on October 16. Could you review whether it should be included in the next index update?
+
+Openhook captures HTTP webhooks, email and DNS callbacks. Developers and coding agents can create an inbox, wait for a callback and inspect its payload through MCP. It is MIT-licensed and self-hostable, with free temporary hosted inboxes and optional paid persistent inboxes.
+
+Source: https://github.com/openhook-dev/openhook-inbox
+Website: https://openhook.dev
+Remote MCP endpoint: https://openhook.dev/mcp
+Official Registry identifier: io.github.openhook-dev/openhook-inbox
+Suggested category: Developer tools
+Project contact: hello@openhook.dev
+
+This was prepared with Codex on behalf of the maintainer. We are asking for a directory entry, not a Tested badge.

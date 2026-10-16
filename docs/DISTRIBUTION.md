@@ -48,6 +48,7 @@ or evidence of customer adoption. See [releasing](releasing.md) for updates.
 
 | Destination | Status and evidence | Next step |
 | --- | --- | --- |
+| MCPizy | **Submission received** on 2026-10-16. [Receipt](https://mcpizy.com/submit/thanks?ref=web_mvaextrp_vy5cr3&tier=standard), reference `web_mvaextrp_vy5cr3`, explicitly says recorded in the review queue. Full published directory HTML contained no Openhook entry before submission. Submitted under Developer tools with canonical source, a hosted Claude Code connection command, local setup documentation, pricing limits and private-token requirements. Affiliation and Codex assistance disclosed. | Free standard listing. The provider states a 24-hour review/publication window; acceptance and publication remain unverified. The receipt says a transactional email is sent, but delivery was not independently checked. Await the review window; do not resubmit. |
 | MyMCPTools | **Submission received** through the [free form](https://mymcptools.com/submit) on 2026-10-16. Directory search returned zero Openhook results before submission. Submitted under API & Web with Hosted / remote endpoint installation, canonical source and website links, hosted MCP endpoint and public business contact. Description explains callback inspection, private inbox tokens, MIT self-hosting and optional paid hosting; affiliation and Codex assistance disclosed. | Receipt says it is in the hand-review queue with no set date and an email if listed. No publication, email delivery or customer reach is claimed. No paid upgrade selected. Await review; do not resubmit. |
 | ZoranPandovski/awesome-testing-tools | [PR #178](https://github.com/ZoranPandovski/awesome-testing-tools/pull/178) submitted on 2026-10-16 as one alphabetical entry under Automated Testing Tools. 376 stars at discovery; recent curator merges on October 7. Contribution guide and duplicate suggestions checked. Affiliation, Codex assistance and optional paid hosting disclosed. | Upstream site generator parsed 120 tools across eight categories and produced exactly one Openhook entry in the intended category; generated JSON excluded from the diff. Canonical source link returns HTTP 200 and diff check passes. Open with no checks, comments or reviews at initial verification. Existing Pages workflow watches master while default branch is main; noted in the PR without changing workflows. Await curator review, then verify README and website publication separately. |
 | PostLaunchKit | **Submitted for review** on 2026-10-16 through the [free directory form](https://postlaunchkit.com/directory/submit/). Receipt reference: `19a15161-36ad-4c11-a5ea-4fd6d217cfe5`. Submitted as an authorized agent under Developer tools / Multiple platforms, using the official website and public business contact. Describes callback inspection, free MIT self-hosting, temporary hosted inbox limits and optional paid hosting. | Directory search found no existing Openhook entry before submission. The receipt explicitly says pending, not public, with no guaranteed review time. No paid placement, backlink commitment or notification opt-in. Await human review; do not resubmit. |
@@ -141,6 +142,16 @@ validation and Socket checks passed, with no human comments or reviews. Check
 individual reviews before following up.
 
 ## Deferred destinations
+
+- [Few Servers](https://www.fewservers.com/mcp/submit/): public API search returned
+  zero Openhook results and direct registry-name lookup returned 404 on
+  2026-10-16. Filled and posted a missing-index correction, but the response
+  explicitly said **not sent yet** and **nothing stored**: intake currently
+  requires email to hello@fewservers.com. A [prepared email](gtm/fewservers-email.txt)
+  is awaiting user authorization and sender selection. No submission receipt,
+  email send or published listing is claimed. Two fresh Official Registry reads
+  timed out; the earlier verified record is not treated as a fresh successful
+  check or as evidence of removal.
 
 - [agamm/awesome-developer-first](https://github.com/agamm/awesome-developer-first/blob/main/CONTRIBUTING.md)
   (1,848 stars, recent curator merges on October 13) requires a significant
