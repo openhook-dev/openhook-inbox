@@ -29,3 +29,16 @@ test('private paths and privacy signals disable sending', () => {
   assert.equal(tracker('/', {doNotTrack: '1'})('event', {}), false);
   assert.equal(tracker('/', {globalPrivacyControl: true})('event', {}), false);
 });
+
+
+test('published guides and information pages are tracked without query data', () => {
+  for (const path of ['/about', '/contact', '/guides', '/guides/callback-proof',
+    '/guides/webhook-testing', '/guides/local-webhooks', '/guides/github-webhooks', '/guides/self-hosting']) {
+    const clean = tracker(path)('event', {website: 'website-id', url: path + '?token=secret'});
+    assert.equal(clean.url, path);
+    assert.ok(!JSON.stringify(clean).includes('secret'));
+    assert.equal(tracker(path, {doNotTrack: '1'})('event', {}), false);
+    assert.equal(tracker(path, {globalPrivacyControl: true})('event', {}), false);
+  }
+  assert.equal(tracker('/guides/unknown-private-value')('event', {}), false);
+});

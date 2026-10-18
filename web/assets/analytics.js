@@ -1,7 +1,11 @@
 'use strict';
 
 // Public pages only. Do not forward arbitrary event data, URLs, or DOM text.
-const analyticsPaths = new Set(['/', '/connect', '/docs', '/agents', '/privacy', '/pricing']);
+const analyticsPaths = new Set([
+  '/', '/about', '/contact', '/connect', '/docs', '/agents', '/privacy', '/pricing',
+  '/guides', '/guides/callback-proof', '/guides/webhook-testing',
+  '/guides/local-webhooks', '/guides/github-webhooks', '/guides/self-hosting',
+]);
 const analyticsEvents = new Set(['connect-click', 'pricing-click', 'try-inbox-click', 'pro-click', 'account-click', 'source-click', 'copy-setup-click']);
 window.openhookAnalyticsBeforeSend = (type, payload) => {
   if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl ||
