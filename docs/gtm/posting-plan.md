@@ -1,6 +1,6 @@
 # Openhook posting plan
 
-Updated 2026-10-16. The Openhook-site guide is published; social and cross-post
+Updated 2026-10-18. The Openhook-site guide is published; social and cross-post
 copy remain drafts. Publication receipts are tracked in [DISTRIBUTION](../DISTRIBUTION.md).
 
 ## First article
@@ -26,9 +26,12 @@ account has been selected or authenticated for this article.
 
 ## Short X draft
 
-I maintain Openhook: an MIT-licensed webhook inbox for coding agents. Create a URL,
-send a callback, and inspect it through MCP. Free temporary inboxes need no account.
-Try the working example: https://github.com/openhook-dev/openhook-inbox
+I maintain Openhook. Here's a small webhook test: create an inbox, send a callback, check that the original bytes match, then delete it.
+
+Python standard library. No signup or paid plan.
+
+https://openhook.dev/guides/callback-proof
+
 
 ## LinkedIn draft
 
@@ -71,3 +74,23 @@ unattributed. Any future campaign measurement needs explicit implementation and
 verification without collecting tokens or personal identifiers. Compare referrals
 with first real callback and return-use evidence. Exclude the maintainer's demo
 runs from adoption counts.
+
+## October 18 verification and measurement correction
+
+The public walkthrough returned HTTP 200. Its Python example completed a real
+HTTP capture, exact-byte comparison and inbox deletion on October 18. This was
+maintainer QA, not customer adoption; exclude that run from external trial counts.
+
+The live analytics script was still rejecting guide, about and contact page
+visits despite those public pages loading the tracker. The accompanying fix
+adds their exact published paths to the existing allowlist, preserving private
+route rejection, query stripping and DNT/GPC. Deployment and receipt in Umami
+must be verified separately. Historical guide visits cannot be recovered from
+Umami, so previous website totals cover only the tracked public paths.
+
+This fixes guide readership measurement only. A pageview or copy click does not
+prove a completed callback or repeat usage. Anonymous activity still cannot
+reliably distinguish outside developers from automated checks.
+
+The short post above is ready; the publishing destination/account is awaiting
+the user's selection. No external post has been published by this update.
