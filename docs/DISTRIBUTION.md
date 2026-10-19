@@ -367,6 +367,29 @@ individual reviews before following up.
   describes install telemetry as the listing mechanism. Local QA installs used
   telemetry opt-out; do not manufacture install counts to obtain ranking.
 
+### October 19 skill distribution follow-up
+
+- The older [Openhook skill listing](https://skills.sh/openhook-dev/openhook-skills/openhook-webhook-listener)
+  exists and showed 2 installs. Its March 11 Socket, Snyk and Gen audit failures
+  concern historical skill content. The current canonical listing above still
+  renders an unavailable page. Neither install counts nor an updated source prove
+  external adoption or a passing security audit.
+- [openhook-skills PR #1](https://github.com/openhook-dev/openhook-skills/pull/1)
+  merged as `2ecba499c49105c9fdb7af439028edcd5741fe62`. The listed skill now matches
+  the current canonical skill, except for its existing name alias. Remote main
+  content was compared after merge; CLI discovery found the existing alias with
+  telemetry disabled. A local-file sync script keeps the two sources aligned.
+- [Vercel skills issue #2541](https://github.com/vercel-labs/skills/issues/2541)
+  requests a fresh directory snapshot and security assessment, with the old audit
+  revision and current merged revision. Submitted; refresh and new audit results
+  are pending. Do not claim the badges have cleared.
+- [MCP.Directory skill submission](https://mcp.directory/submit-skill) confirmed
+  **“Skill Submitted!”** on October 19 and stated review within 24 hours. Its skill
+  search returned 0 results for Openhook before submission. Submitted the canonical
+  `skills/openhook/SKILL.md`, Developer Tools category and a concise workflow
+  description; optional email omitted. This is separate from the earlier server
+  submission. Publication remains pending.
+
 ## Submission conventions
 
 Read each destination's current contribution rules and search for existing
@@ -394,9 +417,18 @@ Markdown response and the real MCP callback loop were verified. Google Search
 Console accepted an indexing request for the guide and resubmission of the updated
 14-URL sitemap on 2026-10-16; acceptance is not confirmed indexing. The [posting
 plan](gtm/posting-plan.md) includes X and LinkedIn drafts and two follow-on article
-experiments. No social post or cross-post has been published to an external
-account; the intended account is still pending. HN requires human-written posts;
-DEV's published AI-content policy restricts business promotion.
+experiments. On October 19, the maintainer published the 24-second v9 video in
+[X's Build in Public community](https://x.com/berkant_thedev/status/2112272025305928045).
+The live post was verified with native video. Codex subsequently published a
+[signature-verification answer](https://x.com/berkant_thedev/status/2112277622302679138)
+after checking current source, and a
+[skill install command and callback walkthrough](https://x.com/berkant_thedev/status/2112278190400163894).
+The video showed 69 views, 10 likes, 4 reposts and 2 bookmarks around 22:22 Berlin;
+these are a dated engagement snapshot, not unique visitors or customer adoption.
+Build in Public prohibits advertisements and engagement farming; keep replies
+specific to the implementation and reproducible workflow. External long-form
+cross-posts remain unpublished. HN requires human-written posts; DEV's published
+AI-content policy restricts business promotion.
 
 ## High-visibility campaign
 

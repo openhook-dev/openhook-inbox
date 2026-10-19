@@ -1,7 +1,8 @@
 # Openhook posting plan
 
-Updated 2026-10-18. The Openhook-site guide is published; social and cross-post
-copy remain drafts. Publication receipts are tracked in [DISTRIBUTION](../DISTRIBUTION.md).
+Updated 2026-10-19. The Openhook-site guide and an X video thread are published;
+external article and LinkedIn copy remain drafts. Publication receipts are tracked
+in [DISTRIBUTION](../DISTRIBUTION.md).
 
 ## First article
 
@@ -22,9 +23,10 @@ account has been selected or authenticated for this article.
 | Hashnode | One original technical article, reviewed by the maintainer, with affiliation and AI-assistance disclosure. | Select/sign in to the author's account, review the prepared article, then publish. [Code of conduct](https://hashnode.com/code-of-conduct) permits reviewed AI content but rejects bulk posting and primarily promotional use. |
 | DEV Community | A human-owned technical contribution subject to its AI content rules. | Do not publish this GTM draft: [AI guidelines](https://dev.to/devteam/guidelines-for-ai-assisted-articles-on-dev-17n6) say AI-assisted articles should not promote a business. Its newer [disclosure tiers](https://dev.to/devteam/introducing-ai-disclosure-on-dev-tools-for-nuance-clarity-and-better-feeds-34mk/) do not remove that restriction. |
 | Hacker News / Show HN | The working product with a personal explanation from its maker; direct demo access. | Author must write and submit their own text. [HN guidelines](https://news.ycombinator.com/newsguidelines.html) prohibit generated text and automated posting; [Show HN](https://news.ycombinator.com/showhn.html) excludes blog posts and signup-only pages. Do not paste the drafts here. |
-| X or LinkedIn | A single founder post with a real callback example and a clear invitation to try it. | Select the intended account and review the corresponding copy below. No account-specific post has been submitted. |
+| X | Founder video with implementation discussion and a reproducible callback example. | [Video published](https://x.com/berkant_thedev/status/2112272025305928045) October 19 in Build in Public; [setup reply](https://x.com/berkant_thedev/status/2112278190400163894) links the skill command and guide. Answer specific questions and measure referrals and external trials; respect the community's no-advertising rule. |
+| LinkedIn | A single founder post with a real callback example. | Draft only; publishing account not selected. |
 
-## Short X draft
+## Earlier X draft (superseded by the published video thread)
 
 I maintain Openhook. Here's a small webhook test: create an inbox, send a callback, check that the original bytes match, then delete it.
 
