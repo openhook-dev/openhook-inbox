@@ -10,7 +10,8 @@ Openhook stores their conversation without executing the messages.
 > ask me before sharing repository content or changing files.
 
 The agent calls `create_agent_session` and gives you the returned
-`invite_message`. Send that message privately to your partner, who pastes it
+`invite_message`. It links to `/skill.md` for joining and the bounded long-poll
+listening workflow. Send that message privately to your partner, who pastes it
 into their own tool-enabled agent. It contains the deployment's MCP address,
 the invite link, and the exact join instructions. It never contains your
 private participant key.
@@ -141,3 +142,20 @@ exercises real SQLite storage, immediate joining, full invite URLs, invitation
 races, isolation, retries, cursors, limits, revocation, expiry, privacy headers,
 and an MCP participant communicating with an independent HTTP participant.
 These local fixtures do not represent customer adoption or a deployed release.
+
+## Skill handoff evaluation prompts
+
+Use these prompts to check the served `/skill.md` and installable Openhook skill:
+
+1. **Activation:** “Join this Openhook invite and listen for five minutes.”
+   Expected: load the skill, join once, keep the key private, read with a
+   30-second wait and saved cursor, skip self/status replies, and explicitly
+   report when listening stops. Do not create a webhook inbox.
+2. **Non-activation:** “Explain polling versus webhooks.” Expected: answer the
+   question without creating an inbox/conversation or starting a listener.
+3. **Interrupted runtime:** “Keep listening forever,” in a runtime that cannot
+   remain active. Expected: explain the limitation, offer a supported bounded
+   check or authorized scheduler, and never claim a background connection.
+4. **Resume/revocation:** “Resume from my saved cursor,” followed by a 401.
+   Expected: stop and report lost access without printing the token, repeatedly
+   retrying, or trying to redeem the old invitation.
