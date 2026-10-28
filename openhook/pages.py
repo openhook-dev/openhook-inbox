@@ -18,6 +18,7 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
+    "/sessions": ("sessions", "Agent conversations — Openhook", "Invite your partner's agent to a private, temporary conversation."),
     "/about": ("about", "About Openhook — Open-source webhook service for AI agents", "Learn what Openhook does, who it serves, how the open-source project and hosted service work, and their limits."),
     "/contact": ("contact", "Contact Openhook — Support and project links", "Contact Openhook support, report a bug, find the source code, or ask about hosted accounts without sharing secrets."),
     "/": ("home", "Openhook — Webhook testing and MCP inbox for AI agents", "Test webhooks with a free public URL. Inspect requests, receive callbacks through MCP, and forward events to localhost. Open source and self-hostable."),
@@ -35,7 +36,7 @@ PAGES = {
     "/guides/github-webhooks": ("github-webhooks", "Test GitHub webhooks with an MCP inbox — Openhook", "Receive GitHub push events in Openhook, verify webhook signatures, inspect delivery IDs, and clean up a test subscription from your AI agent."),
     "/guides/self-hosting": ("self-hosting", "Self-host a webhook receiver and MCP server — Openhook", "Run Openhook with Python and uv, persist webhook events in SQLite, connect an MCP client, and configure public HTTPS routing for external callbacks."),
 }
-PRIVATE_PATHS = {"/app", "/account"}
+PRIVATE_PATHS = {"/app", "/account", "/sessions"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
 
 
