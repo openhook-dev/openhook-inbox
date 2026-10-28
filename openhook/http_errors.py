@@ -9,15 +9,17 @@ from openhook.pages import prefers_markdown
 
 RESOLUTIONS = {
     400: "Check the request fields against /openapi.json and retry with valid JSON.",
-    401: "Use your private inbox token or the authentication described in /docs.",
+    401: "Use the private token for this inbox or conversation, or the authentication described in /docs.",
     402: "Review /pricing and manage your hosted subscription at /account.",
-    403: "Use the configured Openhook origin and an account authorized for this operation.",
+    403: "Use the configured Openhook origin and credentials authorized for this operation.",
     404: "Check /docs, /sitemap.xml or /llms.txt. An inbox may have expired or been deleted.",
     405: "Use a method listed for this endpoint in /openapi.json.",
+    409: "Read the conflict details. Reuse a message ID only with its original text; inspect participant status before retrying membership changes.",
     413: "Reduce the request body to no more than 1 MiB.",
     429: "Honor Retry-After when present. Check inbox and account capacity before retrying.",
     500: "Retry with backoff. If the problem persists, use the support contact on /contact.",
     503: "Retry later with backoff and check /health before repeating the operation.",
+    507: "Storage capacity is exhausted. Close unneeded conversations or contact the operator before retrying.",
 }
 
 

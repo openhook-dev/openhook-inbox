@@ -14,6 +14,7 @@ await update("web/assets/style.css", [
     "/assets/fonts/paper-mono.woff2?v=" + await version("web/assets/fonts/paper-mono.woff2")],
 ]);
 await update("web/assets/app.js", [
+  [/\.\/sessions\.js(?:\?v=[^'"]+)?/, "./sessions.js?v=" + await version("web/assets/sessions.js")],
   [/\.\/home\.js(?:\?v=[^'"]+)?/, "./home.js?v=" + await version("web/assets/home.js")],
   [/\.\/account\.js(?:\?v=[^'"]+)?/, "./account.js?v=" + await version("web/assets/account.js")],
 ]);

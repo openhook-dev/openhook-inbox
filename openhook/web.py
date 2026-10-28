@@ -32,6 +32,7 @@ from openhook.accounts import Accounts
 from openhook.metrics import RequestMetrics, metrics_response
 from openhook.http_errors import http_error, problem
 from openhook.agent_discovery import ROUTES as DISCOVERY_ROUTES
+from openhook.session_api import SessionCall, session_call
 
 
 class WebCall(BaseModel):
@@ -189,11 +190,12 @@ async def llms(request):
 
 
 async def openapi(request):
-    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, WebCall, WaitCall))
+    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, WebCall, WaitCall, SessionCall))
 
 
 async def robots(request):
-    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nAllow: /api/v1/tools\nDisallow: /api/\nDisallow: /h/\nDisallow: /app\nDisallow: /account\nDisallow: /auth/\nDisallow: /billing/\nDisallow: /mcp\nDisallow: /health\nDisallow: /metrics\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
+    private = ''.join(f'Disallow: {path}\n' for path in sorted(PRIVATE_PATHS))
+    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nAllow: /api/v1/tools\nDisallow: /api/\nDisallow: /h/\n{private}Disallow: /auth/\nDisallow: /billing/\nDisallow: /mcp\nDisallow: /health\nDisallow: /metrics\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
 
 
 async def sitemap(request):
@@ -275,9 +277,9 @@ class WebBoundary:
                     message["headers"].append((b"content-security-policy", b"sandbox; default-src 'none'; frame-ancestors 'none'"))
                 elif not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
                     message["headers"].append((b"content-security-policy", CSP.encode()))
-                if path in {"/app", "/account"} or path.startswith(("/h/", "/mcp", "/health", "/auth/")) or (path.startswith("/api/") and path != "/api/tools"):
+                if path in PRIVATE_PATHS or path.startswith(("/h/", "/mcp", "/health", "/auth/")) or (path.startswith("/api/") and path != "/api/tools"):
                     message["headers"].append((b"x-robots-tag", b"noindex, nofollow"))
-                if protected or path in {"/app", "/account"} or path.startswith("/auth/"):
+                if protected or path in PRIVATE_PATHS or path.startswith("/auth/"):
                     message["headers"].append((b"cache-control", b"no-store"))
                 elif path.startswith("/assets/"):
                     versioned = re.fullmatch(rb"v=[0-9a-f]{12}", scope.get("query_string", b""))
@@ -341,6 +343,7 @@ def create_app(settings: Settings | None = None, *, hosted_routes=()):
     app.router.routes.extend([
         *DISCOVERY_ROUTES,
         *hosted_routes,
+        Route("/api/v1/sessions", session_call, methods=["POST"]),
         Route("/api/v1/call", api_call, methods=["POST"]), Route("/api/v1/wait", wait_events, methods=["POST"]),
         Route("/api/v1/export", export_events, methods=["POST"]), Route("/api/v1/tools", tools_catalog),
         Route("/health", health), Route("/metrics", metrics_response), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),

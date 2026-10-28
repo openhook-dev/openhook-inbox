@@ -54,7 +54,7 @@ def measured_tool(function):
 
 def route_group(path):
     if path in {"/", "/connect", "/docs", "/agents", "/privacy", "/pricing", "/app", "/account",
-                "/api/call", "/api/wait", "/api/export", "/api/tools", "/api/account",
+                "/sessions", "/api/v1/sessions", "/api/call", "/api/wait", "/api/export", "/api/tools", "/api/account",
                 "/auth/github", "/auth/github/callback", "/api/account/billing/checkout", "/api/account/billing/portal"}:
         return path
     for prefix in ("/mcp", "/h/", "/assets/", "/api/account/", "/billing/", "/auth/"):

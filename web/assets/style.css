@@ -72,6 +72,16 @@ footer a { text-decoration: none; }
 .eyebrow { color: var(--fg-3); font-size: 12px; margin-bottom: 16px; }
 .page-body, .reading, .setup-content { display: flex; flex-direction: column; gap: 32px; }
 .reading section { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 24px; }
+.session-form { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+.session-form button { align-self: flex-start; }
+.session-page details pre { padding-block: 16px; font-size: 12px; }
+.session-members, .session-members > div { display: flex; flex-direction: column; gap: 12px; }
+.session-members > div { padding-block: 12px; border-bottom: 1px solid var(--line); }
+.session-members .button { align-self: flex-start; }
+.session-confirmation { display: flex; align-items: flex-start; gap: 12px; padding-block: 12px; font-size: 12px; }
+.session-confirmation input { width: 16px; min-width: 16px; margin-top: 4px; }
+.session-messages { max-height: 480px; overflow-y: auto; overflow-wrap: anywhere; }
+.session-messages article { padding: 16px 0; border-bottom: 1px solid var(--line); }
 .reading h3 { margin-top: 16px; }
 .reading ul { color: var(--fg-2); padding-left: 24px; }
 .setup-grid { display: flex; flex-direction: column; gap: 40px; }

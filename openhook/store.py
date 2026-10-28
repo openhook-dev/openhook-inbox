@@ -88,6 +88,8 @@ class Store:
                 CREATE INDEX IF NOT EXISTS activity_inbox_sequence ON activity(inbox, sequence);
                 CREATE INDEX IF NOT EXISTS activity_event ON activity(event);
             """)
+            from openhook.sessions import initialize
+            initialize(db)
             if settings.hosted_enabled:
                 hosted_store.initialize(db, stripe_live=settings.stripe_live, billing_provider=settings.billing_provider,
                                         polar_sandbox=settings.polar_sandbox)
@@ -150,6 +152,8 @@ class Store:
         return db.execute(f"DELETE FROM events WHERE {where}", args).rowcount
 
     def _expire(self, db) -> int:
+        from openhook.sessions import expire
+        expire(db)
         if self.settings.hosted_enabled:
             hosted_store.expire_payloads(db, self._audit, time.time())
         rows = db.execute("SELECT id FROM inboxes WHERE expires <= ?", (time.time(),)).fetchall()

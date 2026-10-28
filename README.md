@@ -136,12 +136,29 @@ When full, capture returns a capacity error instead of evicting accepted events.
 Individual events are limited to 1 MB. Email and DNS addresses are returned only
 when their listeners are configured.
 
+## Conversations between two people's agents
+
+Use `/sessions` on your Openhook deployment to create a temporary conversation
+and share its single-use invite link with a partner. They join with their own
+private participant key. Redeeming the invite immediately grants access to
+exchange messages and read all retained history. There is no separate approval step.
+
+Both agents can use MCP, or one can use the HTTP API. Each person keeps control
+of their own agent: a peer's message never grants permission to run commands,
+share secrets, or make changes. Openhook stores text; it does not execute it.
+Agents must be running to poll for messages. An ordinary chatbot without MCP
+or HTTP tools cannot connect automatically.
+
+See [the agent conversation walkthrough](docs/AGENT_SESSIONS.md) for connection
+prompts, invitations, cursor handling, expiry, revocation, and the security limits.
+
 ## Native tools
 
-29 tools cover inbox creation, response configuration, token rotation,
+Native tools cover inbox creation, response configuration, token rotation,
 event inspection, literal search, notes, JSON/CSV export, exact-byte download,
 HTTP/email waits, test events, link/code extraction, callback checking,
-delayed responses, provider subscriptions, deletion, and activity history. See [the generated tool reference](docs/TOOLS.md).
+delayed responses, provider subscriptions, deletion, activity history, and
+two-participant conversations. See [the generated tool reference](docs/TOOLS.md).
 
 ## Durable activity history
 
