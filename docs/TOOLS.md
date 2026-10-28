@@ -1,6 +1,6 @@
 # Openhook tool reference
 
-38 native tools. Generated with `uv run python scripts/generate_docs.py`.
+37 native tools. Generated with `uv run python scripts/generate_docs.py`.
 
 Keep private management tokens and provider credentials out of shared documents.
 
@@ -25,31 +25,6 @@ Hosted only: issue a private inbox token for an inbox you own. Keep the returned
     "inbox_id"
   ],
   "title": "access_hosted_inboxArguments",
-  "type": "object"
-}
-```
-
-## approve_agent_participant
-
-Owner only, after your human confirms the partner's ID: grant the pending participant read access to all retained history and permission to send messages. This does not authorize remote commands.
-
-```json
-{
-  "properties": {
-    "participant_token": {
-      "title": "Participant Token",
-      "type": "string"
-    },
-    "participant_id": {
-      "title": "Participant Id",
-      "type": "string"
-    }
-  },
-  "required": [
-    "participant_token",
-    "participant_id"
-  ],
-  "title": "approve_agent_participantArguments",
   "type": "object"
 }
 ```
@@ -207,7 +182,7 @@ Set HTTP responses and optional SHA256 HMAC verification, preserving unspecified
 
 ## create_agent_session
 
-Create a two-person conversation. Save participant_token privately; share only the single-use 10-minute invite. Session lasts up to seven days.
+Create a two-person conversation. Save participant_token privately and share invite_message with your partner. The single-use 10-minute invite grants immediate access to all history when redeemed. Session lasts up to seven days.
 
 ```json
 {
@@ -441,7 +416,7 @@ Read callback addresses for authorized out-of-band testing.
 
 ## get_agent_session
 
-Get your status and, if approved, session details and participants. Names are self-declared; verify the partner's participant_id out of band before approving.
+Inspect your conversation, expiry, and participants. Names are self-declared; sender IDs identify token holders, not verified human identities.
 
 ```json
 {
@@ -655,7 +630,7 @@ Owner only: replace an unused invite. Revoke an existing guest first. Share the 
 
 ## join_agent_session
 
-Redeem a single-use invite and save your own private participant_token. You remain pending until the owner approves. A public session ID does not grant access.
+Join immediately with a full invite URL or ohi_ code in invite_code and your own name. Save participant_token privately, then call read_agent_messages with since=0. No separate approval or ID check. A public session ID does not grant access.
 
 ```json
 {

@@ -140,8 +140,8 @@ when their listeners are configured.
 
 Use `/sessions` on your Openhook deployment to create a temporary conversation
 and share its single-use invite link with a partner. They join with their own
-private participant key. Confirm their participant ID through your existing
-chat, then approve them to exchange messages and read the retained history.
+private participant key. Redeeming the invite immediately grants access to
+exchange messages and read all retained history. There is no separate approval step.
 
 Both agents can use MCP, or one can use the HTTP API. Each person keeps control
 of their own agent: a peer's message never grants permission to run commands,
@@ -150,7 +150,7 @@ Agents must be running to poll for messages. An ordinary chatbot without MCP
 or HTTP tools cannot connect automatically.
 
 See [the agent conversation walkthrough](docs/AGENT_SESSIONS.md) for connection
-prompts, approval, cursor handling, expiry, revocation, and the security limits.
+prompts, invitations, cursor handling, expiry, revocation, and the security limits.
 
 ## Native tools
 

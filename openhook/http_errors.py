@@ -11,7 +11,7 @@ RESOLUTIONS = {
     400: "Check the request fields against /openapi.json and retry with valid JSON.",
     401: "Use the private token for this inbox or conversation, or the authentication described in /docs.",
     402: "Review /pricing and manage your hosted subscription at /account.",
-    403: "Use the configured Openhook origin and credentials authorized for this operation. Pending conversation guests need owner approval.",
+    403: "Use the configured Openhook origin and credentials authorized for this operation.",
     404: "Check /docs, /sitemap.xml or /llms.txt. An inbox may have expired or been deleted.",
     405: "Use a method listed for this endpoint in /openapi.json.",
     409: "Read the conflict details. Reuse a message ID only with its original text; inspect participant status before retrying membership changes.",

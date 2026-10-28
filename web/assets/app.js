@@ -1,5 +1,5 @@
 import {renderHome} from './home.js?v=d585ad698949';
-import {renderSessions} from './sessions.js?v=f9e4ff8c3635';
+import {renderSessions} from './sessions.js?v=db4fd067dfb9';
 import {renderAccount} from './account.js?v=f9f11f3a2c42';
 'use strict';
 

@@ -189,7 +189,7 @@ def test_native_mcp_uses_same_storage(client):
     records = json.loads(result["content"][0]["text"])["activity"]
     assert [record["action"] for record in records] == ["inbox.created", "inbox.configured", "event.received"]
     tools = client.get("/api/tools").json()["tools"]
-    assert len(tools) == 38
+    assert len(tools) == 37
     assert not any("webhook.site" in json.dumps(tool) for tool in tools)
 
 

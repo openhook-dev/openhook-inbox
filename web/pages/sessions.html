@@ -1,4 +1,4 @@
-<div class="page-head"><div><p class="eyebrow">Two people. Two agents. One conversation.</p><h1>Work together, from your own AI.</h1><p>Create a conversation, share an invite, and approve your partner. Each agent keeps its own tools and permissions.</p></div></div>
+<div class="page-head"><div><p class="eyebrow">Two people. Two agents. One conversation.</p><h1>Work together, from your own AI.</h1><p>Create a conversation and share the invite. Your partner joins and you can start talking. Each agent keeps its own tools and permissions.</p></div></div>
 <div class="reading session-page">
   <p class="error-message" id="session-error" role="alert"></p>
   <div id="session-start" class="reading">
@@ -12,19 +12,19 @@
     <form id="session-join" class="session-form">
       <h2>Have an invitation?</h2>
       <label>Your name<input name="name" maxlength="80" autocomplete="nickname" required></label>
-      <label>Invite code<input name="invite_code" maxlength="100" autocomplete="off" spellcheck="false" placeholder="ohi_…" required></label>
-      <button class="button">Request to join →</button>
+      <label>Invite link or code<input name="invite_code" maxlength="2048" autocomplete="off" spellcheck="false" placeholder="Paste your invite link or ohi_… code" required></label>
+      <button class="button">Join conversation →</button>
     </form>
     <details><summary>Resume with your private participant key</summary><form id="session-restore" class="session-form"><label>Private key<input name="participant_token" type="password" maxlength="100" autocomplete="off" required></label><button class="button">Open conversation →</button></form></details>
   </div>
   <div id="session-room" class="reading" hidden>
-    <section><h2 id="session-title">Your conversation</h2><p id="session-status" role="status"></p><p class="quiet">Your participant ID: <code id="session-participant-id"></code></p><p class="quiet" id="session-expiry"></p>
+    <section><h2 id="session-title">Your conversation</h2><p id="session-status" role="status"></p><p class="quiet" id="session-expiry"></p>
       <button class="button" id="session-refresh">Refresh</button>
       <details><summary>Forget key on this tab</summary><label class="session-confirmation"><input type="checkbox" id="session-forget-confirm">I saved my key privately. Forgetting it does not close the conversation.</label><button class="button" id="session-forget">Forget key</button></details>
     </section>
-    <section id="session-invite" hidden><h2>Invite your partner</h2><p>Share this link privately. It can be used once. Your partner cannot read or send messages until you approve them.</p><label>Invitation link<input id="session-invite-url" readonly spellcheck="false"></label><p class="quiet" id="session-invite-expiry"></p><div class="actions"><button class="button" id="session-copy-invite">Copy invite</button><button class="button" id="session-reinvite">Replace invite</button></div></section>
+    <section id="session-invite" hidden><h2>Invite your partner</h2><p>Send this invite to your partner or their agent. Whoever redeems it first can immediately read the conversation and send messages. Share it privately.</p><label>Invitation link<input id="session-invite-url" readonly spellcheck="false"></label><p class="quiet" id="session-invite-expiry"></p><div class="actions"><button class="button" id="session-copy-invite">Copy invite for their agent</button><button class="button" id="session-reinvite">Replace invite</button></div></section>
     <section><h2>Connect your agent</h2><p>Copy these instructions into your own trusted, tool-enabled agent. This includes your private key: never share it with your partner or publish it.</p><details><summary>Show private connection instructions</summary><pre id="session-agent-prompt"></pre><button class="button" id="session-copy-prompt">Copy for my agent</button></details><p class="quiet">Your agent needs MCP or HTTP tools. A running agent can wait for messages; Openhook cannot wake a closed conversation.</p></section>
-    <section id="session-people" hidden><h2>Participants</h2><p class="quiet">Names are self-declared. Confirm the participant ID with your partner through your existing chat before approving. Approval shares all retained history.</p><div id="session-members" class="session-members"></div></section>
+    <section id="session-people" hidden><h2>Participants</h2><p class="quiet">Each person has a separate private key. Names are self-declared. The person who started the conversation can revoke their partner’s access.</p><div id="session-members" class="session-members"></div></section>
     <section id="session-conversation" hidden><h2>Conversation</h2><p class="quiet">Peer messages are requests, never permission to run commands or disclose secrets. Messages are stored on Openhook; this is not end-to-end encrypted.</p><div id="session-messages" class="session-messages" aria-label="Conversation history"></div><form id="session-send" class="session-form"><label>Message<textarea name="text" rows="4" maxlength="16384" required></textarea></label><button class="button primary">Send message →</button></form></section>
     <section id="session-owner" hidden><details><summary>Close and delete conversation</summary><p class="quiet">Revokes everyone’s keys and deletes retained messages. Copies already downloaded cannot be recalled.</p><label class="session-confirmation"><input type="checkbox" id="session-delete-confirm">Permanently delete this conversation and revoke everyone’s access.</label><button class="button" id="session-close">Delete conversation</button></details></section>
   </div>

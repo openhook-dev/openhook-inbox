@@ -12,9 +12,9 @@ from openhook.sessions import Sessions
 
 class SessionCall(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    action: Literal['create', 'invite', 'join', 'info', 'approve', 'revoke', 'send', 'read', 'close']
+    action: Literal['create', 'invite', 'join', 'info', 'revoke', 'send', 'read', 'close']
     participant_token: str = Field(default='', max_length=100)
-    invite_code: str = Field(default='', max_length=100)
+    invite_code: str = Field(default='', max_length=2048, description='Full invite URL or single-use ohi_ code.')
     participant_id: str = Field(default='', max_length=100)
     name: str = Field(default='', max_length=80)
     title: str = Field(default='', max_length=160)
@@ -38,8 +38,8 @@ async def session_call(request):
             result = sessions.invite(token)
         elif call.action == 'info':
             result = sessions.info(token)
-        elif call.action in {'approve', 'revoke'}:
-            result = sessions.set_participant(token, call.participant_id, approve=call.action == 'approve')
+        elif call.action == 'revoke':
+            result = sessions.revoke(token, call.participant_id)
         elif call.action == 'send':
             result = sessions.send(token, call.text, call.message_id)
         elif call.action == 'read':

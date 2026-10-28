@@ -24,24 +24,33 @@ def sessions(tmp_path):
 def pair(sessions):
     owner = sessions.create('Engineer', 'Release planning')
     guest = sessions.join(owner['invite_code'], 'Partner')
-    sessions.set_participant(owner['participant_token'], guest['participant_id'], approve=True)
     return owner, guest
 
 
-def test_pending_participant_cannot_read_or_send(sessions):
-    owner = sessions.create('Engineer', 'Private title')
-    sessions.send(owner['participant_token'], 'private history', 'before-join')
-    guest = sessions.join(owner['invite_code'], 'Partner')
+def test_invitation_grants_immediate_access(sessions):
+    owner = sessions.create('Engineer', 'Release planning')
+    sessions.send(owner['participant_token'], 'Existing history', 'before-join')
+    guest = sessions.join(owner['invite_url'], 'Partner')
     token = guest['participant_token']
-    info = sessions.info(token)
-    assert info['status'] == 'pending'
-    assert 'title' not in info and 'participants' not in info
-    for operation in (lambda: sessions.read(token), lambda: sessions.send(token, 'hello', '1')):
-        with pytest.raises(InboxError) as error:
-            operation()
-        assert error.value.status == 403
-    sessions.set_participant(owner['participant_token'], guest['participant_id'], approve=True)
-    assert any(e['text'] == 'private history' for e in sessions.read(token)['events'])
+    assert guest['status'] == 'active' and guest['next_since'] == 0
+    assert guest['title'] == 'Release planning'
+    assert 'read_agent_messages' in guest['next_step']
+    assert owner['invite_url'] in owner['invite_message']
+    assert owner['participant_token'] not in owner['invite_message']
+    assert any(e['text'] == 'Existing history' for e in sessions.read(token)['events'])
+    sessions.send(token, 'Joined and ready', 'first')
+    assert sessions.read(owner['participant_token'])['events'][-1]['text'] == 'Joined and ready'
+
+
+@pytest.mark.parametrize('invite', [
+    'https://other.example/sessions#invite=ohi_secret',
+    'http://testserver/elsewhere#invite=ohi_secret',
+    'http://testserver/sessions?invite=ohi_secret',
+    'http://testserver/sessions#invite=ohi_first&invite=ohi_second',
+])
+def test_join_rejects_wrong_deployment_and_invalid_links(sessions, invite):
+    with pytest.raises(InboxError):
+        sessions.join(invite, 'Partner')
 
 
 def test_independent_tokens_bidirectional_messages_and_retries(sessions):
@@ -87,9 +96,9 @@ def test_session_isolation_and_owner_privileges(sessions):
         with pytest.raises(InboxError):
             sessions.info(invalid)
     for operation in (
-        lambda: sessions.set_participant(other['participant_token'], guest['participant_id'], approve=True),
-        lambda: sessions.set_participant(guest['participant_token'], owner['participant_id'], approve=False),
-        lambda: sessions.set_participant(owner['participant_token'], owner['participant_id'], approve=False),
+        lambda: sessions.revoke(other['participant_token'], guest['participant_id']),
+        lambda: sessions.revoke(guest['participant_token'], owner['participant_id']),
+        lambda: sessions.revoke(owner['participant_token'], owner['participant_id']),
         lambda: sessions.invite(guest['participant_token']),
         lambda: sessions.close(guest['participant_token']),
     ):
@@ -106,7 +115,7 @@ def test_single_use_invite_is_atomic(sessions):
             return error.status
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(join, ['A', 'B']))
-    assert sorted(results, key=str) == [404, 'pending']
+    assert sorted(results, key=str) == [404, 'active']
     with pytest.raises(InboxError):
         sessions.invite(owner['participant_token'])
 
@@ -122,9 +131,10 @@ def test_invite_rotation_expiry_and_replacement(sessions):
         sessions.join(replacement['invite_code'], 'Partner')
     replacement = sessions.invite(owner['participant_token'])
     guest = sessions.join(replacement['invite_code'], 'Wrong person')
-    sessions.set_participant(owner['participant_token'], guest['participant_id'], approve=False)
+    sessions.revoke(owner['participant_token'], guest['participant_id'])
+    assert sessions.revoke(owner['participant_token'], guest['participant_id'])['status'] == 'revoked'
     with pytest.raises(InboxError):
-        sessions.set_participant(owner['participant_token'], guest['participant_id'], approve=True)
+        sessions.join(replacement['invite_code'], 'Old invite')
     new_guest = sessions.join(sessions.invite(owner['participant_token'])['invite_code'], 'Partner')
     assert new_guest['participant_token'] != guest['participant_token']
 
@@ -141,7 +151,7 @@ async def test_wait_receives_message_then_revocation_ends_wait(sessions):
     assert result['events'][0]['text'] == 'Incoming task'
     waiting = asyncio.create_task(sessions.wait(token, result['next_since'], 1))
     await asyncio.sleep(.01)
-    sessions.set_participant(owner['participant_token'], guest['participant_id'], approve=False)
+    sessions.revoke(owner['participant_token'], guest['participant_id'])
     with pytest.raises(InboxError) as error:
         await waiting
     assert error.value.status == 401
@@ -186,7 +196,7 @@ def test_message_and_storage_limits(sessions):
         sessions.send(guest['participant_token'], 'capacity', 'capacity')
     assert error.value.status == 507
     # Cleanup remains possible when storage is full.
-    sessions.set_participant(token, guest['participant_id'], approve=False)
+    sessions.revoke(token, guest['participant_id'])
     with pytest.raises(InboxError):
         sessions.read(guest['participant_token'])
     sessions.close(token)
@@ -197,7 +207,7 @@ def test_session_and_history_caps(sessions, monkeypatch):
     sessions.store.settings = replace(sessions.store.settings, inbox_limit=1)
     with pytest.raises(InboxError):
         sessions.create('Another', 'Full')
-    monkeypatch.setattr('openhook.sessions.EVENT_LIMIT', 3)
+    monkeypatch.setattr('openhook.sessions.EVENT_LIMIT', 2)
     with pytest.raises(InboxError):
         sessions.send(owner['participant_token'], 'full history', 'full')
 
@@ -223,8 +233,11 @@ def test_http_and_mcp_agents_exchange_messages(sessions):
             assert not result.get('isError'), result
             return json.loads(result['content'][0]['text'])
         owner = mcp('create_agent_session', name='Codex', title='Partner conversation')
-        guest = http('join', invite_code=owner['invite_code'], name='HTTP agent')
-        mcp('approve_agent_participant', participant_token=owner['participant_token'], participant_id=guest['participant_id'])
+        guest = http('join', invite_code=owner['invite_url'], name='HTTP agent')
+        assert guest['status'] == 'active'
+        catalog = client.get('/api/tools').json()['tools']
+        assert not any(tool['name'] == 'approve_agent_participant' for tool in catalog)
+        assert client.post('/api/v1/sessions', json={'action': 'approve', 'participant_token': owner['participant_token']}).status_code == 400
         mcp('send_agent_message', participant_token=owner['participant_token'], text='Please review the plan', message_id='one')
         read = http('read', participant_token=guest['participant_token'])
         assert read['events'][-1]['text'] == 'Please review the plan'
@@ -234,6 +247,11 @@ def test_http_and_mcp_agents_exchange_messages(sessions):
         assert not read['events'][0]['is_self']
         assert 'untrusted' in read['trust_notice']
         mcp('close_agent_session', participant_token=owner['participant_token'])
+        other = http('create', name='HTTP owner', title='Reverse transports')
+        joined = mcp('join_agent_session', invite_code=other['invite_url'], name='MCP guest')
+        assert joined['status'] == 'active'
+        mcp('send_agent_message', participant_token=joined['participant_token'], text='Ready immediately', message_id='hello')
+        assert http('read', participant_token=other['participant_token'])['events'][-1]['text'] == 'Ready immediately'
 
 
 def test_web_security_and_discovery(sessions):

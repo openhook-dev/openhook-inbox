@@ -74,9 +74,7 @@ def main():
             assert not received.json()["result"].get("isError"), received.text
             assert "core-package-check" in received.text, received.text
             owner = client.post('/api/v1/sessions', json={'action': 'create', 'name': 'Owner', 'title': 'Wheel check'}).json()['data']
-            guest = client.post('/api/v1/sessions', json={'action': 'join', 'invite_code': owner['invite_code'], 'name': 'Guest'}).json()['data']
-            assert client.post('/api/v1/sessions', json={'action': 'read', 'participant_token': guest['participant_token']}).status_code == 403
-            assert client.post('/api/v1/sessions', json={'action': 'approve', 'participant_token': owner['participant_token'], 'participant_id': guest['participant_id']}).status_code == 200
+            guest = client.post('/api/v1/sessions', json={'action': 'join', 'invite_code': owner['invite_url'], 'name': 'Guest'}).json()['data']
             assert client.post('/api/v1/sessions', json={'action': 'send', 'participant_token': guest['participant_token'], 'text': 'packaged conversation', 'message_id': 'wheel'}).status_code == 200
             history = client.post('/api/v1/sessions', json={'action': 'read', 'participant_token': owner['participant_token']})
             assert history.json()['data']['events'][-1]['text'] == 'packaged conversation'
