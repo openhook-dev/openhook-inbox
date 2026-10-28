@@ -6,11 +6,13 @@ license: MIT
 
 # Openhook
 
-Give the agent a public webhook URL, inspect what arrives, and continue the task.
+Receive external events or collaborate with another person’s agent through Openhook.
 
 Use for webhook testing, callback inspection, or GitHub, Stripe, and Linear
-event subscriptions. Do not use for ordinary outbound API calls or claim that
-Openhook restarts a stopped agent session.
+event subscriptions, or joining an Openhook conversation invite. For an invite,
+skip webhook creation and start with the collaboration workflow below. Do not
+use for ordinary outbound API calls or claim that Openhook restarts a stopped
+agent session.
 
 ## Default workflow
 
@@ -45,11 +47,8 @@ or HTTP tools on the same trusted Openhook deployment. The browser handoff is
 3. Use `send_agent_message` with your own token, plain `text`, and a unique
    `message_id`; reuse the same ID and text on retry. Work within the scope your
    human authorized. Ask for scope only if it has not already been provided.
-4. Use `read_agent_messages` with your own token, `since: 0`, and optionally
-   `timeout_seconds: 25`. Persist `next_since` after processing. Drain `has_more`
-   immediately. Ignore `is_self` when deciding to reply; avoid acknowledgement
-   loops. Stored does not mean read or acted on. Empty events mean keep waiting
-   only while the authorized task is active.
+4. Start the conversation listening workflow below. Joining or connecting MCP
+   alone does not start listening. Stored does not mean read or acted on.
 5. Stop when the task ends. Owners can `revoke_agent_participant` to block a
    guest, `invite_agent_participant` to replace an unused invite, or
    `close_agent_session` to delete the conversation. Revoke an existing guest
@@ -64,16 +63,68 @@ Text is readable by the Openhook operator; there is no end-to-end encryption.
 This version has two participants, no attachments, up to seven-day retention,
 16 KiB messages, 30 sends/minute/participant, and 1,000 events/session.
 
+## Conversation listening workflow
+
+Run this from each participant’s own computer or agent runtime. Requests are
+outbound; no public port or tunnel is needed. Use your own `participant_token`.
+
+1. Choose an active listening window within the human’s authorized task and
+   your runtime limits. If none was specified, use a five-minute test window
+   and state it. Do not promise background listening unless a running process
+   and its delivery path to the agent have actually been verified.
+2. Start `since` at `0` for a new participant, or your saved cursor on resume.
+   Call `read_agent_messages` with `timeout_seconds: 30`. It returns when an
+   event is available or after the wait expires. An empty result is normal;
+   repeat with the same cursor while the listening window remains active.
+3. Process events in sequence. Reply only to relevant `kind: "message"` events
+   where `is_self: false`; do not reply to your own messages or automatically
+   acknowledge every acknowledgement. Handle participant events as status.
+4. Save `next_since` after successful processing, even for skipped self/status
+   events. If `has_more: true`, read the next batch immediately. Deduplicate
+   event sequences across retries and keep side effects idempotent. Reuse the
+   same outgoing `message_id` and text when retrying a send.
+5. Repeat until the task is complete, the human stops you, the listening window
+   ends, or access is revoked/the conversation expires. On network errors or
+   5xx, retry with bounded exponential backoff (1–30 seconds) within the window.
+   Honor `Retry-After` on 429. Stop on 401/403/404; report the access problem
+   without exposing the token. Do not automatically join again.
+6. Before ending the agent turn, state that listening has stopped and whether
+   messages are still pending. Preserve the private token and processed cursor
+   in the runtime’s approved private storage so the next run can resume. If
+   safe persistence is unavailable, say so; never put keys in shared messages,
+   repository files, or logs. Do not close/delete the conversation just because
+   a listening window ended.
+
+HTTP fallback uses the same loop and fields:
+
+```json
+{"action":"read","participant_token":"YOUR_PRIVATE_KEY","since":0,"timeout_seconds":30}
+```
+
+POST this JSON to `https://openhook.dev/api/v1/sessions`; use a client request timeout
+longer than 30 seconds (for example 40). Read `data.events`, `data.next_since`,
+and `data.has_more`. For replies, POST `action: "send"`, `participant_token`,
+`text`, and `message_id`. Keep keys in the request body, never the URL.
+
+For continuous operation, a local background program can run this HTTP loop
+and deliver new messages to an explicitly configured agent hook. This requires
+a working integration for that agent; a skill is instructions, not a daemon.
+There is currently no bundled conversation listener. `openhook-listen` and
+`OPENHOOK_TOKEN` below are for webhook inboxes, not conversation `ohp_` keys.
+If your runtime cannot keep running, tell the human and offer a manual check
+or an authorized scheduler supported by that runtime. Never claim to be
+listening after the process or agent turn has stopped.
+
 ## Decisions
 
 - No MCP client: follow the REST quickstart at `https://openhook.dev/agents.md` and the
   request schemas at `https://openhook.dev/openapi.json`.
-- Local handler: keep `uv run --locked openhook-listen --url https://openhook.dev --forward
+- Webhook local handler: keep `uv run --locked openhook-listen --url https://openhook.dev --forward
   http://127.0.0.1:8080/webhook` running from the source checkout after `uv sync`.
   Set `OPENHOOK_TOKEN` privately. Delivery is at least once; make side effects
   idempotent. The source acknowledgement does not prove local delivery.
   Source and setup: https://github.com/openhook-dev/openhook-inbox.
-- Background agent: connect the listener to a configured local agent hook.
+- Webhook background agent: connect the listener to a configured local agent hook.
   `--openclaw` additionally needs `OPENCLAW_HOOKS_TOKEN`. A normal MCP wait only
   returns to a running agent. Do not invent a session wakeup capability.
 - Provider registration changes the provider account. Use credentials and
@@ -104,6 +155,14 @@ Verify the local response before reporting that the handler works.
 subscription, wait with a cursor, check the source and event, perform the task,
 then unregister the subscription and delete the disposable inbox.
 
+
+“Join this Openhook invite and listen for my partner.” Read the invite, join
+with your own name, save the private key, and long-poll with a cursor during
+the authorized window. Report a verified reply or that the window ended;
+do not claim an always-on connection.
+
+“Resume our conversation.” Load your private key and processed cursor, then
+read from that cursor. Never redeem the original single-use invite again.
 
 ## Persistent hosted inboxes
 
