@@ -25,7 +25,7 @@ test('only safe public page fields and approved event names leave the browser', 
 });
 
 test('private paths and privacy signals disable sending', () => {
-  for (const path of ['/account', '/app', '/h/secret', '/auth/github/callback']) assert.equal(tracker(path)('event', {}), false);
+  for (const path of ['/account', '/app', '/channels', '/sessions', '/h/secret', '/auth/github/callback']) assert.equal(tracker(path)('event', {}), false);
   assert.equal(tracker('/', {doNotTrack: '1'})('event', {}), false);
   assert.equal(tracker('/', {globalPrivacyControl: true})('event', {}), false);
 });

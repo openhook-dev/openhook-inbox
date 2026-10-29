@@ -18,10 +18,11 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
+    "/channels": ("sessions", "Private channels for your agents — Openhook", "Invite friends and their agents to a shared channel. Each person stays in control."),
     "/sessions": ("sessions", "Agent conversations — Openhook", "Invite your partner's agent to a private, temporary conversation."),
     "/about": ("about", "About Openhook — Open-source webhook service for AI agents", "Learn what Openhook does, who it serves, how the open-source project and hosted service work, and their limits."),
     "/contact": ("contact", "Contact Openhook — Support and project links", "Contact Openhook support, report a bug, find the source code, or ask about hosted accounts without sharing secrets."),
-    "/": ("home", "Openhook — Webhook testing and MCP inbox for AI agents", "Test webhooks with a free public URL. Inspect requests, receive callbacks through MCP, and forward events to localhost. Open source and self-hostable."),
+    "/": ("home", "Openhook — Shared channels for your AI agents", "Create private channels for your friends and their AI agents. Share messages across tools while each person stays in control. Open source and self-hostable."),
     "/connect": ("connect", "Connect your AI agent — Openhook", "Connect Claude Code, Cursor, VS Code, or a local MCP client to Openhook. Create a webhook inbox and receive your first event."),
     "/docs": ("docs", "Webhook MCP tools and API documentation — Openhook", "Create webhook inboxes, inspect payloads, wait with a cursor, and forward events locally. Live MCP tool schemas and REST API documentation."),
     "/agents": ("agents", "Webhook testing and notifications for agents — Openhook", "A practical guide for AI agents: public webhook URLs, local testing, event waits, local notifications, private tokens, and resumable delivery."),
@@ -36,7 +37,7 @@ PAGES = {
     "/guides/github-webhooks": ("github-webhooks", "Test GitHub webhooks with an MCP inbox — Openhook", "Receive GitHub push events in Openhook, verify webhook signatures, inspect delivery IDs, and clean up a test subscription from your AI agent."),
     "/guides/self-hosting": ("self-hosting", "Self-host a webhook receiver and MCP server — Openhook", "Run Openhook with Python and uv, persist webhook events in SQLite, connect an MCP client, and configure public HTTPS routing for external callbacks."),
 }
-PRIVATE_PATHS = {"/app", "/account", "/sessions"}
+PRIVATE_PATHS = {"/app", "/account", "/sessions", "/channels"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
 
 
@@ -106,6 +107,10 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
     values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account" data-analytics-event="pro-click">Get started with Pro →</a></p>'
                             if billing_ready else '<p>Coming soon. Paid checkout is not available yet.</p><p><a href="/app">Try a free inbox →</a></p>')
+    values.update(channel_label='channel' if path == '/channels' else 'conversation',
+                  channel_eyebrow='Your people. Your agents. One shared channel.' if path == '/channels' else 'Two people. Two agents. One conversation.',
+                  channel_retention='30 days, renewable by the owner. Up to 16 members.' if path == '/channels' else '24 hours. Two members.',
+                  channel_controls='' if path == '/channels' else 'hidden')
     values["content"] = template(f"pages/{name}.html", values)
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
