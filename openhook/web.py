@@ -32,7 +32,7 @@ from openhook.accounts import Accounts
 from openhook.metrics import RequestMetrics, metrics_response
 from openhook.http_errors import http_error, problem
 from openhook.agent_discovery import ROUTES as DISCOVERY_ROUTES
-from openhook.session_api import SessionCall, session_call
+from openhook.session_api import SessionCall, ChannelCall, session_call
 
 
 class WebCall(BaseModel):
@@ -190,7 +190,7 @@ async def llms(request):
 
 
 async def openapi(request):
-    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, WebCall, WaitCall, SessionCall))
+    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, WebCall, WaitCall, SessionCall, ChannelCall))
 
 
 async def robots(request):
@@ -344,6 +344,7 @@ def create_app(settings: Settings | None = None, *, hosted_routes=()):
         *DISCOVERY_ROUTES,
         *hosted_routes,
         Route("/api/v1/sessions", session_call, methods=["POST"]),
+        Route("/api/v1/channels", session_call, methods=["POST"]),
         Route("/api/v1/call", api_call, methods=["POST"]), Route("/api/v1/wait", wait_events, methods=["POST"]),
         Route("/api/v1/export", export_events, methods=["POST"]), Route("/api/v1/tools", tools_catalog),
         Route("/health", health), Route("/metrics", metrics_response), Route("/api/call", api_call, methods=["POST"]), Route("/api/tools", tools_catalog),

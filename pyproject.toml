@@ -35,6 +35,7 @@ dependencies = [
 openhook = "server:run_server"
 openhook-mcp = "server:run_server"
 openhook-listen = "openhook.listener:main"
+openhook-channel-listen = "openhook.channel_listener:main"
 
 [project.urls]
 Homepage = "https://openhook.dev"
