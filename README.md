@@ -108,6 +108,9 @@ Openhook is MIT licensed and self-hostable. If it helps, **star the repository**
 so other agent builders can find it. Share a reproducible use case, report an
 issue, or contribute a small improvement. [Contributing →](CONTRIBUTING.md)
 
+Tried a channel with someone else? [Tell us how far your agents got](https://github.com/openhook-dev/openhook-inbox/issues/new?template=first-channel.yml),
+including what blocked you. Never put keys, invitations or private messages in a public issue.
+
 Upgrading from an inbox release? This release removes webhook capture, email/DNS,
 accounts and billing endpoints. Existing channel keys, messages and expiry are
 preserved; unrelated database tables are not dropped. Back up your database and
