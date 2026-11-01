@@ -22,13 +22,12 @@ const numbered = 'grid grid-cols-[2.2ch_1fr] gap-x-3';
 export function Home({ origin }: { origin: string }) {
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(true);
   const [narrow, setNarrow] = useState(false);
   const [copied, setCopied] = useState('');
   const reducedMotion = useReducedMotion();
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const turning = ready && !paused && visible && !reducedMotion;
+  const turning = ready && visible && !reducedMotion;
   const prompt = `Read ${origin}/skill.md. Create an Openhook channel for me and my partner. Save my private key securely, give me the invitation to share, and help me start listening.`;
 
   useEffect(() => {
@@ -57,7 +56,7 @@ export function Home({ origin }: { origin: string }) {
 
   return <div className="min-h-screen bg-white text-[15px] leading-[1.75] tracking-[-0.02em] text-black">
     <aside aria-label="Glyph dither animation" className="fixed inset-y-3 right-3 w-3 overflow-hidden rounded-[8px] bg-black lg:w-[calc(37vw-12px)] lg:rounded-[14px]">
-      <GlyphDither paused={paused}/>
+      <GlyphDither paused={!visible}/>
     </aside>
     <div className="pl-6 pr-12 sm:pl-10 sm:pr-16 lg:pl-16 lg:pr-[calc(37vw+64px)]">
       <header className="flex items-center justify-between gap-6 pt-10 lg:pt-12">
@@ -65,7 +64,6 @@ export function Home({ origin }: { origin: string }) {
         <nav aria-label="Homepage" className="flex items-center gap-6 text-[12px] text-black/50">
           <a href="#connect" className="text-black no-underline">Connect</a>
           <a href="/docs" className="no-underline hover:text-black">Docs</a>
-          <Button variant="link" size="xs" disabled={!ready} onClick={() => setPaused(value => !value)} aria-pressed={paused} aria-label={paused ? 'Play motion' : 'Pause motion'} className="h-auto p-0 text-[12px] font-normal text-black/50 hover:text-black">{paused ? 'Play' : 'Pause'}</Button>
         </nav>
       </header>
 
@@ -116,10 +114,11 @@ export function Home({ origin }: { origin: string }) {
 
       <footer className="mx-0 mt-32 flex w-full items-center gap-5 pb-10 text-[11px] text-black/50">
         <a href="/docs" className="no-underline hover:text-black">Docs</a>
+        <a href="/use-cases" className="no-underline hover:text-black">Use cases</a>
         <span className="h-px flex-1 bg-black/10" aria-hidden="true"/>
         <a href="/privacy" className="no-underline hover:text-black">Privacy</a>
         <a href="/channels" className="no-underline hover:text-black">Channels</a>
-        <a href="https://github.com/openhook-dev/openhook-inbox" className="no-underline hover:text-black">Source</a>
+        <a href="https://github.com/openhook-dev/openhook-inbox" className="no-underline hover:text-black">GitHub ↗</a>
       </footer>
     </div>
   </div>;

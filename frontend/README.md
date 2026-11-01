@@ -31,4 +31,4 @@ retain their independent runtime and privacy boundary. The demo has no API
 calls. Initial HTML contains readable content and a no-JavaScript setup link.
 Animation mounts after hydration, preserving the existing CSP without
 allowing inline styles or scripts. Both the drum and the dither stop for reduced-motion
-preferences, hidden tabs, or the Pause motion control.
+preferences or hidden tabs. The homepage has no visible motion toggle.
