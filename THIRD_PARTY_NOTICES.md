@@ -23,12 +23,6 @@ The approved Openhook mark is the organization's public GitHub avatar:
 https://github.com/openhook-dev. The original file is retained unchanged in
 `web/assets/organization-logo.png` and embedded in the SVG branding assets.
 
-The React homepage uses Rotating Text from the React Bits shadcn registry
-(https://reactbits.dev/r/RotatingText-TS-TW.json). Its source is retained in
-`frontend/components/react-bits/rotating-text.tsx` under the MIT + Commons
-Clause License; the complete notice ships at `web/assets/licenses/react-bits.txt`.
-This license applies to that component, not to the Openhook backend.
-
 The Button component is adapted from shadcn/ui's new-york-v4 registry
 (https://ui.shadcn.com/r/styles/new-york-v4/button.json), under MIT.
 Its notice ships at `web/assets/licenses/shadcn.txt`. Imports are adapted to

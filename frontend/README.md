@@ -2,14 +2,15 @@
 
 React + Tailwind + Motion. This is a component implementation, not a landing-page template.
 
-- `Home.tsx` owns the use cases, rotating headline and copyable agent skill.
-- The split composition follows the user-supplied Superlogical reference, with
-  Openhook branding and original copy.
-- `components/GlyphField.tsx` renders an original 3D signal loop as monochrome
-  glyphs on canvas. It pauses for reduced motion, hidden tabs and user controls;
-  its resize observer and animation frame are cleaned up on unmount.
-- `components/react-bits/rotating-text.tsx` is the source from the React Bits
-  shadcn registry: https://reactbits.dev/r/RotatingText-TS-TW.json.
+- `Home.tsx` owns the homepage: the use-case drum headline, the editorial use
+  cases and the copyable agent skill at the bottom.
+- The split composition follows the user-supplied Superlogical reference
+  (text column left, a tall stationary panel right, a thin strip on phones),
+  with Openhook branding and original copy.
+- `components/WordDrum.tsx` turns the headline's last words on a 3D cylinder
+  with Motion. It mounts after hydration; server HTML shows the first phrase.
+- `components/GlyphDither.tsx` draws a slowly drifting horizon of light,
+  ordered-dithered into Paper Mono glyphs on canvas.
 - `components/ui/button.tsx` comes from the shadcn new-york-v4 registry.
   Its imports use the local `cn` helper and the standalone Radix Slot package.
 - `components.json` registers React Bits for future shadcn CLI additions.
@@ -24,6 +25,6 @@ Edit `frontend/Home.tsx`, not the generated `web/pages/home.html`.
 Only `/` loads the React bundle and Tailwind stylesheet. Private channel screens
 retain their independent runtime and privacy boundary. The demo has no API
 calls. Initial HTML contains readable content and a no-JavaScript setup link.
-Registry animation mounts after hydration, preserving the existing CSP without
-allowing inline styles or scripts. Motion stops rotating for reduced-motion
-preferences, hidden tabs, or the Pause control.
+Animation mounts after hydration, preserving the existing CSP without
+allowing inline styles or scripts. Both the drum and the dither stop for reduced-motion
+preferences, hidden tabs, or the Pause motion control.
