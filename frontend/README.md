@@ -2,7 +2,12 @@
 
 React + Tailwind + Motion. This is a component implementation, not a landing-page template.
 
-- `Home.tsx` owns the channel example and agent handoff.
+- `Home.tsx` owns the use cases, rotating headline and copyable agent skill.
+- The split composition follows the user-supplied Superlogical reference, with
+  Openhook branding and original copy.
+- `components/GlyphField.tsx` renders an original 3D signal loop as monochrome
+  glyphs on canvas. It pauses for reduced motion, hidden tabs and user controls;
+  its resize observer and animation frame are cleaned up on unmount.
 - `components/react-bits/rotating-text.tsx` is the source from the React Bits
   shadcn registry: https://reactbits.dev/r/RotatingText-TS-TW.json.
 - `components/ui/button.tsx` comes from the shadcn new-york-v4 registry.

@@ -125,11 +125,5 @@ details > form { padding-top:16px; }
 #agent-connection > .button { align-self:flex-start; }
 
 /* The React homepage owns its content styles through Tailwind. */
-body:has(#home-root) .topbar, body:has(#home-root) footer { width: min(960px, calc(100% - 40px)); }
-body:has(#home-root) .topbar { flex-direction: row; justify-content: space-between; padding-top: 28px; }
-main:has(#home-root) { width: min(850px, calc(100% - 40px)); padding: 48px 0 32px; }
-@media (max-width: 600px) {
-  body:has(#home-root) .topbar { align-items: flex-start; }
-  body:has(#home-root) nav { justify-content: flex-end; gap: 6px 14px; max-width: 180px; font-size: 10px; }
-  main:has(#home-root) { padding-top: 32px; }
-}
+body:has(#home-root) > .topbar, body:has(#home-root) > footer { display: none; }
+main:has(#home-root) { width: 100%; max-width: none; margin: 0; padding: 0; }
