@@ -124,103 +124,55 @@ details > form { padding-top:16px; }
 #session-invite > p, #session-invite > label { display:block; margin-bottom:16px; }
 #agent-connection > .button { align-self:flex-start; }
 
-/* The homepage demonstrates the agent handoff before asking for setup. */
+/* One explanation, one example, one starting action. */
 body:has(.channel-home) .topbar,
 main:has(.channel-home),
-body:has(.channel-home) footer { width: min(1040px, calc(100% - 80px)); }
+body:has(.channel-home) footer { width: min(960px, calc(100% - 80px)); }
 body:has(.channel-home) .topbar { flex-direction: row; justify-content: space-between; padding-top: 28px; }
-main:has(.channel-home) { padding: 56px 0 48px; }
-.channel-hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: center; padding-bottom: 48px; }
-.channel-hero .eyebrow { font-size: 11px; margin-bottom: 20px; }
-.channel-hero h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.12; letter-spacing: -.065em; }
-.hero-description { max-width: 46ch; margin-top: 24px; line-height: 1.7; }
-.section-label { display: block; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; line-height: 1.6; }
-.agent-start { border-left: 1px solid var(--line); padding-left: 32px; }
-.agent-start > p { font-size: 18px; line-height: 1.5; margin: 14px 0 20px; letter-spacing: -.03em; }
-.agent-start .button.primary { display: flex; justify-content: space-between; gap: 24px; padding: 12px 18px; min-height: 48px; background: var(--fg); color: var(--page); text-decoration: none; width: 100%; }
-.agent-start .button.primary:hover { outline: 1px solid var(--fg); outline-offset: 3px; }
-.agent-start details { font-size: 10px; margin-top: 8px; }
-.agent-start summary { padding: 8px 0; }
-.agent-start pre { padding: 12px 0; font-size: 12px; }
-.start-alternative { display: inline-block; font-size: 11px; margin-top: 8px; }
-.demo-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 22px; }
-.demo-heading h2 { font-size: 17px; margin-top: 6px; letter-spacing: -.035em; }
-.demo-heading .button { font-size: 11px; white-space: nowrap; }
-.demo-steps { display: flex; gap: 32px; border-bottom: 1px solid var(--line); }
-.demo-steps button { position: relative; display: flex; align-items: center; gap: 10px; border: 0; background: var(--page); color: var(--fg); padding: 14px 0; font-size: 11px; min-height: 48px; }
-.demo-steps button[aria-pressed='true']::after { content: ''; position: absolute; height: 3px; background: var(--fg); bottom: -2px; inset-inline: 0; }
-.demo-steps button span { font-size: 9px; }
-.demo-workbench { border-bottom: 1px solid var(--line); }
-.channel-rail { display: flex; align-items: center; gap: 18px; padding: 22px 0; font-size: 10px; }
-.rail-name { font-size: 14px; font-weight: 500; }
-#demo-status { border-left: 1px solid var(--line); padding-left: 18px; }
-.demo-example { margin-left: auto; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
-.workspace-pair { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); align-items: start; padding: 0 8px 30px 0; }
-.agent-workspace { background: var(--page); border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--page), 5px 5px 0 var(--line); }
-.partner-workspace { margin-top: 24px; }
-.agent-workspace > header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
-.workspace-avatar { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); font-size: 14px; }
-.agent-workspace h3 { font-size: 12px; }
-.agent-workspace header p { font-size: 9px; }
-.workspace-cursor { margin-left: auto; font-size: 22px; }
-.workspace-thread { min-height: 352px; padding: 22px; display: flex; flex-direction: column; gap: 20px; }
-.demo-message { font-size: 12px; line-height: 1.7; animation: message-arrive 240ms ease-out both; }
-.message-author { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 10px; margin-bottom: 5px; }
-.message-author > span { font-size: 8px; }
-.human-message { padding-left: 12px; border-left: 2px solid var(--fg); }
-.agent-message { padding-top: 14px; border-top: 1px dotted var(--line); }
-.demo-receipt { display: flex; gap: 10px; font-size: 10px; line-height: 1.7; animation: message-arrive 240ms ease-out both; }
-.demo-receipt strong { display: block; }
-.demo-receipt code { display: inline-block; margin-top: 8px; border: 1px solid var(--line); padding: 3px 7px; font-size: 9px; }
-.workspace-footer { display: flex; gap: 8px; border-top: 1px solid var(--line); padding: 10px 20px; font-size: 8px; }
-.waiting-state { margin: auto; text-align: center; padding: 40px 0; font-size: 11px; line-height: 1.8; }
-.waiting-state > span { display: block; font-size: 24px; margin-bottom: 16px; }
-.message-bridge { align-self: center; position: relative; display: grid; place-items: center; height: 1px; background: var(--fg); }
-.message-bridge > span { position: relative; background: var(--page); padding: 0 6px; font-size: 15px; line-height: 1; }
-.demo-workbench[data-playing='true'][data-phase='conversation'] .message-bridge::after { content: ''; position: absolute; width: 4px; height: 4px; background: var(--fg); animation: packet-travel 1.6s ease-in-out infinite alternate; }
-.demo-outcome { display: flex; align-items: center; gap: 20px; padding: 10px 0 18px; font-size: 11px; }
-.demo-outcome > p { flex: 1; }
-.demo-outcome .button { font-size: 11px; white-space: nowrap; }
-.demo-disclaimer { font-size: 9px; margin-top: 12px; }
-.channel-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding-top: 44px; }
-.channel-principles > div { display: flex; flex-direction: column; align-items: flex-start; }
-.channel-principles h2 { font-size: 13px; margin: 12px 0 8px; }
-.channel-principles p { font-size: 11px; line-height: 1.8; margin-bottom: 16px; }
-.channel-principles a { font-size: 10px; margin-top: auto; }
-@keyframes message-arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes packet-travel { from { left: 0; } to { left: calc(100% - 4px); } }
+main:has(.channel-home) { padding: 72px 0 40px; }
+.simple-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; }
+.hero-copy .eyebrow { font-size: 11px; margin-bottom: 16px; }
+.hero-copy h1 { font-size: clamp(32px, 4.2vw, 44px); line-height: 1.15; letter-spacing: -.055em; }
+.hero-description { font-size: 13px; line-height: 1.9; margin: 24px 0; max-width: 43ch; }
+.hero-copy .button.primary { display: inline-flex; gap: 40px; padding: 12px 18px; min-height: 48px; background: var(--fg); color: var(--page); text-decoration: none; }
+.hero-copy .button.primary:hover { outline: 1px solid var(--fg); outline-offset: 3px; }
+.prompt-hint { font-size: 10px; margin-top: 10px; }
+.prompt-preview { font-size: 10px; margin-top: 4px; }
+.prompt-preview pre { font-size: 12px; padding: 8px 0; }
+.conversation-example { margin: 0 5px 0 0; border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--page), 5px 5px 0 var(--line); }
+.conversation-example header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.conversation-example h2 { font-size: 12px; }
+.conversation-example header > span { font-size: 9px; }
+.example-messages { display: flex; flex-direction: column; gap: 24px; padding: 28px 24px; min-height: 240px; }
+.example-message { width: 90%; }
+.example-message > span { display: block; font-size: 10px; margin-bottom: 8px; }
+.example-message p { font-size: 13px; line-height: 1.7; padding-left: 12px; border-left: 2px solid var(--line); }
+.partner-message { align-self: flex-end; }
+.example-typing { padding-left: 12px; align-self: flex-end; width: 90%; font-size: 24px; line-height: 1; }
+.conversation-example figcaption { border-top: 1px solid var(--line); padding: 16px 20px 0; font-size: 11px; }
+.conversation-example > .button { margin: 4px 20px 12px; font-size: 10px; min-height: 36px; }
+.simple-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.simple-steps > div > span { font-size: 10px; }
+.simple-steps h2 { font-size: 14px; margin: 10px 0 8px; }
+.simple-steps p { font-size: 12px; line-height: 1.8; max-width: 32ch; }
+.home-bottom { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; font-size: 10px; }
+.home-bottom > a { align-self: flex-start; margin-top: 8px; }
 @media (max-width: 800px) {
   body:has(.channel-home) .topbar, main:has(.channel-home), body:has(.channel-home) footer { width: calc(100% - 40px); }
-  .channel-hero { gap: 32px; grid-template-columns: 1fr 1fr; }
-  .workspace-pair { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); }
-  .workspace-thread { padding: 18px; min-height: 400px; }
-  .agent-workspace > header { padding: 14px; }
+  .simple-hero { gap: 32px; grid-template-columns: 1fr 1fr; }
+  .example-messages { padding: 24px 18px; }
+  .simple-steps { gap: 24px; }
 }
 @media (max-width: 600px) {
   body:has(.channel-home) .topbar { align-items: flex-start; }
   body:has(.channel-home) nav { gap: 6px 14px; justify-content: flex-end; max-width: 180px; font-size: 10px; }
-  main:has(.channel-home) { padding-top: 36px; }
-  .channel-hero { grid-template-columns: 1fr; padding-bottom: 36px; gap: 24px; }
-  .channel-hero h1 { font-size: clamp(28px, 8vw, 36px); }
-  .agent-start { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; }
-  .agent-start > p { font-size: 16px; }
-  .demo-heading { align-items: flex-start; gap: 12px; }
-  .demo-heading h2 { font-size: 14px; }
-  .demo-heading .button { font-size: 10px; }
-  .demo-steps { justify-content: space-between; gap: 12px; }
-  .demo-steps button { font-size: 10px; gap: 6px; }
-  .channel-rail { gap: 12px; flex-wrap: wrap; padding: 18px 0; }
-  .demo-example { display: none; }
-  .workspace-pair { grid-template-columns: minmax(0, 1fr); padding-right: 5px; gap: 24px; }
-  .workspace-thread { min-height: 180px; }
-  .partner-workspace { margin-top: 0; }
-  .message-bridge { width: 1px; height: 24px; justify-self: center; }
-  .message-bridge > span { transform: rotate(90deg); }
-  .demo-workbench .message-bridge::after { display: none; }
-  .demo-outcome { flex-wrap: wrap; gap: 8px 16px; }
-  .demo-outcome > p { flex-basis: calc(100% - 80px); }
-  .demo-outcome > button { margin-left: auto; }
-  .channel-principles { grid-template-columns: 1fr; gap: 24px; padding-top: 32px; }
-  .channel-principles > div + div { border-top: 1px solid var(--line); padding-top: 20px; }
+  main:has(.channel-home) { padding: 40px 0 32px; }
+  .simple-hero { grid-template-columns: 1fr; gap: 28px; }
+  .hero-copy h1 { font-size: 36px; }
+  .hero-description { margin: 20px 0; }
+  .simple-steps { grid-template-columns: 1fr; gap: 24px; margin-top: 36px; }
+  .simple-steps > div { display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; }
+  .simple-steps > div > span { padding-top: 3px; grid-row: span 2; }
+  .simple-steps h2 { margin: 0; }
+  .simple-steps p { grid-column: 2; max-width: none; }
 }
-@media (prefers-reduced-motion: reduce) { .demo-message, .demo-receipt, .demo-workbench .message-bridge::after { animation: none; } }
