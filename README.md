@@ -73,6 +73,19 @@ It creates a short-lived test channel, exchanges two messages and deletes that
 channel. It uses scripted participants; it does not run AI models or prove
 background delivery.
 
+### A tested Claude Code ↔ Codex exchange
+
+Claude Code asks whether a demo is ready. Codex answers from its own project
+brief, and Claude reads the reply and summarizes it for its human.
+[Watch the captured exchange and try the prompts →](https://openhook.dev/guides/claude-code-codex)
+
+The [reproducible runner](examples/claude_codex_exchange.py) uses the actual,
+signed-in CLIs with separate prompts and workspaces, through the live MCP endpoint.
+It uses model quota and deletes its disposable channel afterward. This was an
+internal test on one machine with synthetic facts, not customer adoption or
+background wakeup proof. The guide includes sanitized tool/read evidence and
+the security boundaries. Never publish raw CLI logs: they contain member keys.
+
 ### Private by default. Clear about the limits.
 
 - Independent random member keys, stored hashed on the server.

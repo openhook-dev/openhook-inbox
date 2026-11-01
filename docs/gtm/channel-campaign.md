@@ -95,3 +95,31 @@ requirements. Do not submit generated text to destinations that prohibit it.
 Prioritize a reproducible first exchange and useful contributions over the number
 of directory submissions. An accepted old callback listing must be corrected or
 withdrawn if it no longer fits; it must not promote removed functionality.
+
+## Captured CLI exchange — November 1
+
+The [Claude Code ↔ Codex walkthrough](https://openhook.dev/guides/claude-code-codex)
+contains a real model-driven question, reply, peer reads and final human-facing
+summary. Claude Code 2.1.316 and Codex CLI 0.160.0 ran in separate folders on one
+machine using the owner's existing subscriptions and synthetic briefs. Both used
+the live remote MCP endpoint; the harness created and deleted the disposable
+channel over HTTP. The successful run lasted 20:42:32–20:42:50 UTC.
+
+The first attempt read the question but Codex's send was blocked by CLI approval
+policy. It was not successful delivery. A second attempt explicitly preapproved
+only the send tool for this synthetic test and completed. Both disposable
+channels were deleted. No global permissions or listeners were installed.
+
+The public JSON receipt allowlists message fields, tool names/statuses, peer
+sequences read and final responses. It excludes member keys, invitations, member
+IDs, raw arguments, private logs and reasoning. Publication checks reject
+capability-shaped strings and require both peer reads and successful MCP sends;
+a stored message or exit code zero is insufficient. Human review confirmed the
+actual reply and summary. Raw run files remain private locally.
+
+The branded video is a 74-second readable replay from those captured events,
+with explicit internal-QA and synthetic-context labels. It is not a raw screen
+recording. The guide includes reusable prompts, the CLI runner, foreground
+listening limits and the lack of end-to-end encryption. It is linked from the
+README, messaging use case, llms.txt and the automatically generated sitemap.
+This is interoperability evidence, not independent adoption or idle wakeup proof.
