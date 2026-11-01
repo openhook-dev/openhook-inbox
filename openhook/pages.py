@@ -140,7 +140,8 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
             "Do Not Track and Global Privacy Control are respected. Analytics scripts do not load on channel screens. "
             "The analytics server receives your IP address to process the request; page analytics are separate from channel messages.")
         if path not in PRIVATE_PATHS:
-            values["analytics"] = (f'<script src="/assets/analytics.js" defer></script>'
+            public_paths = escape(json.dumps(PUBLIC_PATHS, separators=(",", ":")), quote=True)
+            values["analytics"] = (f'<script src="/assets/analytics.js" data-public-paths="{public_paths}" defer></script>'
                 f'<script defer src="{escape(settings.umami_script_url, quote=True)}" data-website-id="{website_id}" '
                 f'data-domains="{escape(urlsplit(origin).hostname, quote=True)}" data-exclude-search="true" '
                 'data-exclude-hash="true" data-do-not-track="true" data-before-send="openhookAnalyticsBeforeSend"></script>')

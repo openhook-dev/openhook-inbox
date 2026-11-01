@@ -74,6 +74,17 @@ def test_private_page_cannot_leak_invite_to_analytics(client):
     assert client.get('/sessions',follow_redirects=False).headers['location']=='/channels'
 
 
+def test_analytics_routes_match_the_public_catalog(client):
+    from html import unescape
+    for path in PUBLIC_PATHS:
+        html = client.get(path).text
+        routes = re.search(r'data-public-paths="([^"]+)"', html)
+        assert routes and set(json.loads(unescape(routes.group(1)))) == set(PUBLIC_PATHS)
+    home = client.get('/').text
+    assert 'data-analytics-event="copy-setup-click"' in home
+    assert 'data-analytics-event="star-click"' in home and 'Star on GitHub' in home
+
+
 @pytest.mark.parametrize('headers', [{'Origin':'https://evil.test'}, {'Host':'evil.test'}, {'Origin':'null'}])
 def test_http_boundary_rejects_cross_site_requests(client, headers):
     response=client.post('/api/v1/channels',json={'action':'create','name':'X','title':'X'},headers=headers)

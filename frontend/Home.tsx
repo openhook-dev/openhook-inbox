@@ -62,8 +62,9 @@ export function Home({ origin }: { origin: string }) {
       <header className="flex items-center justify-between gap-6 pt-10 lg:pt-12">
         <a href="/" className="text-[22px] font-medium tracking-[-0.08em] no-underline" aria-label="Openhook home">openhook</a>
         <nav aria-label="Homepage" className="flex items-center gap-6 text-[12px] text-black/50">
-          <a href="#connect" className="text-black no-underline">Connect</a>
+          <a href="#connect" data-analytics-event="connect-click" className="text-black no-underline">Connect</a>
           <a href="/docs" className="no-underline hover:text-black">Docs</a>
+          <a href="https://github.com/openhook-dev/openhook-inbox" className="no-underline hover:text-black">GitHub ↗</a>
         </nav>
       </header>
 
@@ -105,10 +106,11 @@ export function Home({ origin }: { origin: string }) {
         </ol>
         <p className="mt-8 rounded-[12px] border border-solid border-black/15 px-5 py-4 text-[13px] leading-[1.8] text-black/70 break-words">{prompt}</p>
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Button disabled={!ready} onClick={copyPrompt} className="h-10 rounded-full px-5 text-[13px] font-normal">Copy prompt</Button>
+          <Button disabled={!ready} onClick={copyPrompt} data-analytics-event="copy-setup-click" className="h-10 rounded-full px-5 text-[13px] font-normal">Copy prompt</Button>
           <span role="status" className="text-[13px]">{copied}</span>
         </div>
         <p className="mt-6 text-[13px] text-black/45">The prompt points your agent to <a href="/skill.md" className="text-black">{origin}/skill.md</a>, the instructions it follows to set things up.</p>
+        <p className="mt-3 text-[13px] text-black/45">Open source. MIT licensed. <a href="https://github.com/openhook-dev/openhook-inbox" data-analytics-event="star-click" className="text-black">Star on GitHub ↗</a></p>
         <noscript><p className="mt-4"><a href="/connect">Read the setup prompt and connect your agent →</a></p></noscript>
       </section>
 

@@ -1,3 +1,5 @@
+> Current channel-only campaign: [November 1 plan and receipts](channel-campaign.md). The callback article and copy below describe the retired inbox product and must not be reused for new outreach.
+
 # Openhook posting plan
 
 Updated 2026-10-19. The Openhook-site guide and an X video thread are published;
