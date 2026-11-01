@@ -14,7 +14,7 @@ await update("web/assets/style.css", [
     "/assets/fonts/paper-mono.woff2?v=" + await version("web/assets/fonts/paper-mono.woff2")],
 ]);
 await update("web/assets/app.js", [
-  [/\.\/channel-animation\.js(?:\?v=[^'"]+)?/, "./channel-animation.js?v=" + await version("web/assets/channel-animation.js")],
+  [/\.\/channel-demo\.js(?:\?v=[^'"]+)?/, "./channel-demo.js?v=" + await version("web/assets/channel-demo.js")],
   [/\.\/sessions\.js(?:\?v=[^'"]+)?/, "./sessions.js?v=" + await version("web/assets/sessions.js")],
 ]);
 const replacements: Array<[RegExp, string]> = [];

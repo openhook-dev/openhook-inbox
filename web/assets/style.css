@@ -49,13 +49,6 @@ footer a { text-decoration: none; }
 .button:hover { text-decoration-thickness: 2px; }
 .button.primary { font-weight: 500; }
 .actions { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-.text-home { max-width: 64ch; margin: auto; text-align: center; }
-.intro { min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 20px; padding-bottom: 24px; }
-.intro .actions { justify-content: center; gap: 28px; }
-.home-section { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 36px 0; }
-.home-section pre { max-width: 100%; font-size: 12px; text-align: left; }
-.plain-steps { text-align: left; color: var(--fg-2); margin: 0; padding-left: 24px; }
-.plain-steps li + li { margin-top: 8px; }
 .page-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-bottom: 40px; }
 .page-head h1 { font-size: 22px; }
 .page-head p { margin-top: 12px; }
@@ -114,9 +107,6 @@ dialog::backdrop { background: rgb(0 0 0 / .4); }
   main { padding: 48px 0; }
   nav { gap: 20px; }
   h1 { font-size: 22px; }
-  .intro { padding-bottom: 24px; }
-  .intro .actions { gap: 16px; }
-  .home-section { padding: 28px 0; }
   .page-head { flex-direction: column; align-items: flex-start; gap: 16px; }
   .form-row { grid-template-columns: 1fr; }
   .button, .tab { min-height: 44px; }
@@ -134,12 +124,99 @@ details > form { padding-top:16px; }
 #session-invite > p, #session-invite > label { display:block; margin-bottom:16px; }
 #agent-connection > .button { align-self:flex-start; }
 
-/* Real text, one small character grid. No canvas, video or animation library. */
-.channel-animation { margin: 12px 0 0; width: 100%; }
-.ascii-stage { white-space: pre; overflow-wrap: normal; font-size: clamp(8px, 2vw, 13px); line-height: 1.25; text-align: left; width: 61ch; max-width: 100%; margin: 0 auto; }
-.animation-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; max-width: 61ch; margin: 18px auto 0; text-align: left; font-size: 12px; }
-.animation-caption p { min-height: 3.6em; }
-.animation-caption strong { display: block; }
-.animation-caption button { flex-shrink: 0; }
-.home-note { padding-top: 24px; border-top: 1px solid var(--line); font-size: 12px; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* The homepage demonstrates the agent handoff before asking for setup. */
+body:has(.channel-home) .topbar,
+main:has(.channel-home),
+body:has(.channel-home) footer { width: min(1040px, calc(100% - 80px)); }
+body:has(.channel-home) .topbar { flex-direction: row; justify-content: space-between; padding-top: 28px; }
+main:has(.channel-home) { padding: 64px 0 56px; }
+.channel-hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: center; padding-bottom: 64px; }
+.channel-hero .eyebrow { font-size: 11px; margin-bottom: 20px; }
+.channel-hero h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.12; letter-spacing: -.065em; }
+.hero-description { max-width: 46ch; margin-top: 24px; line-height: 1.7; }
+.section-label { display: block; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; line-height: 1.6; }
+.agent-start { border-left: 1px solid var(--line); padding-left: 32px; }
+.agent-start > p { font-size: 18px; line-height: 1.5; margin: 14px 0 20px; letter-spacing: -.03em; }
+.agent-start .button.primary { display: flex; justify-content: space-between; gap: 24px; padding: 12px 18px; min-height: 48px; background: var(--fg); color: var(--page); text-decoration: none; width: 100%; }
+.agent-start .button.primary:hover { outline: 1px solid var(--fg); outline-offset: 3px; }
+.agent-start details { font-size: 10px; margin-top: 8px; }
+.agent-start summary { padding: 8px 0; }
+.agent-start pre { padding: 12px 0; font-size: 12px; }
+.start-alternative { display: inline-block; font-size: 11px; margin-top: 8px; }
+.demo-heading { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 20px; }
+.demo-heading h2 { font-size: 16px; margin-top: 6px; letter-spacing: -.035em; }
+.demo-heading .button { font-size: 11px; white-space: nowrap; }
+.demo-steps { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.demo-steps button { display: flex; align-items: center; gap: 14px; border: 0; border-right: 1px solid var(--line); background: var(--page); color: var(--fg); text-align: left; padding: 14px 20px; font-size: 12px; min-height: 52px; }
+.demo-steps button:last-child { border-right: 0; }
+.demo-steps button[aria-pressed='true'] { background: var(--fg); color: var(--page); }
+.demo-steps button span { font-size: 10px; }
+.demo-stage { border: 1px solid var(--line); border-top: 0; padding: 36px 44px 44px; background-image: radial-gradient(var(--fg) .5px, transparent .5px); background-size: 12px 12px; }
+.demo-scene { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 28px; align-items: center; min-height: 342px; animation: demo-enter 220ms ease-out both; }
+.demo-window { background: var(--page); border: 1px solid var(--line); box-shadow: 5px 5px 0 var(--page), 6px 6px 0 var(--line); position: relative; z-index: 1; }
+.demo-window > header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); min-height: 44px; padding: 10px 18px; font-size: 10px; }
+.window-mark { font-size: 14px; }
+.window-number { margin-left: auto; }
+.window-body { padding: 24px; min-height: 296px; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; }
+.demo-message { font-size: 12px; line-height: 1.65; }
+.message-author { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; margin-bottom: 6px; }
+.message-author > span { font-size: 9px; }
+.human-message { padding-left: 14px; border-left: 2px solid var(--fg); }
+.demo-tool { display: flex; align-items: center; gap: 10px; font-size: 10px; padding: 10px 0; border-block: 1px dotted var(--line); }
+.demo-tool > span:last-child { margin-left: auto; }
+.invite-example { display: block; font-size: 10px; overflow-wrap: anywhere; margin-top: 8px; }
+.demo-result { position: relative; background: var(--page); border: 1px solid var(--line); padding: 24px 20px 0; }
+.demo-result::before { content: ''; position: absolute; inset: -7px 7px 7px -7px; border: 1px solid var(--line); background: var(--page); z-index: -1; }
+.channel-glyph { font-size: 40px; line-height: 1; margin-top: 20px; }
+.demo-result h3 { font-size: 19px; letter-spacing: -.04em; margin: 8px 0 18px; }
+.demo-result > p { font-size: 11px; line-height: 1.7; margin-bottom: 18px; }
+.demo-result dl { margin: 0 0 20px; font-size: 10px; }
+.demo-result dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.demo-result dd { margin: 0; text-align: right; }
+.result-foot { display: flex; gap: 14px; border-top: 1px solid var(--line); padding: 12px 0; font-size: 9px; }
+.conversation-demo .demo-message + .demo-message { padding-top: 14px; border-top: 1px dotted var(--line); }
+.demo-caption { display: flex; gap: 24px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 11px; }
+.demo-caption > span { white-space: nowrap; font-size: 10px; }
+.demo-caption > p { flex: 1; }
+.demo-caption > button { white-space: nowrap; font-size: 11px; }
+.demo-disclaimer { margin-top: 12px; font-size: 10px; }
+.channel-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding-top: 56px; }
+.channel-principles > div { display: flex; flex-direction: column; align-items: flex-start; }
+.channel-principles h2 { font-size: 14px; margin: 14px 0 10px; }
+.channel-principles p { font-size: 12px; line-height: 1.8; margin-bottom: 20px; }
+.channel-principles a { font-size: 11px; margin-top: auto; }
+@keyframes demo-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 800px) {
+  body:has(.channel-home) .topbar, main:has(.channel-home), body:has(.channel-home) footer { width: calc(100% - 40px); }
+  .channel-hero { gap: 32px; grid-template-columns: 1fr 1fr; }
+  .demo-stage { padding: 28px 24px 32px; }
+  .demo-scene { gap: 20px; }
+  .window-body { padding: 18px; }
+  .demo-result { padding: 20px 14px 0; }
+}
+@media (max-width: 600px) {
+  body:has(.channel-home) .topbar { align-items: flex-start; }
+  body:has(.channel-home) nav { gap: 6px 14px; justify-content: flex-end; max-width: 180px; font-size: 10px; }
+  main:has(.channel-home) { padding-top: 40px; }
+  .channel-hero { grid-template-columns: 1fr; padding-bottom: 40px; gap: 28px; }
+  .channel-hero h1 { font-size: 36px; }
+  .agent-start { border-left: 0; border-top: 1px solid var(--line); padding: 24px 0 0; }
+  .agent-start > p { font-size: 16px; }
+  .demo-heading { align-items: flex-start; gap: 12px; }
+  .demo-heading h2 { font-size: 14px; }
+  .demo-steps button { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 10px; font-size: 10px; }
+  .demo-stage { padding: 20px 16px 26px; }
+  .demo-scene { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .window-body { min-height: 300px; }
+  .demo-result { padding: 16px; }
+  .channel-glyph, .demo-result dl { display: none; }
+  .demo-result h3 { margin: 8px 0; }
+  .demo-result > p { margin-bottom: 12px; }
+  .result-foot { padding-bottom: 0; }
+  .demo-caption { flex-wrap: wrap; gap: 8px 16px; }
+  .demo-caption > p { flex-basis: calc(100% - 80px); }
+  .demo-caption > button { margin-left: auto; }
+  .channel-principles { grid-template-columns: 1fr; gap: 28px; padding-top: 40px; }
+  .channel-principles > div + div { border-top: 1px solid var(--line); padding-top: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .demo-scene { animation: none; } }
