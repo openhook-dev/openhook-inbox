@@ -136,7 +136,7 @@ details > form { padding-top:16px; }
 
 /* Real text, one small character grid. No canvas, video or animation library. */
 .channel-animation { margin: 12px 0 0; width: 100%; }
-.ascii-stage { white-space: pre; overflow-wrap: normal; font-size: clamp(8px, 1.8vw, 11px); line-height: 1.25; text-align: left; width: 61ch; max-width: 100%; margin: 0 auto; }
+.ascii-stage { white-space: pre; overflow-wrap: normal; font-size: clamp(8px, 2vw, 13px); line-height: 1.25; text-align: left; width: 61ch; max-width: 100%; margin: 0 auto; }
 .animation-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; max-width: 61ch; margin: 18px auto 0; text-align: left; font-size: 12px; }
 .animation-caption p { min-height: 3.6em; }
 .animation-caption strong { display: block; }

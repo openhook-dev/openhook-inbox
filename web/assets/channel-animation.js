@@ -1,62 +1,62 @@
-// A local illustration, never a live channel or a source of customer activity.
+// Illustrative only: this animation never connects to a real channel.
 const WIDTH = 61;
-const HEIGHT = 18;
+const HEIGHT = 14;
 const DURATION = 18000;
-const robot = [' .-----. ', ' | o o | ', ' |  -  | ', " '-----' ", '  /| |\\  ', ' / |_| \\ ', '   | |   ', ' __| |__ '];
-const hub = ['  .-------. ', ' /       /| ', '+-------+ | ', '|   #   | + ', '|       |/  ', '+-------+   '];
 
 export function channelFrame(elapsed) {
   const time = ((elapsed % DURATION) + DURATION) % DURATION;
+  const joined = time >= 6500;
+  const talking = time >= 8000;
+  const reply = time >= 12500;
   const grid = Array.from({length: HEIGHT}, () => Array(WIDTH).fill(' '));
   const put = (x, y, text) => [...text].forEach((char, i) => {
-    if (y >= 0 && y < HEIGHT && x + i >= 0 && x + i < WIDTH) grid[y][x + i] = char;
+    if (x + i >= 0 && x + i < WIDTH) grid[y][x + i] = char;
   });
-  const center = (y, text) => put(Math.floor((WIDTH - text.length) / 2), y, text);
-  // Characters resolve into the channel rather than flashing the whole panel.
-  const draw = (x, y, lines, progress = 1) => lines.forEach((line, row) => {
-    [...line].forEach((char, col) => {
-      if (char === ' ') return;
-      const threshold = ((row * 17 + col * 11) % 31) / 31;
-      put(x + col, y + row, progress >= threshold ? char : (progress + .2 > threshold ? '.' : ' '));
-    });
-  });
-  put(2, 0, 'YOUR AGENT');
-  put(47, 0, 'THEIR AGENT');
-  draw(2, 2, robot);
-  draw(23, 5, hub, Math.min(time / 1700, 1));
-  put(25, 12, '# channel');
-  put(3, 14, 'your key');
+  const terminal = (x, name, status) => {
+    const lines = [
+      '+---------------+',
+      '| ' + name.padEnd(14) + '|',
+      '|               |',
+      '| >_            |',
+      '|               |',
+      '| ' + status.padEnd(14) + '|',
+      '+---------------+',
+    ];
+    lines.forEach((line, row) => put(x, row + 1, line));
+  };
+  terminal(0, 'Agent 01', 'connected');
+  terminal(44, 'Agent 02', joined ? 'connected' : 'waiting');
+  put(26, 2, 'openhook');
+  put(24, 4, '[ #launch ]');
+  put(17, 4, '-------');
+  put(35, 4, joined ? '---------' : '. . . . .');
+
   let title, detail;
   if (time < 4000) {
-    title = '01 / Create a channel';
-    detail = 'Give your agents a place to talk.';
-    center(16, time < 1700 ? '[ creating channel ]' : '[ channel ready ]');
-    draw(48, 2, robot, 0);
-  } else if (time < 8000) {
-    title = '02 / Share the invite';
-    detail = 'Your partner joins with their own private key.';
-    draw(48, 2, robot, Math.min((time - 5700) / 1200, 1));
-    const x = Math.round(36 + Math.min((time - 4000) / 2300, 1) * 9);
-    if (time < 6500) put(x, 11, '[+]');
-    if (time >= 6900) put(48, 14, 'their key');
-    center(16, time < 6900 ? '[ one-use invitation ]' : '[ both agents connected ]');
+    title = '01 / Create';
+    detail = 'One private channel for the work you share.';
+    put(0, 10, '> channel created: #launch');
+  } else if (!talking) {
+    title = '02 / Invite';
+    detail = 'Share a one-use invite. Each agent gets its own key.';
+    put(0, 10, joined ? '> Agent 02 joined #launch' : '> waiting for the invite to be accepted');
+    if (!joined) put(36 + Math.floor((time - 4000) / 400) % 6, 4, '>');
   } else {
-    title = '03 / Let your agents talk';
-    detail = 'A message goes across. A reply comes back.';
-    draw(48, 2, robot);
-    put(48, 14, 'their key');
-    put(12, 11, '---------->');
-    put(36, 11, '---------->');
-    const reply = time >= 12500;
-    if (reply) {
-      put(12, 11, '<----------');
-      put(36, 11, '<----------');
+    title = '03 / Talk';
+    detail = 'Messages go directly between the connected agents.';
+    const progress = Math.min((time - (reply ? 12500 : 8000)) / 2400, 1);
+    // Keep the channel name legible as a packet crosses each connector.
+    const path = [17, 18, 19, 20, 21, 22, 23, 35, 36, 37, 38, 39, 40, 41, 42, 43];
+    if (progress < 1) {
+      const step = Math.floor(progress * path.length);
+      put(path[reply ? path.length - 1 - step : step], 4, reply ? '<' : '>');
     }
-    const start = reply ? 12500 : 8000;
-    const progress = Math.min((time - start) / 3000, 1);
-    const x = Math.round(reply ? 45 - progress * 33 : 12 + progress * 33);
-    if (progress < 1) put(x, 11, reply ? '<[=]' : '[=]>');
-    center(16, reply ? 'THEIR AGENT: "Ready to review."' : 'YOUR AGENT: "Can we ship?"');
+    const message = '01  Can you review the launch?';
+    put(0, 10, message.slice(0, Math.min(message.length, Math.floor((time - 8000) / 45))));
+    if (reply) {
+      const answer = '02  Yes. Sharing my notes now.';
+      put(0, 12, answer.slice(0, Math.min(answer.length, Math.floor((time - 12500) / 45))));
+    }
   }
   return {art: grid.map(row => row.join('')).join('\n'), title, detail};
 }
