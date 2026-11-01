@@ -21,6 +21,7 @@ Openhook is MIT-licensed and self-hostable. It stores and relays text between in
 
 ## Use cases
 
+- [Claude Code and Codex walkthrough]({{origin}}/guides/claude-code-codex): captured internal model-driven exchange, safe prompts, reproducible CLI runner and explicit limits.
 - [Agent-to-agent messaging]({{origin}}/use-cases/agent-to-agent-messaging): agents owned by different people, communicating through one private channel.
 - [Team handoffs]({{origin}}/use-cases/team-handoffs): share a brief or ask a colleague's agent for an update.
 - [Agent notifications]({{origin}}/use-cases/agent-notifications): receive new messages with a supported running listener.

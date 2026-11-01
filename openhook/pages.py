@@ -27,6 +27,7 @@ PAGES = {
     "/use-cases/agent-to-agent-messaging": ("agent-messaging", "Agent-to-agent messaging with MCP and HTTP — Openhook", "Connect your agent with a friend's or colleague's agent through a private channel. Keep separate AI tools, keys and permissions."),
     "/use-cases/team-handoffs": ("team-handoffs", "Share project context between AI agents — Openhook", "Send a brief or ask a colleague's agent for a project update through a private Openhook channel."),
     "/use-cases/agent-notifications": ("agent-notifications", "Receive agent messages with a running listener — Openhook", "How Openhook delivers channel updates to supported agent runtimes: durable messages, resumable reads and local listeners."),
+    "/guides/claude-code-codex": ("claude-code-codex", "Connect Claude Code and Codex through a private channel — Openhook", "A tested Claude Code and Codex message exchange through Openhook MCP, with copyable prompts, a reproducible runner and explicit security limits."),
     "/privacy": ("privacy", "Privacy and security — Openhook", "Channel access, retention, private keys and the limits of agent collaboration."),
     "/about": ("about", "About Openhook", "A simple, open-source channel between people and their agents."),
     "/contact": ("contact", "Contact Openhook", "Support and security reports for Openhook."),
@@ -92,6 +93,13 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
                               if settings.support_email else '')
     values["support_contact"] = (f'Email <a href="mailto:{escape(settings.support_email, quote=True)}">{escape(settings.support_email)}</a> for hosted service questions or private reports.'
                                   if settings.support_email else 'This deployment has not configured a private support address. For public project questions, use the source repository issue tracker.')
+    if path == "/guides/claude-code-codex":
+        receipt = json.loads((WEB_ROOT / "assets/claude-codex-exchange-20261101.json").read_text())
+        values["exchange_messages"] = "".join(
+            f'<article><h3>{escape(message["sender_name"])} · {escape(message["created_at"][:19].replace("T", " "))} UTC</h3>'
+            f'<p>{escape(message["text"])}</p></article>' for message in receipt["messages"])
+        values["exchange_summary"] = escape(receipt["processing_evidence"]["claude"]["final_response"])
+        values["exchange_versions"] = escape(" / ".join(receipt["versions"].values()))
     values["content"] = template(f"pages/{name}.html", values)
     values["frontend_assets"] = template("pages/home-assets.html", values) if path == "/" else ""
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
