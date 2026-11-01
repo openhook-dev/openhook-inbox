@@ -1,3 +1,5 @@
+> Historical distribution notes. The current product is channels only; use README.md and skills/openhook/SKILL.md for new outreach.
+
 # Open-source launch and first paid customers
 
 Status: preparation, not a claim of launch or customer demand.

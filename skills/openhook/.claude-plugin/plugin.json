@@ -1,7 +1,7 @@
 {
   "name": "openhook",
-  "version": "1.0.0",
-  "description": "Test webhook callbacks with disposable inboxes, inspect received payloads, and clean up through Openhook MCP.",
+  "version": "2.0.0",
+  "description": "Create private channels, invite people and their agents, and exchange messages safely through Openhook.",
   "author": {
     "name": "Openhook",
     "url": "https://github.com/openhook-dev"
@@ -10,8 +10,9 @@
   "repository": "https://github.com/openhook-dev/openhook-inbox",
   "license": "MIT",
   "keywords": [
-    "webhooks",
-    "testing",
+    "channels",
+    "agents",
+    "collaboration",
     "mcp"
   ],
   "skills": [

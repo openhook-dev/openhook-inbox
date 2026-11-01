@@ -1,21 +1,18 @@
-from openhook.accounts import Accounts
-from openhook_hosted.settings import HostedSettings as Settings
-from openhook.store import Store
 from scripts.business_report import report
+from openhook.settings import Settings
+from openhook.store import Store
+from openhook.sessions import Sessions
 
 
-def test_polar_scorecard_counts_orders_and_labels_refunded_amounts(tmp_path):
-    path = str(tmp_path / 'report.db')
-    store = Store(Settings(database=path, hosted_enabled=True, billing_provider='polar'))
-    account, _ = Accounts(store).sign_in(1, 'test-buyer')
-    with store.connection() as db:
-        db.execute('INSERT INTO polar_orders VALUES(?,?,?,?,?,?,?)', ('order1', account['id'], 'sub1', 100, 1900, 0, 0))
-        db.execute('INSERT INTO polar_orders VALUES(?,?,?,?,?,?,?)', ('order2', account['id'], 'sub1', 200, 1900, 1, 0))
-    result = report(path)
-    assert result['billing_provider'] == 'polar' and result['sandbox'] is True
-    assert result['accounts_ever_paid'] == 1
-    assert result['verified_polar_orders'] == 2
-    assert result['fully_refunded_polar_orders'] == 1
-    assert result['recorded_polar_order_net_amount_usd_cents'] == 3800
-    assert result['verified_paid_invoices'] == 0
-    assert 'include subsequently refunded orders' in result['note']
+def test_read_only_report_does_not_turn_anonymous_activity_into_users(tmp_path):
+    settings=Settings(database=str(tmp_path/'report.db'))
+    channels=Sessions(Store(settings))
+    owner=channels.create('Owner','Internal QA')
+    channels.send(owner['participant_token'],'Synthetic test','test')
+    before=(tmp_path/'report.db').read_bytes()
+    result=report(settings.database)
+    assert result['retained_channels']==1 and result['retained_channel_messages']==1
+    assert result['customer_revenue'] is None
+    assert 'Not distinct users' in result['channel_activity_note']
+    assert 'Owner' not in str(result) and 'Synthetic test' not in str(result)
+    assert (tmp_path/'report.db').read_bytes()==before

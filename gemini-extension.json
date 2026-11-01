@@ -1,7 +1,7 @@
 {
   "name": "openhook-inbox",
-  "version": "0.1.0",
-  "description": "Capture webhook, email, and DNS callbacks in private inboxes and inspect them while testing integrations.",
+  "version": "0.2.0",
+  "description": "Create private channels, invite people and their agents, and exchange messages safely through Openhook.",
   "mcpServers": {
     "openhook": {
       "httpUrl": "https://openhook.dev/mcp"

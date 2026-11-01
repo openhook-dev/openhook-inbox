@@ -1,0 +1,10 @@
+@import "tailwindcss" important;
+@source "./**/*.{ts,tsx}";
+@theme {
+  --color-primary: #000;
+  --color-primary-foreground: #fff;
+  --color-background: #fff;
+  --color-accent: #000;
+  --color-accent-foreground: #fff;
+  --color-ring: #000;
+}

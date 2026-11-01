@@ -19,8 +19,6 @@ HTTP_REQUESTS = Counter("openhook_http_requests_total", "Completed HTTP requests
 HTTP_DURATION = Histogram("openhook_http_request_duration_seconds", "HTTP duration including long polls", ["route"],
                           buckets=(.01, .05, .1, .25, .5, 1, 2, 5, 15, 30, 60, 120), registry=REGISTRY)
 TOOL_CALLS = Counter("openhook_mcp_tool_calls_total", "MCP tool executions", ["tool", "outcome"], registry=REGISTRY)
-CAPTURES = Counter("openhook_captured_events_total", "New committed events; excludes duplicate deliveries", ["transport", "traffic"], registry=REGISTRY)
-INBOXES = Counter("openhook_created_inboxes_total", "New inboxes", ["plan"], registry=REGISTRY)
 
 
 def measured_tool(function):
@@ -53,11 +51,9 @@ def measured_tool(function):
 
 
 def route_group(path):
-    if path in {"/", "/connect", "/docs", "/agents", "/privacy", "/pricing", "/app", "/account",
-                "/sessions", "/api/v1/sessions", "/channels", "/api/v1/channels", "/api/call", "/api/wait", "/api/export", "/api/tools", "/api/account",
-                "/auth/github", "/auth/github/callback", "/api/account/billing/checkout", "/api/account/billing/portal"}:
+    if path in {"/", "/channels", "/connect", "/docs", "/agents", "/privacy", "/api/v1/channels", "/api/v1/sessions", "/api/tools", "/api/v1/tools"}:
         return path
-    for prefix in ("/mcp", "/h/", "/assets/", "/api/account/", "/billing/", "/auth/"):
+    for prefix in ("/mcp", "/assets/"):
         if path.startswith(prefix):
             return prefix.rstrip("/")
     return "other"
@@ -96,16 +92,13 @@ class StoreMetrics:
         settings = self.store.settings
         with self.store.connection() as db:
             values = {
-                "inboxes": ("Currently retained inboxes", db.execute("SELECT COUNT(*) FROM inboxes").fetchone()[0]),
-                "retained_events": ("Currently retained events, including test traffic", db.execute("SELECT COUNT(*) FROM events").fetchone()[0]),
+                "channels": ("Retained channels including test activity", db.execute("SELECT COUNT(*) FROM agent_sessions").fetchone()[0]),
+                "retained_messages": ("Retained messages including test activity", db.execute("SELECT COUNT(*) FROM session_events WHERE kind='message'").fetchone()[0]),
                 "storage_used_bytes": ("SQLite allocated data pages excluding freelist", (db.execute("PRAGMA page_count").fetchone()[0] - db.execute("PRAGMA freelist_count").fetchone()[0]) * db.execute("PRAGMA page_size").fetchone()[0]),
                 "storage_limit_bytes": ("Configured SQLite data limit", settings.storage_limit),
-                "inbox_limit": ("Configured shared inbox limit", settings.inbox_limit),
+                "channel_limit": ("Configured shared channel limit", settings.channel_limit),
                 "disk_free_bytes": ("Free disk space on the data volume", shutil.disk_usage(settings.database).free),
             }
-            if settings.hosted_enabled:
-                values["accounts"] = ("Registered hosted accounts", db.execute("SELECT COUNT(*) FROM accounts").fetchone()[0])
-                values["paid_accounts"] = ("Accounts with current paid access, not MRR", db.execute("SELECT COUNT(*) FROM hosted_entitlements WHERE paid_until>?", (time.time(),)).fetchone()[0])
         for name, (description, value) in values.items():
             yield GaugeMetricFamily("openhook_" + name, description, value=value)
 

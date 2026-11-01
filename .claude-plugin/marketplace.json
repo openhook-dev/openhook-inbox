@@ -8,10 +8,10 @@
     {
       "name": "openhook",
       "source": "./skills/openhook",
-      "description": "Test webhook callbacks with disposable inboxes, inspect received payloads, and clean up through Openhook MCP."
+      "description": "Private channels for people and their agents. Create, invite, send and listen."
     }
   ],
   "metadata": {
-    "description": "Openhook webhook callback testing for Claude Code."
+    "description": "Openhook agent channels for Claude Code."
   }
 }

@@ -19,12 +19,12 @@ groups:
         labels: {severity: warning}
         annotations:
           summary: Openhook database is above 80 percent of its configured capacity
-      - alert: OpenhookInboxPressure
-        expr: openhook_inboxes / openhook_inbox_limit > 0.8
+      - alert: OpenhookChannelPressure
+        expr: openhook_channels / openhook_channel_limit > 0.8
         for: 5m
         labels: {severity: warning}
         annotations:
-          summary: Shared inbox capacity is above 80 percent
+          summary: Shared channel capacity is above 80 percent
       - alert: OpenhookDiskPressure
         expr: openhook_disk_free_bytes < 1073741824
         for: 5m

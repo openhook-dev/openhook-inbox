@@ -22,3 +22,9 @@ License notice in `web/assets/fonts/OFL.txt`; they are not used by the interface
 The approved Openhook mark is the organization's public GitHub avatar:
 https://github.com/openhook-dev. The original file is retained unchanged in
 `web/assets/organization-logo.png` and embedded in the SVG branding assets.
+
+The Button component is adapted from shadcn/ui's new-york-v4 registry
+(https://ui.shadcn.com/r/styles/new-york-v4/button.json), under MIT.
+Its notice ships at `web/assets/licenses/shadcn.txt`. Imports are adapted to
+our local utility and Radix Slot package. React, Motion, Tailwind and other
+frontend dependencies retain their own licenses in the package metadata.

@@ -1,61 +1,26 @@
-# Deploy Openhook with Dokploy
+# Deploy Openhook channels
 
-Create a dedicated Openhook project and Docker Compose service. Select this
-repository, compose.dokploy.yaml, and service openhook. Configure
-OPENHOOK_ORIGIN=https://openhook.dev and OPENHOOK_BIND_ADDRESS to the host IPv4.
-Bind SMTP/DNS to that public IP so the host resolver can retain loopback port 53. Add openhook.dev through Dokploy Domains:
-service openhook, container port 8788, HTTPS and Let's Encrypt enabled.
+Run one application replica using `compose.dokploy.yaml`, service `openhook`,
+core image target. Set `OPENHOOK_ORIGIN=https://openhook.dev`; route that domain
+through the trusted HTTPS reverse proxy to container port 8788. No SMTP or DNS
+ports are exposed. Keep the persistent `openhook-data` volume mounted at `/data`.
 
-The named openhook-data volume holds the SQLite database. Run one application
-replica. Do not mount the repository directory as the data directory.
+Only trust the actual reverse proxy subnet in `FORWARDED_ALLOW_IPS`. Confirm
+client IP handling so per-IP rate limits do not group all traffic under one proxy.
+Keep body/token logging disabled in the application and proxy.
 
-## Mail
+The database uses WAL and short write transactions. Use SQLite's backup API for
+online backups; copying only the database file can omit WAL transactions. Keep
+backups private. They contain server-readable channel messages. Restoring stale
+backups may restore previously revoked keys.
 
-Set OPENHOOK_EMAIL_DOMAIN=mail.openhook.dev. Point the domain's MX record to
-smtp.openhook.dev. Point smtp.openhook.dev directly to the host's IPv4 address
-with Cloudflare proxying disabled. Public TCP port 25 maps to container 2525.
-Confirm the host permits incoming port 25. The service receives mail only;
-there is no mail relay or outbound mail sender.
+Channels expire after their chosen lifetime (30 days by default); access stops
+immediately and periodic cleanup removes expired channel rows. No cleanup touches
+retired billing/account/inbox tables. Capacity is bounded and new writes fail
+instead of evicting retained history. Revocation and deletion remain possible
+when event capacity is exhausted.
 
-## DNS
-
-Set OPENHOOK_DNS_DOMAIN=dns.openhook.dev and OPENHOOK_DNS_ADDRESS to the host's
-IPv4 address. Delegate dns.openhook.dev to ns.dns.openhook.dev. Create an
-unproxied A record for that nameserver, including glue where required by the
-parent. Public UDP and TCP port 53 map to container 5353. Disable DNSSEC on the
-delegated child zone until signing is implemented.
-
-Do not enable either transport until DNS and inbound ports are configured.
-Health reports configured listeners, not independent proof of public reachability.
-
-## Storage and backups
-
-Events are committed before an HTTP success response. WAL permits concurrent
-SMTP, HTTP, and MCP access. Anonymous inboxes expire within seven days; cleanup runs every
-minute, and every creation also removes expired inboxes. Each inbox accepts up to
-1000 retained events. At capacity, new captures fail instead of evicting earlier
-accepted events. Receipts and mutations write durable activity records in the
-same transaction. Minimal history remains after payload deletion and expiry;
-it excludes bodies, notes, and secrets.
-
-Use SQLite's backup API for a consistent database copy. Copying only the live
-.sqlite3 file can miss transactions in its WAL. Keep backups private; they
-contain captured events and signing secrets. Dokploy named-volume backups can
-preserve an entire stopped volume; for online backups use SQLite's backup API.
-
-## Release verification
-
-Verify /health, HTTPS, the deployed Git SHA, container readiness, and a real
-create → HTTP callback → MCP read/wait loop. For mail, deliver through the public
-MX. For DNS, use a public recursive resolver and inspect the recorded lookup.
-Also verify that a public capture UUID cannot read the inbox through /api/call.
-
-Trust only the verified Dokploy proxy subnet with FORWARDED_ALLOW_IPS. If using
-Cloudflare proxying, also add its published IP ranges. Confirm actual sender IPs
-in captured events so rate limits do not group all visitors under the proxy IP.
-
-## Optional hosted accounts
-
-The Compose file passes hosted settings with accounts and new checkout disabled
-by default. Read [hosted operations](HOSTED_OPERATIONS.md) before enabling them.
-Use dedicated OAuth/payment credentials and a separate sandbox database.
+See [channel-only rollout](CHANNEL_ONLY_RELEASE.md) before upgrading an existing
+hosted service. Provider-side subscriptions require separate handling; this code
+does not cancel them. Verify the exact deployed revision, TLS, health, seven-tool
+catalog, an invite/join/send/read round trip and revocation before announcing.

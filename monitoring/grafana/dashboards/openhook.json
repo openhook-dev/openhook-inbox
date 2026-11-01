@@ -190,7 +190,7 @@
     },
     {
       "id": 6,
-      "title": "p95 HTTP latency, excluding polling and capture waits",
+      "title": "p95 HTTP latency, excluding channel long polls",
       "type": "timeseries",
       "description": "",
       "datasource": {
@@ -206,7 +206,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(openhook_http_request_duration_seconds_bucket{route!~\"/mcp|/api/wait|/h\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(openhook_http_request_duration_seconds_bucket{route!~\"/mcp|/api/v1/channels|/api/v1/sessions\"}[5m])))",
           "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
         }
       ],
@@ -259,10 +259,10 @@
       }
     },
     {
-      "id": 8,
-      "title": "New captures / second: marked tests vs unmarked",
-      "type": "timeseries",
-      "description": "Unmarked includes any external sender, bots and unmarked tests. It does not mean paying customer activity. Duplicate deliveries excluded.",
+      "id": 9,
+      "title": "Retained channels (includes tests)",
+      "type": "stat",
+      "description": "Anonymous retained channels, not distinct people or confirmed adoption.",
       "datasource": {
         "type": "prometheus",
         "uid": "openhook-prometheus"
@@ -276,147 +276,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (transport, traffic) (rate(openhook_captured_events_total[5m]))",
-          "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 9,
-      "title": "Registered accounts",
-      "type": "stat",
-      "description": "",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "openhook-prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 32,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "openhook_accounts",
-          "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 10,
-      "title": "Accounts with paid access",
-      "type": "stat",
-      "description": "Current entitlements, not MRR or provider settlement.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "openhook-prometheus"
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 32,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "openhook_paid_accounts",
-          "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 11,
-      "title": "Successful sign-ins in selected range",
-      "type": "stat",
-      "description": "Includes returning account sign-ins. New registrations appear in Registered accounts.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "openhook-prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 40,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(increase(openhook_http_requests_total{route=\"/auth/github/callback\",status=\"303\"}[$__range])) or vector(0)",
-          "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 12,
-      "title": "Checkout links returned in selected range",
-      "type": "stat",
-      "description": "Successful checkout API calls, including reused sessions. Not unique checkouts or completed payments. Verify sales in Polar.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "openhook-prometheus"
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 40,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(increase(openhook_http_requests_total{route=\"/api/account/billing/checkout\",status=\"200\"}[$__range])) or vector(0)",
+          "expr": "openhook_channels",
           "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
         }
       ],
@@ -444,7 +304,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 32,
         "w": 12,
         "h": 8
       },
@@ -470,7 +330,7 @@
     },
     {
       "id": 14,
-      "title": "Shared inbox capacity used",
+      "title": "Channel capacity used",
       "type": "gauge",
       "description": "",
       "datasource": {
@@ -479,14 +339,14 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 48,
+        "y": 32,
         "w": 12,
         "h": 8
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "openhook_inboxes / openhook_inbox_limit",
+          "expr": "openhook_channels / openhook_channel_limit",
           "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
         }
       ],
@@ -514,7 +374,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 56,
+        "y": 40,
         "w": 12,
         "h": 8
       },
@@ -540,7 +400,7 @@
     },
     {
       "id": 16,
-      "title": "Currently retained events",
+      "title": "Retained messages (includes tests)",
       "type": "timeseries",
       "description": "Includes tests; deletions and retention reduce this gauge.",
       "datasource": {
@@ -549,55 +409,20 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 56,
+        "y": 40,
         "w": 12,
         "h": 8
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "openhook_retained_events",
+          "expr": "openhook_retained_messages",
           "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "id": 17,
-      "title": "New inboxes / second by plan",
-      "type": "timeseries",
-      "description": "",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "openhook-prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 64,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (plan) (rate(openhook_created_inboxes_total[5m]))",
-          "legendFormat": "{{route}}{{tool}}{{transport}} {{traffic}}{{outcome}}{{alertname}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops"
         },
         "overrides": []
       },
@@ -618,8 +443,8 @@
         "uid": "openhook-prometheus"
       },
       "gridPos": {
-        "x": 12,
-        "y": 64,
+        "x": 0,
+        "y": 48,
         "w": 12,
         "h": 8
       },

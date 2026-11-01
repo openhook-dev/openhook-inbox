@@ -11,6 +11,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!frontend/lib/
 lib64/
 parts/
 sdist/
@@ -65,3 +66,6 @@ data/
 *.sqlite3*
 node_modules/
 monitoring/metrics-token
+
+# Temporary server-rendering bundle
+.frontend-build/

@@ -5,12 +5,12 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.responses import JSONResponse
 
-from openhook.errors import InboxError
+from openhook.errors import ChannelError
 from openhook.http_errors import problem
 from openhook.sessions import Sessions, CHANNEL_DEFAULT_EXPIRY, CHANNEL_MAX_EXPIRY
 
 
-class SessionCall(BaseModel):
+class ChannelCall(BaseModel):
     model_config = ConfigDict(extra='forbid')
     action: Literal['create', 'invite', 'join', 'info', 'revoke', 'send', 'read', 'close', 'rotate', 'leave', 'archive', 'renew']
     participant_token: str = Field(default='', max_length=100)
@@ -18,7 +18,7 @@ class SessionCall(BaseModel):
     participant_id: str = Field(default='', max_length=100)
     name: str = Field(default='', max_length=80)
     title: str = Field(default='', max_length=160)
-    expiry: int = Field(default=86400, ge=60, le=604800)
+    expiry: int = Field(default=CHANNEL_DEFAULT_EXPIRY, ge=60, le=CHANNEL_MAX_EXPIRY)
     permission: Literal['read', 'write'] = 'write'
     scope: str = Field(default='', max_length=2000)
     archived: bool = True
@@ -28,18 +28,13 @@ class SessionCall(BaseModel):
     timeout_seconds: float = Field(default=0, ge=0, le=30, allow_inf_nan=False)
 
 
-class ChannelCall(SessionCall):
-    expiry: int = Field(default=CHANNEL_DEFAULT_EXPIRY, ge=60, le=CHANNEL_MAX_EXPIRY)
-
-
 async def session_call(request):
     try:
-        channel = request.url.path == '/api/v1/channels'
-        call = (ChannelCall if channel else SessionCall).model_validate(await request.json())
+        call = ChannelCall.model_validate(await request.json())
         sessions = Sessions(request.app.state.store)
         token = call.participant_token
         if call.action == 'create':
-            result = sessions.create(call.name, call.title, call.expiry, channel=channel, scope=call.scope)
+            result = sessions.create(call.name, call.title, call.expiry, channel=True, scope=call.scope)
         elif call.action == 'join':
             result = sessions.join(call.invite_code, call.name)
         elif call.action == 'invite':
@@ -63,7 +58,7 @@ async def session_call(request):
         else:
             result = sessions.close(token)
         return JSONResponse({'success': True, 'data': result})
-    except InboxError as exc:
+    except ChannelError as exc:
         return problem(exc.status, str(exc))
     except (ValidationError, ValueError):
-        return problem(400, 'Invalid session fields. Check /openapi.json.')
+        return problem(400, 'Invalid channel fields. Check /openapi.json.')
