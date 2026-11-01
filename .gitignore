@@ -65,3 +65,6 @@ data/
 *.sqlite3*
 node_modules/
 monitoring/metrics-token
+
+# Temporary server-rendering bundle
+.frontend-build/

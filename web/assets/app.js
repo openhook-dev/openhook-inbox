@@ -1,4 +1,3 @@
-import {initChannelDemo} from './channel-demo.js?v=24e36db7c7ec';
 import {renderSessions} from './sessions.js?v=afa9ce4d24bc';
 const main = document.querySelector('#main');
 const $ = selector => document.querySelector(selector);
@@ -28,5 +27,3 @@ for (const button of document.querySelectorAll('.copy-code')) {
   button.addEventListener('click', () => copy(source.textContent, button));
 }
 if (location.pathname === '/channels') renderSessions(main, {copy});
-
-if (location.pathname === '/') initChannelDemo(main);

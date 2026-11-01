@@ -141,3 +141,16 @@ def test_new_database_is_private_by_default(settings):
     from pathlib import Path
     Store(settings)
     assert Path(settings.database).stat().st_mode & 0o077 == 0
+
+
+def test_react_homepage_is_readable_and_does_not_load_on_private_pages(client):
+    home = client.get('/')
+    assert 'id="home-root" data-origin="http://testserver"' in home.text
+    assert 'The website is ready.' in home.text
+    assert '<noscript>' in home.text and 'Read the setup prompt' in home.text
+    assert 'style=' not in home.text
+    assert "'unsafe-inline'" not in home.headers['content-security-policy']
+    for asset in ('home.js', 'home.css'):
+        assert f'/assets/{asset}?v=' in home.text
+        assert client.get(f'/assets/{asset}').status_code == 200
+        assert f'/assets/{asset}' not in client.get('/channels').text

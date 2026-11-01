@@ -1,4 +1,4 @@
-"""Public HTML for people and crawlers; JavaScript only adds interactions."""
+"""Pre-rendered public HTML for people and crawlers, with optional React hydration."""
 
 from __future__ import annotations
 
@@ -89,6 +89,7 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     values["support_contact"] = (f'Email <a href="mailto:{escape(settings.support_email, quote=True)}">{escape(settings.support_email)}</a> for hosted service questions or private reports.'
                                   if settings.support_email else 'This deployment has not configured a private support address. For public project questions, use the source repository issue tracker.')
     values["content"] = template(f"pages/{name}.html", values)
+    values["frontend_assets"] = template("pages/home-assets.html", values) if path == "/" else ""
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
     values["analytics"] = ""
