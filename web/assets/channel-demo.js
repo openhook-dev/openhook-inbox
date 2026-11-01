@@ -1,26 +1,39 @@
-// A local illustration. No messages are sent and no channel is created.
+// A demonstration, never a connection to a real channel.
 export function initChannelDemo(root) {
-  const messages = [...root.querySelectorAll('[data-demo-message]')];
-  const replay = root.querySelector('#demo-replay');
-  const typing = root.querySelector('#demo-typing');
+  const messages = [...root.querySelectorAll('[data-story-message]')];
+  const replay = root.querySelector('#story-replay');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let visible = messages.length;
   let timer;
+  const render = () => {
+    messages.forEach((message, index) => {
+      const pending = index >= visible;
+      message.classList.toggle('pending', pending);
+      if (pending) message.setAttribute('aria-hidden', 'true');
+      else message.removeAttribute('aria-hidden');
+    });
+    root.querySelector('.story-end p').classList.toggle('pending', visible < messages.length);
+    replay.textContent = visible < messages.length ? 'Show all ↓' : 'Replay ↻';
+  };
   const finish = () => {
     clearTimeout(timer);
-    messages.forEach(message => { message.hidden = false; });
-    typing.hidden = true;
-    replay.disabled = false;
+    visible = messages.length;
+    render();
   };
+  const advance = () => {
+    clearTimeout(timer);
+    if (document.hidden || motion.matches) { finish(); return; }
+    render();
+    if (visible < messages.length) timer = setTimeout(() => { visible++; advance(); }, 2200);
+  };
+  const start = () => { visible = 1; advance(); };
   replay.addEventListener('click', () => {
-    finish();
-    if (motion.matches) return;
-    messages[1].hidden = true;
-    typing.hidden = false;
-    replay.disabled = true;
-    timer = setTimeout(finish, 1800);
+    if (visible < messages.length) finish();
+    else start();
   });
   motion.addEventListener('change', finish);
   document.addEventListener('visibilitychange', finish);
   window.addEventListener('pagehide', finish);
   replay.hidden = false;
+  start();
 }
