@@ -12,5 +12,5 @@ pinned publisher checksum, and authenticates using GitHub OIDC. It needs no stor
 publisher token. Confirm the version is active in the public Registry after the run.
 
 Registry publication does not deploy the application. Verify the exact deployed revision,
-public endpoints, real event receipt, and durable storage before announcing a
+public endpoints, real channel messaging, and durable storage before announcing a
 release. See [deployment notes](deployment.md) and [testing](testing.md).

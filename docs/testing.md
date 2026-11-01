@@ -1,93 +1,28 @@
-# Testing Openhook
+# Channel release validation
 
-Run `uv run --all-packages --extra dev pytest -q`, `uv run python scripts/generate_docs.py --check`,
-and `node --check web/assets/app.js`.
+```sh
+bun run build
+uv run pytest -q
+uv run python scripts/generate_docs.py --check
+node --check web/assets/app.js
+node --check web/assets/sessions.js
+node --test native_tests/analytics.test.mjs
+uv build
+uv venv /tmp/openhook-core-check
+uv pip install --python /tmp/openhook-core-check/bin/python dist/openhook_mcp-*.whl
+/tmp/openhook-core-check/bin/python -I scripts/check_core_distribution.py dist/openhook_mcp-*.whl
+```
 
-The suite covers native persistence, capability isolation, raw-byte signatures,
-expiry, idempotency, HTTP/MCP, and real local SMTP plus UDP/TCP DNS sockets.
-Provider control-plane tests use fixtures based on official APIs; they do not
-prove live provider access. Listener tests cover exact-byte forwarding and agent
-wakeup payloads.
+The suite covers channel isolation, single-use invite races, read-only members,
+revocation during a long poll, rotation, archive/restore, expiry, capacity,
+idempotent sends, durable listener queues, text-only handler delivery and
+channel migration without altering legacy billing/inbox tables. It also checks
+retired endpoints, discovery consistency, private-page analytics exclusion,
+request boundaries and aggregate metrics.
 
-For a release, also prove public TLS, HTTP capture through MCP, public MX receipt,
-delegated DNS capture, local forwarding, and persistence across an application
-restart. Register and remove a real hook on a repository you control. Keep API
-credentials and inbox management tokens out of logs and committed evidence.
-
-## Public release evidence
-
-Verified on 2026-10-08 against release `9c8c678` at https://openhook.dev:
-
-- Dokploy reports the release complete; the deployed `home.js` SHA256 matches
-  the checkout. Normal HTTPS certificate validation succeeds.
-- The landing relay creates an inbox, captures an HTTP webhook, and opens its
-  body, headers, endpoint details, and expiry in the browser inspector.
-- A Streamable HTTP MCP client initializes successfully, lists 26 tools, and
-  calls `server_status` without an error.
-- A disposable inbox stores public HTTP, SMTP, and DNS events. Mail is sent to
-  `smtp.openhook.dev:25`, resolved from the `mail.openhook.dev` MX. DNS works over
-  UDP and TCP port 53 and through the public 1.1.1.1 recursive resolver.
-- Native GitHub registration on `openhook-dev/openhook-inbox` receives a signed
-  ping. Native unregister removes the test provider subscription.
-- The CLI forwards original binary bytes and headers to a local HTTP receiver.
-  Restarting the listener resumes from its saved cursor without replaying the
-  first event.
-- A captured public event survives restarting the Openhook application
-  container, with its original binary body unchanged.
-
-Temporary test inboxes and the GitHub test subscription were removed. Provider
-fixtures still cover Stripe and Linear; live registration on those accounts has
-not been verified. These checks prove the tested paths, not sustained load or
-delivery guarantees beyond the documented at-least-once behavior.
-
-## Text interface
-
-The 2026-10-09 interface uses the official Paper Mono v1.000 variable webfont.
-The landing, inbox, setup, and documentation contain only text and native form
-controls. Desktop and 375px phone checks confirm no horizontal overflow. Both
-themes and keyboard-operated callback capture work. The captured event opens
-in the inspector with endpoint details; response settings remain accessible.
-
-## Activity and discovery release checks
-
-Validated locally on 2026-10-10:
-
-- All 27 native tests pass, including migration of existing events, atomic
-  activity writes, retained deletion history, capacity rejection, and MCP reads.
-- Provider removal tests prove a failed remote removal preserves the inbox and
-  subscription, while a successful removal keeps its audit after inbox deletion.
-- Generated docs and JavaScript syntax checks pass. The source distribution and
-  wheel build successfully and include the public templates and agent guides.
-- The browser demo captures a real callback and the inspector reads its activity.
-  Demo callbacks omit browser credentials so ambient cookies are not captured.
-- At 375px, documentation has no horizontal overflow and tool search isolates
-  `get_webhook_activity`.
-
-These are local checks; the dated public release evidence above is separate.
-
-CI also builds both packages and installs only the core wheel in an isolated
-Python environment. `scripts/check_core_distribution.py` rejects hosted imports
-and credential reads while exercising signed HTTP capture and MCP reads. This
-catches dependencies accidentally masked by a developer's full workspace.
-
-## Callback-guide release, 2026-10-16
-
-[PR #19](https://github.com/openhook-dev/openhook-inbox/pull/19) merged and deployed
-revision `13e723e9be3e148279670673410d8f6270ce1521` through the dedicated Dokploy
-Compose service. The deployment record completed successfully and its new
-container was healthy. A consistent SQLite backup was retained privately in the
-existing data volume before the upgrade; the existing account count and Polar
-production-mode record were preserved.
-
-- 104 local Python tests, generated docs, both package builds, JavaScript syntax
-  and both analytics checks passed. Both PR CI runs passed, including isolated
-  core-package installation.
-- The live callback-guide HTML hash matches source. Its canonical URL,
-  TechArticle schema, guide index, sitemap, llms.txt and Markdown representation
-  were verified publicly.
-- The documented Python example and a separate MCP initialize/discover/create/
-  HTTP callback/wait/exact-byte check succeeded. Public SMTP and authoritative
-  DNS over UDP and TCP were also received and read back.
-- All disposable verification inboxes and payloads were deleted. These synthetic
-  maintainer checks are not customer adoption. This run did not create a provider
-  subscription or exercise a live payment.
+Before release, use two browser tabs to create and join a disposable local
+channel, exchange messages and verify rendering of untrusted text. Check narrow
+screens, keyboard focus and the reduced navigation. Confirm the installed wheel
+contains only channel features and can run without payment/provider credentials.
+Live rollout verification is separate from local test evidence; follow
+[the release checklist](CHANNEL_ONLY_RELEASE.md).

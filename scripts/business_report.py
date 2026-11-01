@@ -12,8 +12,15 @@ def report(path):
     connection = sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True)
     try:
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        scalar = lambda query, args=(): connection.execute(query, args).fetchone()[0]
+        channels = {
+            'retained_channels': scalar('SELECT COUNT(*) FROM agent_sessions') if 'agent_sessions' in tables else 0,
+            'retained_channel_messages': scalar("SELECT COUNT(*) FROM session_events WHERE kind='message'") if 'session_events' in tables else 0,
+            'channel_activity_note': 'Anonymous retained activity, including internal QA. Not distinct users or confirmed adoption.',
+        }
         if 'hosted_entitlements' not in tables:
-            return {'hosted_configured': False}
+            return {**channels, 'hosted_configured': False, 'customer_revenue': None,
+                    'as_of_utc': datetime.now(timezone.utc).isoformat()}
         now = time.time()
         month = datetime.fromtimestamp(now, timezone.utc).strftime('%Y-%m')
         scalar = lambda query, args=(): connection.execute(query, args).fetchone()[0]
@@ -26,6 +33,7 @@ def report(path):
         polar_amount = scalar('SELECT COALESCE(SUM(amount_paid),0) FROM polar_orders') if polar else 0
         polar_refunds = scalar('SELECT COUNT(*) FROM polar_orders WHERE refunded=1') if polar else 0
         return {
+            **channels, 'legacy_billing_ledger': True,
             'billing_provider': runtime[0] if runtime else 'stripe',
             'sandbox': bool(runtime[1]) if runtime else None,
             'verified_polar_orders': polar_orders,

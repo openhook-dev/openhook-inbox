@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from starlette.testclient import TestClient
 
-from openhook.errors import InboxError
+from openhook.errors import ChannelError
 from openhook.sessions import Sessions, CHANNEL_DEFAULT_EXPIRY
 from openhook.settings import Settings
 from openhook.store import Store, token_hash
@@ -30,7 +30,7 @@ def test_multiple_members_scoped_invites_and_unverified_identity(service):
     c = service.join(invite['invite_url'], 'Observer')
     service.send(b['participant_token'], 'Here is a proposal', 'proposal')
     assert service.read(c['participant_token'])['events'][-1]['text'] == 'Here is a proposal'
-    with pytest.raises(InboxError) as exc:
+    with pytest.raises(ChannelError) as exc:
         service.send(c['participant_token'], 'Not allowed', 'forbidden')
     assert exc.value.status == 403
     assert c['permission'] == 'read' and c['scope'] == 'Plan only. No publishing.'
@@ -46,7 +46,7 @@ def test_guest_cannot_administer_channel(service, operation):
     a = owner(service); b = service.join(a['invite_code'], 'Guest')
     arguments = [b['participant_token']]
     if operation == 'revoke': arguments.append(a['participant_id'])
-    with pytest.raises(InboxError) as exc:
+    with pytest.raises(ChannelError) as exc:
         getattr(service, operation)(*arguments)
     assert exc.value.status == 403
 
@@ -55,16 +55,16 @@ def test_invites_single_use_rotation_and_capacity(service, monkeypatch):
     monkeypatch.setattr('openhook.sessions.CHANNEL_MEMBERS', 3)
     a = owner(service); at = a['participant_token']
     fresh = service.invite(at)
-    with pytest.raises(InboxError): service.join(a['invite_url'], 'Old')
+    with pytest.raises(ChannelError): service.join(a['invite_url'], 'Old')
     b = service.join(fresh['invite_url'], 'B')
     invite = service.invite(at)
     def join(i):
         try: return service.join(invite['invite_code'], f'Guest-{i}')['status']
-        except InboxError as exc: return exc.status
+        except ChannelError as exc: return exc.status
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(join, [1, 2]))
     assert sorted(map(str, results)) == ['404', 'active']
-    with pytest.raises(InboxError): service.invite(at)
+    with pytest.raises(ChannelError): service.invite(at)
     service.revoke(at, b['participant_id'])
     service.join(service.invite(at)['invite_code'], 'Replacement')
 
@@ -78,27 +78,27 @@ def test_archive_revokes_unused_invite_but_keeps_history_and_restore(service):
     assert service.read(bt)['archived'] is True
     assert any(e['text'] == 'History' for e in service.read(bt)['events'])
     for operation in (lambda: service.send(bt, 'Blocked', 'blocked'), lambda: service.invite(at)):
-        with pytest.raises(InboxError) as exc: operation()
+        with pytest.raises(ChannelError) as exc: operation()
         assert exc.value.status == 409
-    with pytest.raises(InboxError): service.join(invite['invite_url'], 'Late')
+    with pytest.raises(ChannelError): service.join(invite['invite_url'], 'Late')
     service.archive(at, False)
-    with pytest.raises(InboxError): service.join(invite['invite_url'], 'Still invalid')
+    with pytest.raises(ChannelError): service.join(invite['invite_url'], 'Still invalid')
     service.send(bt, 'Restored', 'restore')
 
 
 def test_rotation_disconnects_old_key_without_changing_membership(service):
     a = owner(service); b = service.join(service.invite(a['participant_token'], 'read')['invite_code'], 'Reader')
     rotated = service.rotate(b['participant_token'])
-    with pytest.raises(InboxError) as exc: service.info(b['participant_token'])
+    with pytest.raises(ChannelError) as exc: service.info(b['participant_token'])
     assert exc.value.status == 401
     info = service.info(rotated['participant_token'])
     assert info['permission'] == 'read' and info['participant_id'] == b['participant_id']
-    with pytest.raises(InboxError): service.send(rotated['participant_token'], 'Still read only', 'x')
+    with pytest.raises(ChannelError): service.send(rotated['participant_token'], 'Still read only', 'x')
     with service.store.connection() as db:
         assert rotated['participant_token'] not in json.dumps([dict(r) for r in db.execute('SELECT * FROM session_members')])
     assert service.leave(rotated['participant_token'])['left']
-    with pytest.raises(InboxError): service.read(rotated['participant_token'])
-    with pytest.raises(InboxError): service.leave(a['participant_token'])
+    with pytest.raises(ChannelError): service.read(rotated['participant_token'])
+    with pytest.raises(ChannelError): service.leave(a['participant_token'])
 
 
 def test_renew_is_idempotent_in_direction_and_existing_conversations_unchanged(service):
@@ -106,27 +106,27 @@ def test_renew_is_idempotent_in_direction_and_existing_conversations_unchanged(s
     initial = service.info(at)['expires_at']
     assert service.renew(at, 60)['expires_at'] == initial
     assert service.renew(at, 90 * 86400)['expires_at'] > initial
-    with pytest.raises(InboxError): service.renew(at, 91 * 86400)
-    old = service.create('Legacy', 'Two person')
+    with pytest.raises(ChannelError): service.renew(at, 91 * 86400)
+    old = service.create('Legacy', 'Two person', 86400, channel=False)
     service.join(old['invite_code'], 'Legacy guest')
-    with pytest.raises(InboxError): service.invite(old['participant_token'])
-    with pytest.raises(InboxError): service.renew(old['participant_token'])
+    with pytest.raises(ChannelError): service.invite(old['participant_token'])
+    with pytest.raises(ChannelError): service.renew(old['participant_token'])
 
 
 def test_isolation_and_disconnect_when_history_full(service, monkeypatch):
     a = owner(service); b = service.join(a['invite_code'], 'Guest')
     other = owner(service)
-    with pytest.raises(InboxError): service.revoke(other['participant_token'], b['participant_id'])
-    with pytest.raises(InboxError): service.info(a['session_id'])
+    with pytest.raises(ChannelError): service.revoke(other['participant_token'], b['participant_id'])
+    with pytest.raises(ChannelError): service.info(a['session_id'])
     monkeypatch.setattr('openhook.sessions.EVENT_LIMIT', 2)
-    with pytest.raises(InboxError): service.invite(a['participant_token'])
-    with pytest.raises(InboxError): service.send(a['participant_token'], 'full', 'full')
+    with pytest.raises(ChannelError): service.invite(a['participant_token'])
+    with pytest.raises(ChannelError): service.send(a['participant_token'], 'full', 'full')
     service.revoke(a['participant_token'], b['participant_id'])
     service.archive(a['participant_token'])
     with service.store.connection() as db:
         assert db.execute('SELECT count(*) FROM session_events WHERE session=?', (a['session_id'],)).fetchone()[0] == 2
     service.close(a['participant_token'])
-    with pytest.raises(InboxError): service.info(a['participant_token'])
+    with pytest.raises(ChannelError): service.info(a['participant_token'])
 
 
 def test_legacy_schema_migration_preserves_keys_messages_and_extended_expiry(tmp_path):
@@ -162,7 +162,7 @@ def test_channel_http_and_mcp_contract_and_private_page(service):
             assert not r.get('isError')
             return json.loads(r['content'][0]['text'])
         a = http('create', name='Owner', title='API channel')
-        b = mcp('join_agent_session', invite_code=a['invite_url'], name='Guest')
+        b = mcp('join_agent_channel', invite_code=a['invite_url'], name='Guest')
         invite = mcp('manage_agent_channel', participant_token=a['participant_token'], action='invite', permission='read')
         c = http('join', invite_code=invite['invite_code'], name='Reader')
         mcp('send_agent_message', participant_token=b['participant_token'], text='Hello reader', message_id='one')

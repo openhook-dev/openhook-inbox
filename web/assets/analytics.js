@@ -1,12 +1,8 @@
 'use strict';
 
 // Public pages only. Do not forward arbitrary event data, URLs, or DOM text.
-const analyticsPaths = new Set([
-  '/', '/about', '/contact', '/connect', '/docs', '/agents', '/privacy', '/pricing',
-  '/guides', '/guides/callback-proof', '/guides/webhook-testing',
-  '/guides/local-webhooks', '/guides/github-webhooks', '/guides/self-hosting',
-]);
-const analyticsEvents = new Set(['connect-click', 'pricing-click', 'try-inbox-click', 'pro-click', 'account-click', 'source-click', 'copy-setup-click']);
+const analyticsPaths = new Set(['/', '/about', '/contact', '/connect', '/docs', '/agents', '/privacy']);
+const analyticsEvents = new Set(['connect-click', 'channels-click', 'source-click', 'copy-setup-click']);
 window.openhookAnalyticsBeforeSend = (type, payload) => {
   if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl ||
       !analyticsPaths.has(location.pathname) || type !== 'event' ||
@@ -30,11 +26,10 @@ document.addEventListener('click', event => {
   if (link) {
     const url = new URL(link.href, location.origin);
     if (url.origin === location.origin) {
-      name = {'/connect': 'connect-click', '/pricing': 'pricing-click', '/app': 'try-inbox-click', '/account': 'account-click'}[url.pathname] || '';
+      name = {'/connect': 'connect-click', '/channels': 'channels-click'}[url.pathname] || '';
     } else if (url.origin === 'https://github.com' && url.pathname === '/openhook-dev/openhook-inbox') {
       name = 'source-click';
     }
   }
-  if (link?.dataset.analyticsEvent === 'pro-click') name = 'pro-click';
   if (name) window.umami?.track(name);
 });

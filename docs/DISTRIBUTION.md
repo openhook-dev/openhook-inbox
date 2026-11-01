@@ -1,3 +1,5 @@
+> Historical distribution notes. The current product is channels only; use README.md and skills/openhook/SKILL.md for new outreach.
+
 # Openhook distribution tracker
 
 Last checked: 2026-10-16 (Europe/Berlin). Submission does not mean curator acceptance or new users.

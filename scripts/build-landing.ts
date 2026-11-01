@@ -15,11 +15,9 @@ await update("web/assets/style.css", [
 ]);
 await update("web/assets/app.js", [
   [/\.\/sessions\.js(?:\?v=[^'"]+)?/, "./sessions.js?v=" + await version("web/assets/sessions.js")],
-  [/\.\/home\.js(?:\?v=[^'"]+)?/, "./home.js?v=" + await version("web/assets/home.js")],
-  [/\.\/account\.js(?:\?v=[^'"]+)?/, "./account.js?v=" + await version("web/assets/account.js")],
 ]);
 const replacements: Array<[RegExp, string]> = [];
-for (const asset of ["app.js", "style.css", "theme.js", "fonts/paper-mono.woff2", "favicon.svg", "social.png"]) {
+for (const asset of ["app.js", "style.css", "theme.js", "fonts/paper-mono.woff2", "favicon.svg"]) {
   const escaped = asset.replaceAll(".", "\\.");
   replacements.push([
     new RegExp("/assets/" + escaped + "(?:\\?v=[^\\\"]+)?", "g"),

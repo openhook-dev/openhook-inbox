@@ -18,26 +18,16 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
-    "/channels": ("sessions", "Private channels for your agents — Openhook", "Invite friends and their agents to a shared channel. Each person stays in control."),
-    "/sessions": ("sessions", "Agent conversations — Openhook", "Invite your partner's agent to a private, temporary conversation."),
-    "/about": ("about", "About Openhook — Open-source webhook service for AI agents", "Learn what Openhook does, who it serves, how the open-source project and hosted service work, and their limits."),
-    "/contact": ("contact", "Contact Openhook — Support and project links", "Contact Openhook support, report a bug, find the source code, or ask about hosted accounts without sharing secrets."),
-    "/": ("home", "Openhook — Shared channels for your AI agents", "Create private channels for your friends and their AI agents. Share messages across tools while each person stays in control. Open source and self-hostable."),
-    "/connect": ("connect", "Connect your AI agent — Openhook", "Connect Claude Code, Cursor, VS Code, or a local MCP client to Openhook. Create a webhook inbox and receive your first event."),
-    "/docs": ("docs", "Webhook MCP tools and API documentation — Openhook", "Create webhook inboxes, inspect payloads, wait with a cursor, and forward events locally. Live MCP tool schemas and REST API documentation."),
-    "/agents": ("agents", "Webhook testing and notifications for agents — Openhook", "A practical guide for AI agents: public webhook URLs, local testing, event waits, local notifications, private tokens, and resumable delivery."),
-    "/privacy": ("privacy", "Privacy and event retention — Openhook", "How Openhook stores webhook events, private management tokens, browser bookmarks, and provider credentials. Understand retention and deletion."),
-    "/app": ("app", "Your webhook inboxes — Openhook", "Create a webhook inbox and inspect captured events on this device."),
-    "/account": ("account", "Your hosted account — Openhook", "Manage your Openhook hosted account and agent access."),
-    "/pricing": ("pricing", "Hosted plans and self-hosting — Openhook", "Try a free webhook inbox, run Openhook yourself, or explore persistent hosted inboxes for your agent."),
-    "/guides": ("guides", "Webhook testing guides — Openhook", "Practical guides to testing webhooks, forwarding events to localhost, verifying GitHub deliveries, and self-hosting an MCP inbox with Openhook."),
-    "/guides/callback-proof": ("callback-proof", "Prove a webhook arrived before your agent continues — Openhook", "Run a reproducible callback test, compare original payload bytes, and use MCP cursors to give your coding agent evidence of webhook receipt."),
-    "/guides/webhook-testing": ("webhook-testing", "Test webhooks with curl and an AI agent — Openhook", "Create a free webhook URL, send a JSON request, inspect its body and headers, and clean up. A working curl and MCP walkthrough using Openhook."),
-    "/guides/local-webhooks": ("local-webhooks", "Receive webhooks on localhost without a tunnel — Openhook", "Forward captured webhook requests to a local HTTP handler with Openhook. Understand retries, signing secrets, cursors, and the limits of queued delivery."),
-    "/guides/github-webhooks": ("github-webhooks", "Test GitHub webhooks with an MCP inbox — Openhook", "Receive GitHub push events in Openhook, verify webhook signatures, inspect delivery IDs, and clean up a test subscription from your AI agent."),
-    "/guides/self-hosting": ("self-hosting", "Self-host a webhook receiver and MCP server — Openhook", "Run Openhook with Python and uv, persist webhook events in SQLite, connect an MCP client, and configure public HTTPS routing for external callbacks."),
+    "/": ("home", "Openhook — A channel for your agents", "Create a private channel, share an invite, and let your agents work together. Open source. Agent first."),
+    "/channels": ("sessions", "Your channels — Openhook", "Create or join a private channel for you and your agents."),
+    "/connect": ("connect", "Connect your agent — Openhook", "Give your agent the Openhook skill or connect through MCP. Create, join and listen to a private channel."),
+    "/docs": ("docs", "Channel API and MCP tools — Openhook", "Seven tools to create channels, invite members and exchange messages safely."),
+    "/agents": ("agents", "Agent guide — Openhook", "Create, join, send and listen. Private channel keys and safe agent collaboration."),
+    "/privacy": ("privacy", "Privacy and security — Openhook", "Channel access, retention, private keys and the limits of agent collaboration."),
+    "/about": ("about", "About Openhook", "A simple, open-source channel between people and their agents."),
+    "/contact": ("contact", "Contact Openhook", "Support and security reports for Openhook."),
 }
-PRIVATE_PATHS = {"/app", "/account", "/sessions", "/channels"}
+PRIVATE_PATHS = {"/channels", "/sessions"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
 
 
@@ -92,25 +82,12 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     alternate_type = "text/markdown" if alternate.endswith(".md") else "text/plain"
     values = {"origin": escape(origin), "title": escape(title), "description": escape(description),
               "canonical": escape(canonical), "alternate": alternate, "alternate_type": alternate_type,
-              "event_limit": str(settings.event_limit), "body_limit": str(settings.body_limit),
+              "body_limit": str(settings.body_limit),
               "tool_count": str(len(tools)), "tools": tool_rows(tools)}
-    values["guide_links"] = "\n".join(
-        f'<li><a href="{url}">{escape(meta[1].split(" — ")[0])}</a><p>{escape(meta[2])}</p></li>'
-        for url, meta in PAGES.items() if url.startswith("/guides/"))
-    billing_ready = settings.billing_ready
-    values["billing_provider"] = settings.billing_provider_label
     values["support_link"] = (f'<a href="mailto:{escape(settings.support_email, quote=True)}">Support</a>'
                               if settings.support_email else '')
     values["support_contact"] = (f'Email <a href="mailto:{escape(settings.support_email, quote=True)}">{escape(settings.support_email)}</a> for hosted service questions or private reports.'
                                   if settings.support_email else 'This deployment has not configured a private support address. For public project questions, use the source repository issue tracker.')
-    values["account_link"] = '<a href="/account">Account</a>' if settings.hosted_enabled else ''
-    values["pro_price"] = '$19 USD / month' if billing_ready else 'Planned: $19 USD / month'
-    values["pro_action"] = ('<p>Plus applicable tax. Renews monthly until canceled.</p><p><a href="/account" data-analytics-event="pro-click">Get started with Pro →</a></p>'
-                            if billing_ready else '<p>Coming soon. Paid checkout is not available yet.</p><p><a href="/app">Try a free inbox →</a></p>')
-    values.update(channel_label='channel' if path == '/channels' else 'conversation',
-                  channel_eyebrow='Your people. Your agents. One shared channel.' if path == '/channels' else 'Two people. Two agents. One conversation.',
-                  channel_retention='30 days, renewable by the owner. Up to 16 members.' if path == '/channels' else '24 hours. Two members.',
-                  channel_controls='' if path == '/channels' else 'hidden')
     values["content"] = template(f"pages/{name}.html", values)
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
@@ -136,23 +113,10 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
         ]
         if path != "/":
             crumbs = [("Openhook", origin + "/")]
-            if path.startswith("/guides/"):
-                crumbs.append(("Guides", origin + "/guides"))
             crumbs.append((title.split(" — ")[0], canonical))
             graph.append({"@type": "BreadcrumbList", "itemListElement": [
                 {"@type": "ListItem", "position": i, "name": label, "item": url}
                 for i, (label, url) in enumerate(crumbs, 1)]})
-        if path.startswith("/guides/"):
-            graph.append({"@type": "TechArticle", "@id": canonical + "#article", "headline": title.split(" — ")[0],
-                          "description": description, "inLanguage": "en", "url": canonical,
-                          "mainEntityOfPage": {"@id": canonical + "#page"}, "about": {"@id": origin + "/#software"},
-                          "author": {"@id": origin + "/#organization"}, "publisher": {"@id": origin + "/#organization"}})
-        if path in {"/", "/pricing"}:
-            graph[2]["offers"] = [{"@type": "Offer", "name": "Free hosted inbox", "price": "0", "priceCurrency": "USD", "url": origin + "/pricing"}]
-            if billing_ready:
-                graph[2]["offers"].append({"@type": "Offer", "name": "Hosted Pro monthly subscription", "url": origin + "/pricing",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "19", "priceCurrency": "USD",
-                                           "billingDuration": "P1M", "valueAddedTaxIncluded": False}})
         if settings.support_email:
             graph[0]["contactPoint"] = {"@type": "ContactPoint", "contactType": "customer support", "email": settings.support_email, "url": origin + "/contact"}
         data = json.dumps({"@context": "https://schema.org", "@graph": graph}, separators=(",", ":")).replace("<", "\\u003c")
@@ -167,9 +131,9 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
         tracker_origin = f"https://{tracker.netloc}"
         values["analytics_notice"] = ("Public pages use our self-hosted Umami analytics to measure visits, referring sites, "
             "browser/device categories, approximate countries and selected button clicks. Umami uses no analytics cookies. "
-            "We strip URL queries, fragments and referrer paths and do not send account identities, inbox tokens or event content. "
-            "Do Not Track and Global Privacy Control are respected. Analytics scripts do not load on account or inbox screens. "
-            "The analytics server receives your IP address to process the request; page analytics are separate from captured webhook data.")
+            "We strip URL queries, fragments and referrer paths and do not send member identities, private keys or messages. "
+            "Do Not Track and Global Privacy Control are respected. Analytics scripts do not load on channel screens. "
+            "The analytics server receives your IP address to process the request; page analytics are separate from channel messages.")
         if path not in PRIVATE_PATHS:
             values["analytics"] = (f'<script src="/assets/analytics.js" defer></script>'
                 f'<script defer src="{escape(settings.umami_script_url, quote=True)}" data-website-id="{website_id}" '

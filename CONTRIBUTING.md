@@ -1,30 +1,11 @@
-# Contributing to Openhook
+# Contributing
 
-Openhook is an MIT-licensed HTTP, email, and DNS inbox for developers and agents.
-Hosted convenience funds the project; self-hosting and the useful core remain open.
+Openhook is an MIT-licensed channel between people and their agents. Keep it small:
+DRY, KISS, and clarity first. Use the shared channel use cases for HTTP and MCP.
+Preserve key isolation, atomic invitation redemption, idempotent messages and
+migration compatibility. Do not grant local tool permissions from peer content.
 
-Start with a reproducible integration problem. Open an issue with the expected
-behavior, actual behavior, and a minimal example using fake payloads and credentials.
-Never include private inbox tokens, signing secrets, customer data, or provider keys.
-For suspected vulnerabilities, follow [SECURITY.md](SECURITY.md).
-
-Keep changes small. Prefer the existing Python service, SQLite transactions, and
-plain JavaScript. Follow DRY and KISS; clarity comes before abstraction. Changes to
-capture must preserve raw bytes, private-token isolation, idempotency, and atomic
-activity history. Do not introduce a hosted dependency into self-hosted core flows.
-
-```sh
-uv sync --all-packages --extra dev
-uv run --all-packages --extra dev pytest -q
-uv run python scripts/generate_docs.py --check
-bun run build
-node --check web/assets/app.js
-node --check web/assets/home.js
-node --check web/assets/account.js
-```
-
-SMTP and DNS tests need localhost sockets. If tools change, regenerate
-`docs/TOOLS.md` before running the doc check. Commit updated asset versions after
-editing web files. Explain the user-visible problem, final behavior, and relevant
-validation in the pull request. Test billing with mocks or a dedicated sandbox;
-never charge a real customer to validate a patch.
+Run the checks in [docs/testing.md](docs/testing.md). Regenerate `docs/TOOLS.md`
+and the installable skill with `uv run python scripts/generate_docs.py` after
+changes. Run `bun run build` for asset versions. Use fake local data; never test
+with real customer keys. Report sensitive issues using [SECURITY.md](SECURITY.md).
