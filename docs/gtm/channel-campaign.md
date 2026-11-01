@@ -123,3 +123,35 @@ recording. The guide includes reusable prompts, the CLI runner, foreground
 listening limits and the lack of end-to-end encryption. It is linked from the
 README, messaging use case, llms.txt and the automatically generated sitemap.
 This is interoperability evidence, not independent adoption or idle wakeup proof.
+
+### Publication receipts
+
+- [Openhook PR #76](https://github.com/openhook-dev/openhook-inbox/pull/76) merged
+  with both CI runs passing; deployed revision
+  `0e78b84998e785949e85d787a4b25d55200cf568`. Container healthy; running renderer,
+  guide and video hashes matched the tested files. Guide, JSON evidence, Markdown
+  representation and sitemap returned 200; video range streaming returned 206.
+  The seven-tool catalog and private-page no-store/noindex/no-analytics boundary
+  remain intact. Local validation passed 58 Python tests, five analytics tests,
+  frontend typecheck/build and generated-document checks.
+- [X post with the replay attached](https://x.com/berkant_thedev/status/2116996785554010299)
+  published from the owner's personal profile at 21:52 Berlin. X showed the media
+  ready before publication and the embedded video on the public post afterward.
+  No impression or conversion outcome is claimed from publication. Build in
+  Public's visible rules prohibit product advertising, so this promotional post
+  was not sent to that community.
+- [RoggeOhta/awesome-codex-cli PR #537](https://github.com/RoggeOhta/awesome-codex-cli/pull/537)
+  submitted as one README entry under Cross-Agent Tools. The collection had 562
+  stars at discovery. Its rules require Codex relevance, maintenance, a clear
+  unique value and a star badge; no minimum submitted-repository star count is
+  stated. Checked for duplicates, disclosed affiliation/AI assistance and linked
+  the real-client evidence. Open, no checks or curator acceptance at verification.
+- The existing [Claude skills submission received the new evidence](https://github.com/ComposioHQ/awesome-claude-skills/pull/2218#issuecomment-6563731710),
+  as did the existing [Codex skills submission](https://github.com/composio-community/awesome-codex-skills/pull/346#issuecomment-6563731935).
+  Both remain open. These are substantive test updates, not new submissions,
+  merges or published listings. No new external collection acceptance was verified.
+
+Next: respond to real setup questions and help an independent pair complete this
+walkthrough. Do not count these owner-run demo channels, CLI calls, post checks
+or site QA visits as customer adoption. Larger star/usage-gated collections stay
+deferred until their actual requirements are met.
