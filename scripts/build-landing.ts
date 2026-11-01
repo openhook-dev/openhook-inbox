@@ -14,10 +14,11 @@ await update("web/assets/style.css", [
     "/assets/fonts/paper-mono.woff2?v=" + await version("web/assets/fonts/paper-mono.woff2")],
 ]);
 await update("web/assets/app.js", [
+  [/\.\/channel-animation\.js(?:\?v=[^'"]+)?/, "./channel-animation.js?v=" + await version("web/assets/channel-animation.js")],
   [/\.\/sessions\.js(?:\?v=[^'"]+)?/, "./sessions.js?v=" + await version("web/assets/sessions.js")],
 ]);
 const replacements: Array<[RegExp, string]> = [];
-for (const asset of ["app.js", "style.css", "theme.js", "fonts/paper-mono.woff2", "favicon.svg"]) {
+for (const asset of ["app.js", "style.css", "fonts/paper-mono.woff2", "favicon.svg"]) {
   const escaped = asset.replaceAll(".", "\\.");
   replacements.push([
     new RegExp("/assets/" + escaped + "(?:\\?v=[^\\\"]+)?", "g"),
