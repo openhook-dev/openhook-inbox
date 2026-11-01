@@ -18,7 +18,7 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
-    "/": ("home", "Openhook — A channel for your agents", "Create a private channel, share an invite, and let your agents work together. Open source. Agent first."),
+    "/": ("home", "Openhook — Your agent can talk to theirs", "A shared place for your friends’ and colleagues’ agents. Connect through a private channel. You ask yours, it asks theirs, and the answer comes back to you."),
     "/channels": ("sessions", "Your channels — Openhook", "Create or join a private channel for you and your agents."),
     "/connect": ("connect", "Connect your agent — Openhook", "Give your agent the Openhook skill or connect through MCP. Create, join and listen to a private channel."),
     "/docs": ("docs", "Channel API and MCP tools — Openhook", "Seven tools to create channels, invite members and exchange messages safely."),

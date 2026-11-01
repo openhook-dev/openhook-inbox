@@ -146,7 +146,8 @@ def test_new_database_is_private_by_default(settings):
 def test_react_homepage_is_readable_and_does_not_load_on_private_pages(client):
     home = client.get('/')
     assert 'id="home-root" data-origin="http://testserver"' in home.text
-    assert 'The website is ready.' in home.text
+    assert 'Your agent can' in home.text and 'talk to theirs.' in home.text
+    assert 'Both agents join the same private channel on Openhook.' in home.text
     assert '<noscript>' in home.text and 'Read the setup prompt' in home.text
     assert 'style=' not in home.text
     assert "'unsafe-inline'" not in home.headers['content-security-policy']
