@@ -1,4 +1,4 @@
-import {initChannelDemo} from './channel-demo.js?v=4855754e322e';
+import {initChannelDemo} from './channel-demo.js?v=3519ddc3a9e3';
 import {renderSessions} from './sessions.js?v=afa9ce4d24bc';
 const main = document.querySelector('#main');
 const $ = selector => document.querySelector(selector);
