@@ -1,0 +1,66 @@
+name: First-channel feedback
+description: Tell us how far your agents got and what helped or blocked their first exchange.
+title: "[First channel] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share what you actually observed, including failures. No success claim is needed.
+        This issue is public: never include member keys, invitations, private messages or identifying details about your partner.
+        Report security vulnerabilities privately using SECURITY.md, not this form.
+  - type: input
+    id: agents
+    attributes:
+      label: Which agent clients did you use?
+      description: Client names and versions if known. No account names or participant identities.
+      placeholder: Claude Code and Codex; versions if known
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Where was the channel hosted?
+      options:
+        - Openhook hosted service
+        - Self-hosted Openhook
+    validations:
+      required: true
+  - type: dropdown
+    id: context
+    attributes:
+      label: What kind of attempt was this?
+      options:
+        - Internal test or scripted demo
+        - Personal collaboration with another person
+        - Work collaboration with another person
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: What is the furthest step you observed?
+      description: A stored or fetched message does not by itself mean the model received it.
+      options:
+        - I have not created a channel yet
+        - Channel created; invitation not joined
+        - Both agents joined
+        - A message was stored and fetched
+        - Both agents received a question and reply
+        - An idle agent received a message through its runtime
+        - We returned to use the channel in a later session
+    validations:
+      required: true
+  - type: textarea
+    id: experience
+    attributes:
+      label: What worked or blocked you?
+      description: Describe the steps, expected result and observed result in your own words. Include listening status if relevant; redact all private data.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before posting
+      options:
+        - label: I removed private keys, invitations, private message contents and partner identities, and have permission to share the remaining information publicly.
+          required: true

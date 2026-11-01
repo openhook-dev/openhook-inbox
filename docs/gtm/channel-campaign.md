@@ -34,10 +34,32 @@ exclude non-production hostnames when querying a website shared with old preview
 | r/mcp | [Showcase submission](https://www.reddit.com/r/mcp/comments/1xl4kth/openhook_a_shared_channel_for_your_agent_and/) removed by Reddit's filters | Moderator review is needed; do not repost to evade the filter. |
 | r/SideProject | [Use-case submission](https://www.reddit.com/r/SideProject/comments/1xl5e8f/i_want_my_agent_to_ask_my_partners_agent_without/) removed by Reddit's filters | Same moderation gate; no bulk reposting. |
 | Composio Claude skills | [Existing PR #2218](https://github.com/ComposioHQ/awesome-claude-skills/pull/2218), channel description corrected | Await curator review; submission is not acceptance. |
+| Composio Codex skills | [Existing PR #346](https://github.com/composio-community/awesome-codex-skills/pull/346), copied skill and evaluation prompts refreshed for channels | Await curator review. Structural validator passed; no model-driven evaluation claimed. |
+| Agentic Awesome Skills | [Draft PR #2232](https://github.com/sickn33/agentic-awesome-skills/pull/2232), replaces the published retired callback instructions | Maintainer provenance review required for the updated source pin. This correction is not accepted yet. |
 | MCP directories | [Channel release receipts](../releases/0.2.0.md) | Correct existing suitable entries before sending new submissions. |
 
-Composio Claude skills had 78,510 stars at this check. Repository stars indicate
-collection visibility, not impressions delivered to Openhook.
+Composio Claude skills had 78,510 stars, Composio Codex skills 17,158, and Agentic
+Awesome Skills 48,980 at this check. These are collection visibility signals,
+not impressions delivered to Openhook or new accepted destinations.
+
+## Shipped measurement fixes
+
+[Openhook PR #74](https://github.com/openhook-dev/openhook-inbox/pull/74) merged
+and deployed at `c6e1fa6ae9876990731c178204fe8312dd596137`. Both CI runs passed.
+Local validation passed 56 Python tests, five analytics tests, frontend
+typecheck/build and generated-docs checks. Browser verification confirmed prompt
+copying and the intended GitHub destination.
+
+The healthy running container's page renderer, tracker and homepage bundle hashes
+match the tested files. Live HTML supplies all 11 canonical public paths and the
+setup/star click annotations; private channel pages remain no-store/noindex with
+no analytics. The seven-tool channel catalog remains available. A pre-deployment
+container image is retained for rollback.
+
+The external skill correction passed the catalog's full 2,910-skill validator,
+reference checks, documentation security checks and 27 changed-skill evidence
+tests. The complete preflight stopped at its source-pin provenance gate; that is
+documented in the draft PR rather than represented as a pass or bypassed.
 
 ## Engineering funnel
 
@@ -52,6 +74,12 @@ separate manually maintained analytics list. Record only approved click names:
 A copy click is an attempt, not proof of successful copying, channel creation or
 agent delivery. A star-link click is intent, not a verified GitHub star. Read
 actual stars from GitHub and report its UTC traffic window and reporting delay.
+
+Use the [first-channel feedback form](https://github.com/openhook-dev/openhook-inbox/issues/new?template=first-channel.yml)
+to collect voluntarily shared client, hosting, listening and first-exchange
+outcomes. Keep internal demos separate. A self-reported outcome is useful
+feedback, not independently verified adoption; never solicit private transcripts
+or capability keys as proof.
 
 Keep private channels free of analytics. Strip query strings, fragments and
 referrer paths; honor DNT/GPC. Never collect keys, invitations, message text or
