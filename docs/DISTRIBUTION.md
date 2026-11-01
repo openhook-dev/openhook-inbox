@@ -1,3 +1,5 @@
+> Channel-only launch: see the [2026-11-01 release and GTM receipts](releases/0.2.0.md) for current registry publication, indexing submissions and directory corrections. Older entries below are historical.
+
 > Historical distribution notes. The current product is channels only; use README.md and skills/openhook/SKILL.md for new outreach.
 
 # Openhook distribution tracker
