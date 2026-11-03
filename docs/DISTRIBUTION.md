@@ -252,7 +252,9 @@ individual reviews before following up.
   no submission on 2026-10-16.
 - [karanb192/awesome-claude-skills](https://github.com/karanb192/awesome-claude-skills/blob/main/CONTRIBUTING.md)
   requires testing the skill with Claude. Protocol-level MCP checks do not satisfy
-  that attestation; no submission on 2026-10-16.
+  that attestation; no submission on 2026-10-16. Follow-up on 2026-11-03: actual
+  Claude Code runtime validation is now documented and [PR #643](https://github.com/karanb192/awesome-claude-skills/pull/643)
+  is open. See [the channel campaign receipts](gtm/channel-campaign.md).
 
 - [kyrolabs/awesome-agents](https://github.com/kyrolabs/awesome-agents/blob/main/CONTRIBUTING.md)
   (2,928 stars at the 2026-10-16 check) explicitly excludes new projects without
@@ -482,7 +484,10 @@ instructions and an actual Claude Code end-to-end session test. The current
 native skill no longer uses the old curl-pipe-shell installer or claims to
 restart stopped sessions. However, installation and MCP discovery still do not
 satisfy the requested model-driven workflow test. No replacement PR was opened;
-revisit after that evidence is available. The repository had 1,065 stars and an
+revisit after that evidence is available. Follow-up on 2026-11-03: actual runtime
+validation now exists in [testing.md](testing.md), but the collection has since
+changed its plugin/skill layout; no unadapted replacement was submitted. The
+repository had 1,065 stars and an
 October 2026 update at this check.
 
 The large punkpeye collection submission remains a draft pending Glama. The

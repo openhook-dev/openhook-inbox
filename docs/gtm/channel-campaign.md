@@ -1,6 +1,6 @@
 # Openhook channel campaign
 
-Updated November 1, 2026 (Europe/Berlin). Targets are goals, not promised results.
+Updated November 3, 2026 (Europe/Berlin). Targets are goals, not promised results.
 
 ## Outcome
 
@@ -34,8 +34,9 @@ exclude non-production hostnames when querying a website shared with old preview
 | r/mcp | [Showcase submission](https://www.reddit.com/r/mcp/comments/1xl4kth/openhook_a_shared_channel_for_your_agent_and/) removed by Reddit's filters | Moderator review is needed; do not repost to evade the filter. |
 | r/SideProject | [Use-case submission](https://www.reddit.com/r/SideProject/comments/1xl5e8f/i_want_my_agent_to_ask_my_partners_agent_without/) removed by Reddit's filters | Same moderation gate; no bulk reposting. |
 | Composio Claude skills | [Existing PR #2218](https://github.com/ComposioHQ/awesome-claude-skills/pull/2218), channel description corrected | Await curator review; submission is not acceptance. |
-| Composio Codex skills | [Existing PR #346](https://github.com/composio-community/awesome-codex-skills/pull/346), copied skill and evaluation prompts refreshed for channels | Await curator review. Structural validator passed; no model-driven evaluation claimed. |
-| Agentic Awesome Skills | [Draft PR #2232](https://github.com/sickn33/agentic-awesome-skills/pull/2232), replaces the published retired callback instructions | Maintainer provenance review required for the updated source pin. This correction is not accepted yet. |
+| Composio Codex skills | [Existing PR #346](https://github.com/composio-community/awesome-codex-skills/pull/346), copied skill synchronized with native background delivery and WebMCP on November 3 | Open, awaiting curator review. Structural validation and exact source comparison passed; maintainer-run runtime results are linked, separately from catalog acceptance. |
+| Agentic Awesome Skills | [PR #2232](https://github.com/sickn33/agentic-awesome-skills/pull/2232) merged November 2; channel instructions verified on main November 3 | Accepted correction to an existing listing, not a new destination or adoption. Its reviewed source pin predates the November 3 native-listener update. |
+| TensorBlock MCP Index | [PR #5130](https://github.com/TensorBlock/awesome-mcp-servers/pull/5130) merged November 2; seven-tool metadata verified on main November 3 | Accepted correction to an existing listing. Separate hosted-profile deployment was not verified. |
 | MCP directories | [Channel release receipts](../releases/0.2.0.md) | Correct existing suitable entries before sending new submissions. |
 
 Composio Claude skills had 78,510 stars, Composio Codex skills 17,158, and Agentic
@@ -56,10 +57,12 @@ setup/star click annotations; private channel pages remain no-store/noindex with
 no analytics. The seven-tool channel catalog remains available. A pre-deployment
 container image is retained for rollback.
 
-The external skill correction passed the catalog's full 2,910-skill validator,
+Before review, the external skill correction passed the catalog's full 2,910-skill validator,
 reference checks, documentation security checks and 27 changed-skill evidence
 tests. The complete preflight stopped at its source-pin provenance gate; that is
-documented in the draft PR rather than represented as a pass or bypassed.
+documented in the draft PR rather than represented as a pass or bypassed. The
+maintainer subsequently merged that correction on November 2; the dated preflight
+result above is not a current pending gate.
 
 ## Engineering funnel
 
@@ -155,3 +158,147 @@ Next: respond to real setup questions and help an independent pair complete this
 walkthrough. Do not count these owner-run demo channels, CLI calls, post checks
 or site QA visits as customer adoption. Larger star/usage-gated collections stay
 deferred until their actual requirements are met.
+
+
+## November 3 — targeted WebMCP distribution
+
+Openhook's native WebMCP integration is merged and deployed through
+[PR #83](https://github.com/openhook-dev/openhook-inbox/pull/83). It was verified
+in native Chrome 156 against localhost and the live HTTPS channel page, using
+synthetic channels that were deleted. These checks are internal QA, not adoption.
+
+### Published Reddit contributions
+
+- [r/ClaudeCode weekly showcase](https://www.reddit.com/r/ClaudeCode/comments/1xlurut/comment/19s33rvtdkurn/):
+  shared the cross-person agent channel use case, the actual Claude Code/Codex
+  workflow and its running-listener limitation. Links point to the repository
+  and the walkthrough. The current pinned thread explicitly permits project
+  sharing and simple self-promotion. No earlier Openhook mention was present.
+- [r/WebMCP_Developers benchmark discussion](https://www.reddit.com/r/WebMCP_Developers/comments/1wino2z/comment/19s33ibzm84io/):
+  contributed permission/refusal, revocation and duplicate-write evaluation
+  cases, referencing the implementation notes. No model speedup or token-savings
+  claim. Maintainer affiliation and AI assistance were disclosed in both comments.
+
+Both comments were visibly present at their direct permalinks in the signed-in
+browser, without a removal notice at verification. Anonymous visibility was not
+established: the alternate browser also carried an authenticated session, the
+public web fetch returned a cache miss, and a genuine incognito visit hit Reddit's
+"Prove your humanity" gate. No challenge was completed or bypassed. This is
+publication evidence in the owner session, not curator
+endorsement, search indexing, new visitors, stars or confirmed product use.
+
+### Submitted listings — pending curator review
+
+- [webmachinelearning/awesome-webmcp #75](https://github.com/webmachinelearning/awesome-webmcp/pull/75):
+  README-only Websites entry, following CONTRIBUTING.md. The collection had 61
+  stars at discovery. Open, mergeable, no checks or acceptance at verification.
+- [webfuse-com/awesome-webmcp #44](https://github.com/webfuse-com/awesome-webmcp/pull/44):
+  one Community Demos entry. The collection had 174 stars at discovery. Open,
+  mergeable, no checks or acceptance at verification.
+
+Both submissions link the deployed implementation and explain native browser
+verification, optional support and security limits. Affiliation and AI assistance
+are disclosed. They are proposals, not merged listings or endorsed backlinks.
+
+A WebMCP.com scan/listing request was also started for
+`https://openhook.dev/channels`, using the public business support address. The
+UI remained at "Starting scan" / "Reaching your site" after more than five
+minutes, with zero pages scanned. Completion and directory acceptance have not
+been verified. Its listing policy requires automated checks and human review.
+Do not count it as a published listing or repeatedly submit the same request.
+
+### Qualified conversations held back
+
+- [r/AI_Agents: Multi-Agent Communication](https://www.reddit.com/r/AI_Agents/comments/1xgr8ol/multiagent_communication/)
+  and [Cross-harness agents messaging](https://www.reddit.com/r/AI_Agents/comments/1x3ef9d/crossharness_agents_messaging/):
+  close product fit, but the community limits self-promotion to approximately
+  one in ten contributions and the account is already promotion-heavy. No link
+  was posted. Do not manufacture filler comments to satisfy a quota.
+- [r/codex: Best way to get Codex and Claude Code working together?](https://www.reddit.com/r/codex/comments/1x805d9/best_way_to_get_codex_and_claude_code_working/):
+  relevant, but the community explicitly says not to use bots. No automated
+  comment was submitted.
+- r/OpenSourceProjects is restricted and its visible posts are years old; no
+  posting-access request was sent.
+
+The existing [r/coolgithubprojects post](https://www.reddit.com/r/coolgithubprojects/comments/1xl5d6q/openhook_selfhostable_channels_for_ai_agents/)
+showed 553 views, zero displayed upvotes, one comment and no shares in its owner
+insights. These are dated exposure figures, not website visitors or adoption.
+
+Next: answer genuine replies to the showcase, help an independent pair complete
+its first exchange, and handle curator feedback on the two new PRs. Do not
+repost removed submissions, repeat the same promotion, buy stars or count
+internal tests as outside use.
+
+## November 3 — additional channel and skill distribution
+
+Three further README-only proposals were submitted after reading each available
+contribution guide and checking the list and existing PRs for duplicates:
+
+| Collection | Submission | Stars at check | Verified state |
+| --- | --- | --- | --- |
+| karanb192/awesome-claude-skills | [PR #643](https://github.com/karanb192/awesome-claude-skills/pull/643) | 583 | Open, mergeable, no checks or review yet. |
+| commune-dev/awesome-agent-protocols | [PR #10](https://github.com/commune-dev/awesome-agent-protocols/pull/10) | 3 | Open, mergeable, no checks or review yet. |
+| masstensor/awesome-agent-collaborate-tools | [PR #6](https://github.com/masstensor/awesome-agent-collaborate-tools/pull/6) | 2 | Open, mergeable, no checks or review yet. |
+
+The Claude entry links the canonical skill folder, sits alphabetically under
+Collaboration & Workflow and has a 99-character task description. Its previous
+Claude-testing eligibility gap is now covered by maintainer-run runtime evidence
+in docs/testing.md and the captured walkthrough. The broad no-vulnerabilities
+checkbox is deliberately left unchecked with an explanation; passing tests do
+not establish an absence of all vulnerabilities. The other entries describe
+messaging, not a new protocol standard or orchestration framework. The two tiny
+collections are exact subject matches, not major reach claims. All three disclose
+maintainer affiliation, AI assistance, server-readable messages and QA limits.
+The masstensor README links a CONTRIBUTING.md absent from its default branch;
+its inline maintenance, relevance and open-source/free-tier criteria were used.
+One-line diffs, formatting and public documentation links were checked.
+
+### Existing larger submission improved
+
+[Composio Codex skills #346](https://github.com/composio-community/awesome-codex-skills/pull/346)
+was updated in place at `47b03e89ff6e4f368ae595da4e03eba31bdd0cbd`.
+The submitted SKILL.md now matches the canonical Openhook skill byte for byte;
+its existing evaluation cases were retained and native-host, notification-trust,
+uncertain-delivery and WebMCP scenarios added. Standard skill validation and
+`git diff --check` passed. The collection had 17,180 stars at verification.
+The [reviewer update](https://github.com/composio-community/awesome-codex-skills/pull/346#issuecomment-6609503899)
+explains the substantive changes and actual runtime evidence; this is not a new
+submission or acceptance. The PR remains open.
+
+### Prior corrections now accepted
+
+- [Agentic Awesome Skills #2232](https://github.com/sickn33/agentic-awesome-skills/pull/2232)
+  merged on November 2 at 07:58 UTC, commit `4b9b4974f8d537d4b0f7fc5f55df733a4dd4949c`.
+  Verified the channel-oriented skill and reviewed source pin on main. The
+  collection had 49,088 stars. Its catalog-assigned risk label is not a security
+  certification, and its source pin does not yet contain the newest native
+  background receiver. Do not bypass the catalog's provenance review for a refresh.
+- [TensorBlock #5130](https://github.com/TensorBlock/awesome-mcp-servers/pull/5130)
+  merged on November 2 at 09:12 UTC, commit `45db3ec196b506b081249eaff6767156b9d89e5e`.
+  Verified main-branch metadata lists the seven channel tools, invitation/member
+  authentication and no-E2EE boundary. The collection had 1,025 stars. Its bot
+  supplied a hosted-profile URL, but that separate site's deployment could not be
+  verified by the web fetch; do not claim it is live based only on the bot comment.
+
+These are accepted updates to destinations that already listed Openhook. They
+were discovered in this audit, not newly merged by this outreach batch. Collection
+stars measure potential audience, not delivered impressions or earned Openhook
+stars. No new independent customer or product-use claim follows from this work.
+
+### Further eligibility checks
+
+EvoMap/awesome-agent-swarm requires 50 project stars, with curator exceptions for
+novel projects. No exception was assumed and no submission was made. The Claude
+Code mods collection specifically accepts JavaScript/TypeScript function-hook
+mods; Openhook's shell/native receiver is not represented as such a mod.
+
+The older jezweb #50 review was reread. Its model-test gap is now covered, but the
+repository has since moved to a different plugin/skill shape. No duplicate or
+unadapted resubmission was sent. The 57,167-star hesreallyhim collection still
+requires a human web-form recommendation; no automated submission was made.
+
+The current r/mcp rules explicitly warn against AI-generated promotion disguised
+as security discussion. No product pitch was inserted into its fresh security
+thread. r/opensource also prominently announces a no-AI policy; no automated
+post was sent. The existing Claude Code showcase remained visible, with no new
+direct reply visible at this check; it was not reposted or bumped.
