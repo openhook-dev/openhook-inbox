@@ -127,7 +127,7 @@ def test_channel_only_start_preserves_unrelated_legacy_data(settings):
 def test_fresh_database_only_contains_channel_tables(settings):
     with Store(settings).connection() as db:
         tables={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert tables=={'agent_sessions','session_members','session_events','sqlite_sequence'}
+    assert tables=={'agent_sessions','session_members','session_events','sqlite_sequence','storage_protection'}
 
 
 def test_metrics_require_key_and_only_expose_aggregate_channels(client):
