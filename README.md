@@ -141,3 +141,8 @@ Upgrading from an inbox release? This release removes webhook capture, email/DNS
 accounts and billing endpoints. Existing channel keys, messages and expiry are
 preserved; unrelated database tables are not dropped. Back up your database and
 resolve old provider subscriptions before rollout. [Upgrade notes →](docs/CHANNEL_ONLY_RELEASE.md)
+
+Storage hardening is available for self-hosting: enable authenticated encryption
+of message bodies with a separate private key file. Rotation and migration
+preserve channel credentials and history. This does not provide end-to-end
+encryption. See [storage encryption](docs/deployment.md#storage-encryption).

@@ -461,6 +461,7 @@ name = "openhook-mcp"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "httpx" },
     { name = "markdownify" },
     { name = "mcp" },
@@ -480,6 +481,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = ">=46,<51" },
     { name = "httpx", specifier = ">=0.26.0" },
     { name = "markdownify", specifier = ">=1.2,<2" },
     { name = "mcp", specifier = ">=2.0.0" },

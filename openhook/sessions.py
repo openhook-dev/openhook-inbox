@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from openhook.errors import ChannelError
 from openhook.store import timestamp, token_hash
+from openhook.storage_cipher import event_context
 
 MESSAGE_BYTES = 16_384
 EVENT_LIMIT = 1000
@@ -62,6 +63,7 @@ def initialize(db):
                            'invite_permission': "TEXT NOT NULL DEFAULT 'write'"},
         'session_members': {'permission': "TEXT NOT NULL DEFAULT 'write'",
                             'last_seen': 'REAL'},
+        'session_events': {'body_encrypted': 'INTEGER NOT NULL DEFAULT 0'},
     }
     for table, additions in columns.items():
         existing = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
@@ -91,7 +93,9 @@ class Sessions:
         pages = db.execute('PRAGMA page_count').fetchone()[0]
         free = db.execute('PRAGMA freelist_count').fetchone()[0]
         size = db.execute('PRAGMA page_size').fetchone()[0]
-        if (pages - free) * size + MESSAGE_BYTES >= self.store.settings.storage_limit or shutil.disk_usage(self.store.settings.database).free < 524_288_000:
+        # Encrypted JSON can expand escaped control characters and base64 output.
+        reserve = 8 * MESSAGE_BYTES + 4096 if self.store.cipher else MESSAGE_BYTES
+        if (pages - free) * size + reserve >= self.store.settings.storage_limit or shutil.disk_usage(self.store.settings.database).free < 524_288_000:
             raise ChannelError("Storage capacity reached.", 507)
 
     def _member(self, db, token, *, owner=False):
@@ -115,8 +119,9 @@ class Sessions:
             return 0  # Revocation/deletion controls must remain available at capacity.
         if check_capacity:
             self._capacity(db)
-        cursor = db.execute('INSERT INTO session_events(session,sender,kind,body,created,message_id) VALUES(?,?,?,?,?,?)',
-                            (session, sender, kind, body, time.time(), message_id))
+        protected = self.store.encode_event(body, event_context(session, sender, kind, message_id))
+        cursor = db.execute('INSERT INTO session_events(session,sender,kind,body,created,message_id,body_encrypted) VALUES(?,?,?,?,?,?,?)',
+                            (session, sender, kind, protected, time.time(), message_id, int(self.store.cipher is not None)))
         return cursor.lastrowid
 
     def _new_member(self, db, session, name, role, status, permission='write'):
@@ -248,10 +253,10 @@ class Sessions:
                 raise ChannelError("Channel is archived; sending is paused.", 409)
             if member['permission'] != 'write':
                 raise ChannelError("Your membership is read-only.", 403)
-            previous = db.execute('SELECT sequence,body FROM session_events WHERE session=? AND sender=? AND message_id=?',
+            previous = db.execute('SELECT * FROM session_events WHERE session=? AND sender=? AND message_id=?',
                                   (session['id'], member['id'], message_id)).fetchone()
             if previous:
-                if previous['body'] != text:
+                if self.store.decode_event(previous) != text:
                     raise ChannelError("This message_id was already used for different content.", 409)
                 return {'sequence': previous['sequence'], 'duplicate': True}
             if db.execute('SELECT count(*) FROM session_events WHERE session=?', (session['id'],)).fetchone()[0] >= EVENT_LIMIT:
@@ -274,7 +279,7 @@ class Sessions:
             rows = db.execute('SELECT e.*,m.name,m.role FROM session_events e JOIN session_members m ON m.id=e.sender '
                               'WHERE e.session=? AND e.sequence>? ORDER BY e.sequence LIMIT ?', (session['id'], since, limit + 1)).fetchall()
             records = [{'sequence': r['sequence'], 'kind': r['kind'], 'sender_id': r['sender'],
-                        'sender_name': r['name'], 'sender_role': r['role'], 'text': r['body'],
+                        'sender_name': r['name'], 'sender_role': r['role'], 'text': self.store.decode_event(r),
                         'message_id': r['message_id'], 'created_at': timestamp(r['created']),
                         'is_self': r['sender'] == member['id']} for r in rows[:limit]]
         return {'events': records, 'next_since': records[-1]['sequence'] if records else since,

@@ -1,0 +1,10 @@
+# Add to the base compose file after generating a private, UID-10001-owned key ring.
+services:
+  openhook:
+    environment:
+      OPENHOOK_STORAGE_KEY_FILE: /run/secrets/openhook-storage-keys
+    secrets:
+      - openhook-storage-keys
+secrets:
+  openhook-storage-keys:
+    file: ${OPENHOOK_STORAGE_KEY_HOST_FILE:?Set the absolute path to the private storage key ring}

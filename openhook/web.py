@@ -87,12 +87,14 @@ class WebBoundary:
         self.app = app
         self.settings = settings
         self.hits: dict[str, deque] = {}
+        self.inflight: dict[str, int] = {}
+        self.active = 0
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         path = scope["path"]
-        headers = {key.decode().lower(): value.decode() for key, value in scope["headers"]}
+        headers = {key.decode('latin-1').lower(): value.decode('latin-1') for key, value in scope["headers"]}
         if headers.get("host") == "www." + urlsplit(self.settings.origin).netloc:
             query = scope.get("query_string", b"").decode()
             target = self.settings.origin + path + ("?" + query if query else "")
@@ -104,12 +106,14 @@ class WebBoundary:
                 target = canonical_path + ("?" + query if query else "")
                 return await RedirectResponse(target, status_code=308)(scope, receive, send)
         protected = path.startswith(("/api/", "/mcp"))
-        if protected and headers.get("origin") not in {None, self.settings.origin}:
+        if protected and (headers.get("origin") not in {None, self.settings.origin}
+                          or headers.get("sec-fetch-site") == "cross-site"):
             return await problem(403, "Origin is not allowed.")(scope, receive, send)
         host = headers.get("host", "")
         configured_host = urlsplit(self.settings.origin).netloc
         local_host = host.split(":", 1)[0] in {"localhost", "127.0.0.1"}
-        if protected and host != configured_host and not local_host:
+        allow_local = urlsplit(self.settings.origin).hostname in {"localhost", "127.0.0.1", "::1"}
+        if protected and host != configured_host and not (allow_local and local_host):
             return await problem(403, "Host is not allowed.")(scope, receive, send)
         rate_headers = {}
         if path.startswith(("/api/", "/mcp")):
@@ -139,25 +143,66 @@ class WebBoundary:
                 raise HTTPException(413, "Request exceeds 1 MB")
             return message
 
+        async def rate_limited_send(message):
+            if message["type"] == "http.response.start":
+                message.setdefault("headers", []).extend(
+                    (key.lower().encode(), value.encode()) for key, value in rate_headers.items())
+            await send(message)
+
+        # Bound long polls and other in-flight requests, not just request starts.
+        if protected:
+            if self.active >= 128 or self.inflight.get(ip, 0) >= 16:
+                return await problem(429, "Too many concurrent requests.",
+                    headers={"Retry-After": "5"})(scope, receive, rate_limited_send)
+            self.active += 1
+            self.inflight[ip] = self.inflight.get(ip, 0) + 1
+        try:
+            await self.app(scope, bounded_receive, rate_limited_send)
+        finally:
+            if protected:
+                self.active -= 1
+                self.inflight[ip] -= 1
+                if not self.inflight[ip]:
+                    del self.inflight[ip]
+
+
+class ResponseSecurity:
+    """Apply security policy to successful responses, redirects and boundary errors."""
+
+    def __init__(self, app, settings):
+        self.app, self.settings = app, settings
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        path = scope["path"]
+        private = path in PRIVATE_PATHS or path.startswith(("/api/", "/mcp", "/metrics"))
+
         async def secure_send(message):
             if message["type"] == "http.response.start":
-                message.setdefault("headers", []).extend([
+                headers = message.setdefault("headers", [])
+                headers.extend([
                     (b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
+                    (b"x-frame-options", b"DENY"),
+                    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=()"),
                 ])
-                message["headers"].extend((key.lower().encode(), value.encode()) for key, value in rate_headers.items())
-                if not any(key.lower() == b"content-security-policy" for key, _ in message["headers"]):
-                    message["headers"].append((b"content-security-policy", CSP.encode()))
-                if path in PRIVATE_PATHS or path.startswith(("/mcp", "/health")) or (path.startswith("/api/") and path != "/api/tools"):
-                    message["headers"].append((b"x-robots-tag", b"noindex, nofollow"))
-                if protected or path in PRIVATE_PATHS:
-                    message["headers"].append((b"cache-control", b"no-store"))
+                if urlsplit(self.settings.origin).scheme == "https":
+                    headers.append((b"strict-transport-security", b"max-age=31536000"))
+                if not any(key.lower() == b"content-security-policy" for key, _ in headers):
+                    headers.append((b"content-security-policy", CSP.encode()))
+                if private or path.startswith("/health"):
+                    headers.append((b"x-robots-tag", b"noindex, nofollow"))
+                if private:
+                    headers[:] = [(key, value) for key, value in headers if key.lower() != b"cache-control"]
+                    headers.extend([(b"cache-control", b"no-store"),
+                                    (b"cross-origin-resource-policy", b"same-origin")])
                 elif path.startswith("/assets/"):
                     versioned = re.fullmatch(rb"v=[0-9a-f]{12}", scope.get("query_string", b""))
                     policy = b"public, max-age=31536000, immutable" if versioned and message["status"] in {200, 304} else b"no-cache"
-                    message["headers"].append((b"cache-control", policy))
+                    headers.append((b"cache-control", policy))
             await send(message)
 
-        await self.app(scope, bounded_receive, secure_send)
+        await self.app(scope, receive, secure_send)
 
 
 class PublicCompression:
@@ -181,7 +226,8 @@ def create_app(settings: Settings | None = None):
         raise ValueError("OPENHOOK_METRICS_TOKEN must have at least 32 characters.")
     mcp = build_mcp(settings)
     security = TransportSecuritySettings(enable_dns_rebinding_protection=True,
-        allowed_hosts=[urlsplit(settings.origin).netloc, "localhost:*", "127.0.0.1:*"],
+        allowed_hosts=[urlsplit(settings.origin).netloc] + (
+            ["localhost:*", "127.0.0.1:*"] if urlsplit(settings.origin).hostname in {"localhost", "127.0.0.1", "::1"} else []),
         allowed_origins=[settings.origin])
     app = mcp.streamable_http_app(stateless_http=True, json_response=True, transport_security=security)
     app.add_exception_handler(HTTPException, http_error)
@@ -222,4 +268,5 @@ def create_app(settings: Settings | None = None):
     app.add_middleware(WebBoundary, settings=settings)
     app.add_middleware(PublicCompression)
     app.add_middleware(RequestMetrics)
+    app.add_middleware(ResponseSecurity, settings=settings)
     return app

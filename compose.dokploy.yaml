@@ -7,6 +7,7 @@ services:
     environment:
       OPENHOOK_ORIGIN: ${OPENHOOK_ORIGIN:-https://openhook.dev}
       OPENHOOK_DATABASE: /data/openhook.sqlite3
+      OPENHOOK_STORAGE_KEY_FILE: /run/openhook-secrets/storage-keys.json
       OPENHOOK_UMAMI_SCRIPT_URL: ${OPENHOOK_UMAMI_SCRIPT_URL:-}
       OPENHOOK_UMAMI_WEBSITE_ID: ${OPENHOOK_UMAMI_WEBSITE_ID:-}
       OPENHOOK_METRICS_TOKEN: ${OPENHOOK_METRICS_TOKEN:-}
@@ -16,8 +17,12 @@ services:
       FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-10.0.1.0/24}
     volumes:
       - openhook-data:/data
+      - openhook-secrets:/run/openhook-secrets:ro
     mem_limit: 512m
     cpus: 1
+    pids_limit: 128
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -25,3 +30,4 @@ services:
       - /tmp:size=32m
 volumes:
   openhook-data:
+  openhook-secrets:

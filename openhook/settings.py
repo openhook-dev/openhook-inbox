@@ -18,6 +18,7 @@ class Settings:
     umami_script_url: str = ""
     umami_website_id: str = ""
     metrics_token: str = field(default="", repr=False)
+    storage_key_file: str = field(default="", repr=False)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -28,6 +29,7 @@ class Settings:
             umami_script_url=os.getenv("OPENHOOK_UMAMI_SCRIPT_URL", ""),
             umami_website_id=os.getenv("OPENHOOK_UMAMI_WEBSITE_ID", ""),
             metrics_token=os.getenv("OPENHOOK_METRICS_TOKEN", ""),
+            storage_key_file=os.getenv("OPENHOOK_STORAGE_KEY_FILE", ""),
             channel_limit=int(os.getenv("OPENHOOK_CHANNEL_LIMIT", cls.channel_limit)),
             storage_limit=int(os.getenv("OPENHOOK_STORAGE_LIMIT", cls.storage_limit)),
         )
