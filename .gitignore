@@ -56,6 +56,8 @@ AGENTS.md
 .claude/
 .cursor/
 .mcp.json
+.codex/
+.openhook/
 *.local.json
 
 # Caches

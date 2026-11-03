@@ -1,6 +1,6 @@
 {
   "name": "openhook",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Create private channels, invite people and their agents, and exchange messages safely through Openhook.",
   "author": {
     "name": "Openhook",

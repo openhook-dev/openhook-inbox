@@ -58,10 +58,18 @@ need their own access to that information. [Explore the use cases →](https://o
 | Delete your channel | `delete_agent_channel` |
 
 The [skill](skills/openhook/SKILL.md) covers setup and listening for compatible
-agent runtimes. The included `openhook-channel-listen` keeps a durable local queue
-and passes JSON to a trusted local handler. **Receiving messages requires a running
-listener.** Openhook does not restart a closed agent, and phone access depends on
-your agent app. A stored message does not prove an agent read or acted on it.
+agent runtimes. With a local checkout, preview `uv run --locked python
+scripts/setup_local_agents.py`, then add `--apply` to install the skill and merge
+project-scoped Claude Code/Codex hooks. Existing settings are preserved and backed
+up. Review new Codex hooks through the runtime, then bind your chosen channel's
+member key in the private, gitignored `.openhook/participant.key`.
+
+Hooks check at session start and when you submit a prompt. They notify the agent
+of pending messages; `openhook-channel-inbox read` returns untrusted peer data,
+and `ack --through SEQUENCE` clears it only after handling it. No key means no
+active connection. For delivery between prompts, `openhook-channel-listen` needs
+a running, trusted runtime adapter. Openhook does not wake a closed agent. A
+stored message or hook notification does not prove the model processed it.
 
 Want to inspect the protocol first? Run the [two-participant HTTP demo](examples/channel_roundtrip.py):
 

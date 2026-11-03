@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import stat
 import subprocess
 import time
 from urllib.parse import urlsplit
@@ -67,6 +68,19 @@ class Queue:
         row = self.db.execute('SELECT sequence,payload FROM pending ORDER BY sequence LIMIT 1').fetchone()
         return (row[0], json.loads(row[1])) if row else None
 
+    def messages(self, limit=10):
+        return [json.loads(row[0]) for row in self.db.execute(
+            'SELECT payload FROM pending ORDER BY sequence LIMIT ?', (limit,))]
+
+    def count(self):
+        return self.db.execute('SELECT count(*) FROM pending').fetchone()[0]
+
+    def ack_through(self, sequence):
+        if type(sequence) is not int or not 0 < sequence <= self.cursor:
+            raise ValueError('Acknowledge only through a fetched, processed sequence.')
+        with self.db:
+            self.db.execute('DELETE FROM pending WHERE sequence<=?', (sequence,))
+
     def ack(self, sequence):
         with self.db:
             self.db.execute('DELETE FROM pending WHERE sequence=?', (sequence,))
@@ -113,14 +127,38 @@ def locked_state(directory, identity):
             queue.close()
 
 
-def run(args, token):
-    url = args.url.rstrip('/')
+def load_token(path=None):
+    """Keep keys out of command arguments, hook configuration and tool output."""
+    if path is None:
+        token = os.getenv('OPENHOOK_PARTICIPANT_TOKEN', '')
+    else:
+        descriptor = os.open(Path(path).expanduser(), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor) as file:
+            info = os.fstat(file.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077 or info.st_uid != os.getuid() or info.st_size > 101:
+                raise ValueError('Member key must be an owned private regular file (mode 0600).')
+            token = file.read(101).strip()
+    if not token.startswith('ohp_') or not 20 <= len(token) <= 100 or any(c.isspace() for c in token):
+        raise ValueError('Configure your private channel member key.')
+    return token
+
+
+def validate_origin(origin):
+    url = origin.rstrip('/')
     parsed = urlsplit(url)
     if parsed.username or parsed.password or parsed.query or parsed.fragment or parsed.path not in ('', '/'):
         raise ValueError('Use the Openhook origin without credentials, paths, or query parameters.')
     if parsed.scheme != 'https' and not (parsed.scheme == 'http' and parsed.hostname in ('localhost', '127.0.0.1', '::1')):
         raise ValueError('Use HTTPS except for localhost testing.')
-    with httpx.Client(timeout=40, follow_redirects=False) as client:
+    if not parsed.hostname:
+        raise ValueError('Use a valid Openhook origin.')
+    return url
+
+
+@contextmanager
+def channel_state(args, token, timeout=40):
+    url = validate_origin(args.url)
+    with httpx.Client(timeout=timeout, follow_redirects=False) as client:
         def call(action, **fields):
             response = client.post(url + '/api/v1/channels', json={
                 'action': action, 'participant_token': token, **fields})
@@ -130,55 +168,60 @@ def run(args, token):
         # Identity stays stable across key rotation and handler changes.
         identity = url + '|' + info['session_id'] + '|' + info['participant_id']
         with locked_state(args.state_directory, identity) as queue:
-            print(json.dumps({'listening': True, 'session_id': info['session_id'],
-                              'pid': os.getpid(), 'delivery': 'configured handler; idle wakeup must be verified'}), flush=True)
-            delay = 1
-            while True:
-                try:
-                    pending = queue.first()
-                    if pending:
-                        # Recheck revocation/expiry before releasing queued text to the handler.
-                        call('info')
-                        sequence, payload = pending
-                        deliver(args.command, payload)
-                        queue.ack(sequence)
-                        print(json.dumps({'handler_accepted_sequence': sequence}), flush=True)
-                        if args.once:
-                            return
-                    else:
-                        queue.accept(call('read', since=queue.cursor, timeout_seconds=30), info['session_id'])
-                    delay = 1
-                except httpx.HTTPStatusError as exc:
-                    status = exc.response.status_code
-                    if status in (401, 403, 404):
-                        raise ValueError('Membership revoked, invalid or expired; listener stopped.') from None
-                    retry = exc.response.headers.get('Retry-After', '')
-                    wait = min(300, max(delay, int(retry))) if retry.isdigit() else delay
-                    print(json.dumps({'retrying': True, 'http_status': status, 'seconds': wait}), flush=True)
-                    time.sleep(wait)
-                    delay = min(delay * 2, 30)
-                except (httpx.RequestError, ValueError, KeyError, subprocess.TimeoutExpired, OSError):
-                    # Do not log handler output, peer content, URLs or credentials.
-                    print(json.dumps({'retrying': True, 'pending_retained': True, 'seconds': delay}), flush=True)
-                    time.sleep(delay)
-                    delay = min(delay * 2, 30)
+            yield queue, call, info
+
+
+def run(args, token):
+    with channel_state(args, token) as (queue, call, info):
+        print(json.dumps({'listening': True, 'session_id': info['session_id'],
+                          'pid': os.getpid(), 'delivery': 'configured handler; idle wakeup must be verified'}), flush=True)
+        delay = 1
+        while True:
+            try:
+                pending = queue.first()
+                if pending:
+                    # Recheck revocation/expiry before releasing queued text to the handler.
+                    call('info')
+                    sequence, payload = pending
+                    deliver(args.command, payload)
+                    queue.ack(sequence)
+                    print(json.dumps({'handler_accepted_sequence': sequence}), flush=True)
+                    if args.once:
+                        return
+                else:
+                    queue.accept(call('read', since=queue.cursor, timeout_seconds=30), info['session_id'])
+                delay = 1
+            except httpx.HTTPStatusError as exc:
+                status = exc.response.status_code
+                if status in (401, 403, 404):
+                    raise ValueError('Membership revoked, invalid or expired; listener stopped.') from None
+                if status != 429 and status < 500:
+                    raise ValueError('Channel request rejected; listener stopped.') from None
+                retry = exc.response.headers.get('Retry-After', '')
+                wait = min(300, max(delay, int(retry))) if retry.isdigit() else delay
+                print(json.dumps({'retrying': True, 'http_status': status, 'seconds': wait}), flush=True)
+                time.sleep(wait)
+                delay = min(delay * 2, 30)
+            except (httpx.RequestError, ValueError, KeyError, subprocess.TimeoutExpired, OSError):
+                # Do not log handler output, peer content, URLs or credentials.
+                print(json.dumps({'retrying': True, 'pending_retained': True, 'seconds': delay}), flush=True)
+                time.sleep(delay)
+                delay = min(delay * 2, 30)
 
 
 def main():
     parser = argparse.ArgumentParser(description='Deliver channel peer messages to your own local agent adapter. Does not grant tool permissions.')
     parser.add_argument('--url', default='https://openhook.dev')
     parser.add_argument('--state-directory', default=str(Path.home() / '.openhook' / 'channel-listeners'))
+    parser.add_argument('--token-file', help='Owned mode-0600 file containing only your member key; otherwise use OPENHOOK_PARTICIPANT_TOKEN.')
     parser.add_argument('--once', action='store_true', help='Exit after one acknowledged peer delivery; useful for runtime background-job notifications')
     parser.add_argument('--command', nargs=argparse.REMAINDER, required=True,
                         help='Trusted local handler executable and arguments. Receives external-message JSON on stdin; exit 0 only after durable acceptance.')
     args = parser.parse_args()
-    token = os.getenv('OPENHOOK_PARTICIPANT_TOKEN', '')
-    if not token.startswith('ohp_') or len(token) > 100:
-        parser.error('Set OPENHOOK_PARTICIPANT_TOKEN privately to your participant key.')
     if not args.command:
         parser.error('--command requires a trusted local handler executable.')
     try:
-        run(args, token)
+        run(args, load_token(args.token_file))
     except KeyboardInterrupt:
         print('{"listening": false}', flush=True)
     except (ValueError, httpx.HTTPError, OSError):
