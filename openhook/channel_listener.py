@@ -24,8 +24,16 @@ class Queue:
     """Persist a received batch and its fetch cursor atomically before delivery."""
 
     def __init__(self, path):
+        descriptor = os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+        try:
+            info = os.fstat(descriptor)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+                raise ValueError('Queue must be an owned regular file.')
+            os.fchmod(descriptor, 0o600)
+        finally:
+            os.close(descriptor)
         self.db = sqlite3.connect(path)
-        os.chmod(path, 0o600)
+        self.db.execute('PRAGMA secure_delete=ON')
         self.db.executescript('''
             CREATE TABLE IF NOT EXISTS cursor (id INTEGER PRIMARY KEY CHECK(id=1), value INTEGER NOT NULL);
             INSERT OR IGNORE INTO cursor VALUES(1,0);
@@ -36,6 +44,11 @@ class Queue:
                 sequence INTEGER PRIMARY KEY, attempts INTEGER NOT NULL, notified_at REAL NOT NULL);
         ''')
         self.db.commit()
+        if self.db.execute('PRAGMA user_version').fetchone()[0] < 1:
+            # One-time cleanup of free pages left by older clients. Pending work
+            # and cursors survive; future acknowledgements overwrite deleted text.
+            self.db.execute('VACUUM')
+            self.db.execute('PRAGMA user_version=1')
 
     @property
     def cursor(self):
@@ -134,7 +147,7 @@ def state_lock(directory, identity):
         raise ValueError('This listener currently requires macOS or Linux file locking.') from None
     directory = Path(directory).expanduser()
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    if directory.is_symlink() or directory.stat().st_mode & 0o077:
+    if directory.is_symlink() or directory.stat().st_uid != os.getuid() or directory.stat().st_mode & 0o077:
         raise ValueError('State directory must be private (mode 0700) and not a symlink.')
     name = hashlib.sha256(identity.encode()).hexdigest()[:32]
     lock = directory / (name + '.lock')

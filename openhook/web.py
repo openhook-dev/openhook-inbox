@@ -89,12 +89,21 @@ class WebBoundary:
         self.hits: dict[str, deque] = {}
         self.inflight: dict[str, int] = {}
         self.active = 0
+        self.next_cleanup = 0.0
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         path = scope["path"]
-        headers = {key.decode('latin-1').lower(): value.decode('latin-1') for key, value in scope["headers"]}
+        headers = {}
+        single_headers = {'host', 'origin', 'content-length', 'content-type', 'transfer-encoding'}
+        for key, value in scope['headers']:
+            name = key.decode('latin-1').lower()
+            if name in single_headers and name in headers:
+                return await problem(400, 'Ambiguous request headers.')(scope, receive, send)
+            headers[name] = value.decode('latin-1')
+        if 'content-length' in headers and 'transfer-encoding' in headers:
+            return await problem(400, 'Ambiguous request framing.')(scope, receive, send)
         if headers.get("host") == "www." + urlsplit(self.settings.origin).netloc:
             query = scope.get("query_string", b"").decode()
             target = self.settings.origin + path + ("?" + query if query else "")
@@ -119,7 +128,9 @@ class WebBoundary:
         if path.startswith(("/api/", "/mcp")):
             now = time.monotonic()
             ip = (scope.get("client") or ("unknown",))[0]
-            self.hits = {key: values for key, values in self.hits.items() if values and values[-1] > now - 60}
+            if now >= self.next_cleanup:
+                self.hits = {key: values for key, values in self.hits.items() if values and values[-1] > now - 60}
+                self.next_cleanup = now + 60
             if ip not in self.hits and len(self.hits) >= 10000:
                 return await problem(429, "Capacity reached", headers={"Retry-After": "60"})(scope, receive, send)
             hits = self.hits.setdefault(ip, deque())
@@ -131,16 +142,30 @@ class WebBoundary:
                     headers={**rate_limit_headers(0, reset), "Retry-After": str(reset)})(scope, receive, send)
             hits.append(now)
             rate_headers = rate_limit_headers(120 - len(hits), reset)
-        if headers.get("content-length", "").isdigit() and int(headers["content-length"]) > self.settings.body_limit:
-            return await problem(413, "Request exceeds 1 MB", headers=rate_headers)(scope, receive, send)
+        if 'content-length' in headers:
+            length = headers['content-length']
+            if not re.fullmatch(r'[0-9]+', length):
+                return await problem(400, 'Invalid Content-Length.')(scope, receive, send)
+            # Compare bounded decimal strings before converting attacker input.
+            length, limit = length.lstrip('0') or '0', str(self.settings.body_limit)
+            if len(length) > len(limit) or (len(length) == len(limit) and length > limit):
+                return await problem(413, "Request exceeds 1 MB", headers=rate_headers)(scope, receive, send)
         body_size = 0
+        body_complete = False
+        body_deadline = time.monotonic() + self.settings.body_timeout
 
         async def bounded_receive():
-            nonlocal body_size
-            message = await receive()
+            nonlocal body_size, body_complete
+            if body_complete:
+                return await receive()  # Long polls/disconnect monitors are not uploads.
+            try:
+                message = await asyncio.wait_for(receive(), max(0, body_deadline - time.monotonic()))
+            except asyncio.TimeoutError:
+                raise HTTPException(408, 'Request body deadline exceeded.') from None
             body_size += len(message.get("body", b""))
             if body_size > self.settings.body_limit:
                 raise HTTPException(413, "Request exceeds 1 MB")
+            body_complete = message['type'] != 'http.request' or not message.get('more_body', False)
             return message
 
         async def rate_limited_send(message):
@@ -171,6 +196,10 @@ class ResponseSecurity:
 
     def __init__(self, app, settings):
         self.app, self.settings = app, settings
+
+    @property
+    def state(self):
+        return self.app.state
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -268,5 +297,6 @@ def create_app(settings: Settings | None = None):
     app.add_middleware(WebBoundary, settings=settings)
     app.add_middleware(PublicCompression)
     app.add_middleware(RequestMetrics)
-    app.add_middleware(ResponseSecurity, settings=settings)
-    return app
+    # Wrap outside Starlette's ServerErrorMiddleware so unexpected 500 responses
+    # get the same policy as normal responses without swallowing exceptions.
+    return ResponseSecurity(app, settings)

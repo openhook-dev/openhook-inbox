@@ -8,6 +8,10 @@ ports are exposed. Keep the persistent `openhook-data` volume mounted at `/data`
 Only trust the actual reverse proxy subnet in `FORWARDED_ALLOW_IPS`. Confirm
 client IP handling so per-IP rate limits do not group all traffic under one proxy.
 Keep body/token logging disabled in the application and proxy.
+The API body upload deadline defaults to ten seconds (`OPENHOOK_BODY_TIMEOUT`,
+greater than zero and at most 60 seconds). This is independent of channel long
+polling; do not raise it just to accommodate a normal 30-second read.
+Clients must send uncompressed UTF-8 JSON with `Content-Type: application/json`.
 
 The database uses WAL and short write transactions. Use SQLite's backup API for
 online backups; copying only the database file can omit WAL transactions. Keep

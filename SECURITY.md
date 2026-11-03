@@ -49,6 +49,23 @@ rejected. In-flight API/MCP work is capped at 16 requests per client IP and 128
 per process, in addition to per-minute and per-member limits. Run one replica
 and trust only the actual reverse proxy so client-IP limits remain meaningful.
 
+Request uploads have a ten-second absolute deadline, configurable with
+`OPENHOOK_BODY_TIMEOUT` (greater than zero, at most 60 seconds). Completing the
+body ends this deadline; valid message long-polls are unaffected. Duplicate
+security/framing headers, conflicting framing and invalid lengths are rejected
+before dispatch. The channel HTTP API requires uncompressed UTF-8
+`application/json`; duplicate JSON keys and nonstandard JSON values are rejected.
+The outer response policy also covers unexpected 500 responses.
+
+Local listener queues remain private plaintext while work is pending. New clients
+validate queue files before opening SQLite, overwrite deleted payloads on
+acknowledgement, and compact older queue databases once to remove old free pages.
+This preserves pending work and the cursor. It does not recall downloaded copies
+or guarantee forensic erasure from journals, filesystem snapshots or backups.
+
+CI audits the locked production dependencies against known vulnerability records
+with pip-audit. A clean audit is not proof that unknown vulnerabilities are absent.
+
 There are no billing, provider-registration, email or DNS features in this runtime.
 Old database tables remain untouched on upgrade; handle their retention and any
 provider-side obligations separately. See docs/CHANNEL_ONLY_RELEASE.md.

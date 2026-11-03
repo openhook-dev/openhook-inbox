@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -13,12 +14,17 @@ class Settings:
     database: str = "data/openhook.sqlite3"
     channel_limit: int = 1000
     body_limit: int = 1_048_576
+    body_timeout: float = 10.0
     storage_limit: int = 1_073_741_824
     support_email: str = ""
     umami_script_url: str = ""
     umami_website_id: str = ""
     metrics_token: str = field(default="", repr=False)
     storage_key_file: str = field(default="", repr=False)
+
+    def __post_init__(self):
+        if not math.isfinite(self.body_timeout) or not 0 < self.body_timeout <= 60:
+            raise ValueError('Body timeout must be greater than zero and at most 60 seconds.')
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -30,6 +36,7 @@ class Settings:
             umami_website_id=os.getenv("OPENHOOK_UMAMI_WEBSITE_ID", ""),
             metrics_token=os.getenv("OPENHOOK_METRICS_TOKEN", ""),
             storage_key_file=os.getenv("OPENHOOK_STORAGE_KEY_FILE", ""),
+            body_timeout=float(os.getenv("OPENHOOK_BODY_TIMEOUT", cls.body_timeout)),
             channel_limit=int(os.getenv("OPENHOOK_CHANNEL_LIMIT", cls.channel_limit)),
             storage_limit=int(os.getenv("OPENHOOK_STORAGE_LIMIT", cls.storage_limit)),
         )

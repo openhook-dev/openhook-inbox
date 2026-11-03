@@ -1,6 +1,7 @@
 """HTTP adapter. Secrets travel only in POST bodies, never query strings."""
 
 from typing import Literal
+import json
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.responses import JSONResponse
@@ -28,9 +29,28 @@ class ChannelCall(BaseModel):
     timeout_seconds: float = Field(default=0, ge=0, le=30, allow_inf_nan=False)
 
 
+def unique_fields(pairs):
+    values = {}
+    for key, value in pairs:
+        if key in values:
+            raise ValueError('Duplicate JSON field')
+        values[key] = value
+    return values
+
+
+def reject_constant(value):
+    raise ValueError('Nonstandard JSON number')
+
+
 async def session_call(request):
+    if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
+        return problem(415, 'Use Content-Type: application/json with a UTF-8 JSON body.')
+    if request.headers.get('content-encoding', 'identity').strip().lower() != 'identity':
+        return problem(415, 'Compressed request bodies are not supported.')
     try:
-        call = ChannelCall.model_validate(await request.json())
+        payload = json.loads((await request.body()).decode('utf-8'),
+                             object_pairs_hook=unique_fields, parse_constant=reject_constant)
+        call = ChannelCall.model_validate(payload)
         sessions = Sessions(request.app.state.store)
         token = call.participant_token
         if call.action == 'create':
@@ -60,5 +80,5 @@ async def session_call(request):
         return JSONResponse({'success': True, 'data': result})
     except ChannelError as exc:
         return problem(exc.status, str(exc))
-    except (ValidationError, ValueError):
+    except (ValidationError, ValueError, RecursionError):
         return problem(400, 'Invalid channel fields. Check /openapi.json.')
