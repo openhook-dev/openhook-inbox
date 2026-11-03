@@ -143,6 +143,12 @@ def test_local_setup_preserves_other_hooks_backs_up_legacy_and_is_idempotent(tmp
     assert current['enabledMcpjsonServers'] == original['enabledMcpjsonServers']
     assert current['hooks']['UserPromptSubmit'][0] == original['hooks']['UserPromptSubmit'][0]
     assert len(current['hooks']['UserPromptSubmit']) == 2
+    assert current['hooks']['UserPromptSubmit'][1]['hooks'][0]['asyncRewake'] is True
+    assert 'Stop' in current['hooks']
+    codex = json.loads((project / '.codex/hooks.json').read_text())
+    assert set(codex['hooks']) == {'SessionStart', 'UserPromptSubmit', 'Stop'}
+    assert 'asyncRewake' not in codex['hooks']['Stop'][0]['hooks'][0]
+    assert 'openhook.agent_background' in codex['hooks']['Stop'][0]['hooks'][0]['command']
     assert 'ohp_' not in settings.read_text()
     assert (Path(result['backup_directory']) / 'openhook-webhook-listener/SKILL.md').read_text().startswith('Retired')
     assert not legacy.exists() and (skills / 'openhook/SKILL.md').is_file()

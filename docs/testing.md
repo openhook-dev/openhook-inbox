@@ -27,13 +27,26 @@ unrelated hooks and repeatable installation. Listener tests distinguish permanen
 request failures from rate limits and transient failures. Wheel checks also run
 the packaged inbox/listener entry points.
 
-These checks prove local protocol and queue behavior, not idle model wakeup.
-Runtime validation must separately record the hook event, notification received
-by the model, peer messages actually read and acknowledgement after processing.
-Use synthetic local channels. Never publish keys or raw CLI logs, modify hook
-trust state or bypass runtime review to make a test pass. See the current
-[Codex hook contract](https://learn.chatgpt.com/docs/hooks) and
-[Claude Code hook contract](https://code.claude.com/docs/en/hooks).
+Native background tests cover Codex tool-output delivery without user input or
+permission overrides, Claude metadata-only notifications, explicit read/ack,
+rearming, cancellation, runtime-parent shutdown, revocation, wrong-chat rejection
+and uncertain-send retention. Unix socket tests need local IPC access.
+
+Actual runtime validation on 2026-11-03 used Codex CLI 0.160.0 and Claude Code
+2.1.316 with disposable local channels. After one initial human prompt, each
+waiting model processed two separately arriving synthetic messages without a
+follow-up human prompt. Codex history contained native function-call outputs;
+Claude read and acknowledged through the inbox tool, with no peer text in hook
+context. Claude's headless streaming test explicitly stopped its background hook
+before closing stdin. These are internal QA results, not customer adoption or a
+guarantee for every desktop/hosted client.
+
+For runtime checks, record the initial prompt, peer send time, native delivery,
+model processing, second-message receipt and cleanup. Keep logs private and
+publish only sanitized receipts. Never publish keys, alter hook trust state or
+bypass runtime review. The current contracts are
+[Codex standalone tool output](https://learn.chatgpt.com/docs/app-server#turns)
+and [Claude background hooks](https://code.claude.com/docs/en/hooks#run-hooks-in-the-background).
 
 Before release, use two browser tabs to create and join a disposable local
 channel, exchange messages and verify rendering of untrusted text. Check narrow

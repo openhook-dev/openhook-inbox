@@ -30,6 +30,10 @@ class Queue:
             CREATE TABLE IF NOT EXISTS cursor (id INTEGER PRIMARY KEY CHECK(id=1), value INTEGER NOT NULL);
             INSERT OR IGNORE INTO cursor VALUES(1,0);
             CREATE TABLE IF NOT EXISTS pending (sequence INTEGER PRIMARY KEY, payload TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS notification (id INTEGER PRIMARY KEY CHECK(id=1), value INTEGER NOT NULL);
+            INSERT OR IGNORE INTO notification VALUES(1,0);
+            CREATE TABLE IF NOT EXISTS notification_attempts (
+                sequence INTEGER PRIMARY KEY, attempts INTEGER NOT NULL, notified_at REAL NOT NULL);
         ''')
         self.db.commit()
 
@@ -75,15 +79,38 @@ class Queue:
     def count(self):
         return self.db.execute('SELECT count(*) FROM pending').fetchone()[0]
 
+    def notification(self, now=None):
+        last = self.db.execute('SELECT value FROM notification WHERE id=1').fetchone()[0]
+        sequence = self.db.execute('SELECT MAX(sequence) FROM pending').fetchone()[0]
+        if sequence is None or sequence > last:
+            return sequence
+        attempt = self.db.execute('SELECT attempts,notified_at FROM notification_attempts WHERE sequence=?', (sequence,)).fetchone()
+        now = time.time() if now is None else now
+        return sequence if not attempt or (attempt[0] < 3 and now - attempt[1] >= 60) else None
+
+    def mark_notified(self, sequence, now=None):
+        with self.db:
+            self.db.execute('UPDATE notification SET value=? WHERE id=1', (sequence,))
+            self.db.execute('''INSERT INTO notification_attempts VALUES(?,1,?)
+                ON CONFLICT(sequence) DO UPDATE SET attempts=attempts+1,notified_at=excluded.notified_at''',
+                (sequence, time.time() if now is None else now))
+
+    def reset_notifications(self):
+        with self.db:
+            self.db.execute('DELETE FROM notification_attempts')
+            self.db.execute('UPDATE notification SET value=0 WHERE id=1')
+
     def ack_through(self, sequence):
         if type(sequence) is not int or not 0 < sequence <= self.cursor:
             raise ValueError('Acknowledge only through a fetched, processed sequence.')
         with self.db:
             self.db.execute('DELETE FROM pending WHERE sequence<=?', (sequence,))
+            self.db.execute('DELETE FROM notification_attempts WHERE sequence<=?', (sequence,))
 
     def ack(self, sequence):
         with self.db:
             self.db.execute('DELETE FROM pending WHERE sequence=?', (sequence,))
+            self.db.execute('DELETE FROM notification_attempts WHERE sequence=?', (sequence,))
 
     def close(self):
         self.db.close()
@@ -100,7 +127,7 @@ def deliver(command, payload):
 
 
 @contextmanager
-def locked_state(directory, identity):
+def state_lock(directory, identity):
     try:
         import fcntl
     except ImportError:
@@ -120,6 +147,12 @@ def locked_state(directory, identity):
             fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise ValueError('A listener for this participant is already running.') from None
+        yield database
+
+
+@contextmanager
+def locked_state(directory, identity):
+    with state_lock(directory, identity) as database:
         queue = Queue(database)
         try:
             yield queue
