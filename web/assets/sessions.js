@@ -1,9 +1,12 @@
 // Peer-controlled content is rendered as text, never HTML or executable markup.
+import {registerWebMCP, channelTools} from './webmcp.js?v=bbf09139b357';
+
 export function renderSessions(main, {copy}) {
   const $ = selector => main.querySelector(selector);
   const key = 'openhook-channel-participant';
   let archived = false, lastConnected = null, accessEnded = false;
   let token = '', cursor = 0, sending = null, busy = false, invitationMessage = '';
+  let channelInfo = null;
   try { token = sessionStorage.getItem(key) || ''; } catch {}
   const invite = new URLSearchParams(location.hash.slice(1)).get('invite');
   if (location.hash) history.replaceState(null, '', location.pathname);
@@ -15,14 +18,14 @@ export function renderSessions(main, {copy}) {
     if (token) $('#session-error').textContent = 'This tab already has a participant key. Open the invite in a separate tab to join a different channel.';
   }
   function saveToken(value) {
-    token = value; accessEnded = false;
+    token = value; accessEnded = false; channelInfo = null;
     try { if (value) sessionStorage.setItem(key, value); else sessionStorage.removeItem(key); }
     catch { $('#session-error').textContent = 'Tab storage is unavailable. Copy your private key before leaving.'; }
   }
-  async function api(action, values = {}) {
+  async function api(action, values = {}, signal, credential = token) {
     const response = await fetch('/api/v1/channels', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action, participant_token: token, ...values}), cache: 'no-store',
+      body: JSON.stringify({...values, action, participant_token: credential}), cache: 'no-store', credentials: 'omit', signal,
     });
     const result = await response.json();
     if (!response.ok || !result.success) {
@@ -33,21 +36,24 @@ export function renderSessions(main, {copy}) {
     return result.data;
   }
   async function run(action) {
-    if (busy) return;
+    if (busy) return {error: 'The channel page is busy. Try again when the current request finishes.'};
     busy = true;
     $('#session-error').textContent = '';
     const controls = [...main.querySelectorAll('button, input, textarea, select')].map(element => [element, element.disabled]);
     controls.forEach(([element]) => { element.disabled = true; });
-    try { await action(); }
+    try { return await action(); }
     catch (error) {
-      $('#session-error').textContent = error.message;
-      if (token && [401, 403, 404].includes(error.status)) {
+      const message = error.name === 'AbortError'
+        ? 'Request cancelled. A write may have completed; inspect the channel before retrying.' : error.message;
+      $('#session-error').textContent = message;
+      if (token && [401, 404].includes(error.status)) {
         accessEnded = true;
         $('#session-send').hidden = true;
         $('#session-status').textContent = 'Access ended. Automatic checks have stopped.';
       }
+      return {error: message, ...(error.status && {status: error.status})};
     }
-    finally { busy = false; controls.forEach(([element, disabled]) => { element.disabled = disabled; }); }
+    finally { busy = false; controls.forEach(([element, disabled]) => { element.disabled = disabled; }); updateTools(); }
   }
   function showInvite(data) {
     invitationMessage = data.invite_message;
@@ -68,6 +74,7 @@ export function renderSessions(main, {copy}) {
     $('#session-forget-confirm').checked = false;
     $('#session-delete-confirm').checked = false;
     $('#session-error').textContent = '';
+    updateTools();
   }
   function button(label, action) {
     const element = document.createElement('button');
@@ -90,8 +97,9 @@ export function renderSessions(main, {copy}) {
       $('#session-members').append(row);
     }
   }
-  async function refresh() {
-    const info = await api('info');
+  async function refresh(signal) {
+    const info = await api('info', {}, signal);
+    channelInfo = info;
     $('#session-start').hidden = true; $('#session-room').hidden = false; $('#channel-intro').hidden = true;
     const connected = info.participants.some(p => p.role === 'guest' && p.status === 'active');
     $('#session-room').classList.toggle('connected', connected);
@@ -120,10 +128,10 @@ Keep this key private. Use get_agent_channel to inspect my membership and follow
     renderMembers(info);
     $('#session-people').hidden = info.status !== 'active';
     $('#session-channel').hidden = info.status !== 'active';
-    if (info.status !== 'active') return;
+    if (info.status !== 'active') return info;
     let batch;
     do {
-      batch = await api('read', {since: cursor});
+      batch = await api('read', {since: cursor}, signal);
       for (const event of batch.events) {
         if (event.kind !== 'message') continue;
         const article = document.createElement('article');
@@ -135,23 +143,46 @@ Keep this key private. Use get_agent_channel to inspect my membership and follow
       }
       cursor = batch.next_since;
     } while (batch.has_more);
+    return info;
+  }
+  async function connect(action, values, signal) {
+    if (token) throw new Error('This tab already has a private member key. Use a separate tab for another channel.');
+    const data = action === 'restore'
+      ? await api('info', {}, signal, values.participant_token) : await api(action, values, signal);
+    saveToken(data.participant_token || values.participant_token);
+    cursor = 0; $('#session-messages').replaceChildren();
+    if (data.invite_url) showInvite(data);
+    const info = await refresh(signal);
+    // Deliberately select fields: creation/join responses also contain the member key.
+    return {channel: info, ...(data.invite_url && {invitation: invitation(data)})};
+  }
+  function invitation(data) {
+    return {invite_url: data.invite_url, invite_message: data.invite_message,
+      invite_expires_at: data.invite_expires_at, permission: data.permission};
+  }
+  async function replaceInvite(permission, signal) {
+    const data = await api('invite', {permission}, signal);
+    showInvite(data);
+    await refresh(signal); $('#session-invite').open = true;
+    return invitation(data);
+  }
+  async function sendMessage(message, signal) {
+    const receipt = await api('send', message, signal);
+    await refresh(signal);
+    return receipt;
   }
   for (const action of ['create', 'join', 'restore']) {
     $(`#session-${action}`).addEventListener('submit', event => {
       event.preventDefault();
       const values = Object.fromEntries(new FormData(event.currentTarget));
       run(async () => {
-        const data = await api(action === 'restore' ? 'info' : action, values);
-        saveToken(data.participant_token || values.participant_token);
-        cursor = 0; $('#session-messages').replaceChildren();
+        await connect(action, values);
         event.target.reset();
-        if (data.invite_url) showInvite(data);
-        await refresh();
       });
     });
   }
   $('#session-refresh').addEventListener('click', () => run(refresh));
-  $('#session-reinvite').addEventListener('click', () => run(async () => { showInvite(await api('invite', {permission: $('#session-permission').value})); await refresh(); $('#session-invite').open = true; }));
+  $('#session-reinvite').addEventListener('click', () => run(() => replaceInvite($('#session-permission').value)));
   $('#session-rotate').addEventListener('click', () => run(async () => {
     if (!$('#session-rotate-confirm').checked) throw new Error('Confirm that your old key will stop working.');
     const result = await api('rotate'); saveToken(result.participant_token);
@@ -184,10 +215,32 @@ Keep this key private. Use get_agent_channel to inspect my membership and follow
     // Preserve the same ID if a response is lost, until the user edits the text.
     if (!sending || sending.text !== text) sending = {text, message_id: crypto.randomUUID()};
     run(async () => {
-      await api('send', sending); sending = null; event.target.reset(); await refresh();
+      await sendMessage(sending); sending = null; event.target.reset();
     });
   });
+  const updateTools = registerWebMCP(() => channelTools({connected: !!token, info: channelInfo, accessEnded}, {
+    create: ({name, title, scope = ''}, {signal}) => run(() => connect('create', {name, title, scope}, signal)),
+    join: ({name, invite_code}, {signal}) => run(() => connect('join', {
+      name, invite_code: invite_code || $('#session-join').elements.invite_code.value,
+    }, signal)),
+    info: (_, {signal}) => run(() => refresh(signal)),
+    read: ({since = 0}, {signal}) => run(async () => {
+      const result = await api('read', {since}, signal);
+      await refresh(signal);
+      return result;
+    }),
+    send: ({text, message_id}, {signal}) => run(() => sendMessage({text, message_id}, signal)),
+    invite: ({permission = 'write'}, {signal}) => run(() => replaceInvite(permission, signal)),
+  }));
   if (token) run(refresh);
-  const poll = setInterval(() => { if (token && !accessEnded && !document.hidden && !busy) run(refresh); }, 10000);
-  window.addEventListener('pagehide', () => clearInterval(poll), {once: true});
+  let poll;
+  function startPolling() {
+    clearInterval(poll);
+    poll = setInterval(() => { if (token && !accessEnded && !document.hidden && !busy) run(refresh); }, 10000);
+  }
+  startPolling();
+  window.addEventListener('pagehide', () => clearInterval(poll));
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) { startPolling(); if (token && !accessEnded) run(refresh); }
+  });
 }

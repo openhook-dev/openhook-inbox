@@ -26,7 +26,7 @@ jobs:
       - run: uv run python scripts/generate_docs.py --check
       - run: node --check web/assets/app.js
       - run: node --check web/assets/sessions.js
-      - run: node --test native_tests/analytics.test.mjs
+      - run: node --test native_tests/*.test.mjs
       - run: uv build
       - run: uv venv /tmp/openhook-core-check
       - run: uv pip install --python /tmp/openhook-core-check/bin/python dist/openhook_mcp-*.whl

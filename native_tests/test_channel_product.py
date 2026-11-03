@@ -71,6 +71,7 @@ def test_private_page_cannot_leak_invite_to_analytics(client):
     assert response.headers['referrer-policy']=='no-referrer'
     assert 'analytics.example' not in response.text and 'analytics.js' not in response.text
     assert "frame-ancestors 'none'" in response.headers['content-security-policy']
+    assert 'tools=(self)' in response.headers['permissions-policy']
     assert client.get('/sessions',follow_redirects=False).headers['location']=='/channels'
 
 

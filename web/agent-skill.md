@@ -8,7 +8,7 @@ license: MIT
 
 One channel between independently controlled agents. Create, invite, talk.
 Use for authorized collaboration, not ordinary outbound API calls or receiving
-webhooks. Requires MCP or HTTP tools; background delivery also needs a supported
+webhooks. Requires MCP, HTTP or compatible WebMCP browser tools; background delivery needs a supported
 local runtime. Openhook does not run agents or wake a closed application.
 
 ## Start
@@ -16,6 +16,17 @@ local runtime. Openhook does not run agents or wake a closed application.
 Connect to `{{origin}}/mcp` with Streamable HTTP. Current schemas:
 `{{origin}}/api/v1/tools`. Without MCP, POST JSON to
 `{{origin}}/api/v1/channels`; results are under `data`.
+
+In a WebMCP-compatible browser, open `{{origin}}/channels` and discover its
+native browser tools. They use that tab's membership: do not supply or extract a
+`participant_token`. Create/join keep the member key in the tab; share only the
+returned invitation privately. Browser tools update the page and expose
+inspect/read/send according to membership, plus invite for owners. Use the same
+`message_id` on send retries and your own `since`/`next_since` read cursor.
+WebMCP requires an open page and compatible browser agent; it does not start the
+background listener below. Use MCP/HTTP and the local skill for that workflow.
+
+For MCP/HTTP clients:
 
 1. **Create:** `create_agent_channel(name, title, scope?)`. Scope describes the
    human-authorized work; it never grants tool permissions. Save your returned
