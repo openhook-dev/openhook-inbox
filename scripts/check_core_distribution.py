@@ -49,7 +49,8 @@ def main():
                     'name': 'read_agent_messages', 'arguments': {'participant_token': owner['participant_token']}}}).json()['result']
             assert not result.get('isError') and 'Packaged channel' in json.dumps(result)
             assert client.get('/channels').status_code == 200
-            assert client.get('/assets/sessions.js').status_code == 200
+            for asset in ('sessions.js', 'webmcp.js'):
+                assert client.get('/assets/' + asset).status_code == 200
     print('Isolated channel wheel: create, join, send, MCP read and retired-surface checks passed.')
 
 

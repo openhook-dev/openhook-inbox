@@ -1,4 +1,5 @@
-import {renderSessions} from './sessions.js?v=afa9ce4d24bc';
+import {renderSessions} from './sessions.js?v=fc6d0706053d';
+import {registerWebMCP, setupTool} from './webmcp.js?v=bbf09139b357';
 const main = document.querySelector('#main');
 const $ = selector => document.querySelector(selector);
 const announce = text => { $('#announcement').textContent = text; };
@@ -27,3 +28,4 @@ for (const button of document.querySelectorAll('.copy-code')) {
   button.addEventListener('click', () => copy(source.textContent, button));
 }
 if (location.pathname === '/channels') renderSessions(main, {copy});
+else registerWebMCP(() => [setupTool()]);

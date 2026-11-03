@@ -213,7 +213,7 @@ class ResponseSecurity:
                 headers.extend([
                     (b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
                     (b"x-frame-options", b"DENY"),
-                    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=()"),
+                    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=(), usb=(), tools=(self)"),
                 ])
                 if urlsplit(self.settings.origin).scheme == "https":
                     headers.append((b"strict-transport-security", b"max-age=31536000"))

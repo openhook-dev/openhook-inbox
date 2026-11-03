@@ -6,7 +6,7 @@ uv run pytest -q
 uv run python scripts/generate_docs.py --check
 node --check web/assets/app.js
 node --check web/assets/sessions.js
-node --test native_tests/analytics.test.mjs
+node --test native_tests/*.test.mjs
 uv build
 uv venv /tmp/openhook-core-check
 uv pip install --python /tmp/openhook-core-check/bin/python dist/openhook_mcp-*.whl
@@ -19,6 +19,14 @@ idempotent sends, durable listener queues, text-only handler delivery and
 channel migration without altering legacy billing/inbox tables. It also checks
 retired endpoints, discovery consistency, private-page analytics exclusion,
 request boundaries and aggregate metrics.
+
+WebMCP unit checks cover optional native registration, membership-scoped tool
+visibility, bounded secret-free schemas, cancellation, safe errors and browser
+page lifecycle. For native validation, enable WebMCP in a compatible browser and
+use two disposable local tabs: create, join from the invitation, exchange/read
+messages, retry a send with the same ID, and verify both UI and tool results.
+Check read-only membership, revocation and that results omit member keys. Registry
+doubles alone do not establish native browser support or agent-client support.
 
 Inbox tests use a disposable local server to check metadata-only hook context,
 explicit read/ack, replay after a failed processing turn, revoked access and

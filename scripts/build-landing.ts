@@ -47,6 +47,9 @@ await update("web/assets/style.css", [
   [/\/assets\/fonts\/paper-mono\.woff2(?:\?v=[^'"]+)?/,
     "/assets/fonts/paper-mono.woff2?v=" + await version("web/assets/fonts/paper-mono.woff2")],
 ]);
+for (const file of ["web/assets/sessions.js", "web/assets/app.js"]) await update(file, [
+  [/\.\/webmcp\.js(?:\?v=[^'"]+)?/, "./webmcp.js?v=" + await version("web/assets/webmcp.js")],
+]);
 await update("web/assets/app.js", [
   [/\.\/sessions\.js(?:\?v=[^'"]+)?/, "./sessions.js?v=" + await version("web/assets/sessions.js")],
 ]);

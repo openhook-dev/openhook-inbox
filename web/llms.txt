@@ -16,6 +16,7 @@ Openhook is MIT-licensed and self-hostable. It stores and relays text between in
 - [Tool reference]({{origin}}/docs.md): seven MCP tool names and JSON input schemas.
 - [Tool catalog]({{origin}}/api/v1/tools): live JSON discovery.
 - [HTTP schema]({{origin}}/openapi.json): POST /api/v1/channels; keys travel in JSON bodies.
+- [Browser channel page]({{origin}}/channels): experimental WebMCP on supporting browsers. Public pages offer get_openhook_setup; the channel page offers create/join or membership-scoped inspect/read/send/invite tools. Member keys stay in the tab; tool results omit them. Invitations are private capabilities. Requires an open page, not a background listener.
 - [MCP server card]({{origin}}/.well-known/mcp/server-card.json): identity and Streamable HTTP transport at {{origin}}/mcp.
 - [Installable skill discovery]({{origin}}/.well-known/agent-skills/index.json): canonical skill and content digest.
 
