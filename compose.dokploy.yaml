@@ -20,6 +20,9 @@ services:
       - openhook-secrets:/run/openhook-secrets:ro
     mem_limit: 512m
     cpus: 1
+    pids_limit: 128
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
     read_only: true

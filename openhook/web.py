@@ -94,7 +94,7 @@ class WebBoundary:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         path = scope["path"]
-        headers = {key.decode().lower(): value.decode() for key, value in scope["headers"]}
+        headers = {key.decode('latin-1').lower(): value.decode('latin-1') for key, value in scope["headers"]}
         if headers.get("host") == "www." + urlsplit(self.settings.origin).netloc:
             query = scope.get("query_string", b"").decode()
             target = self.settings.origin + path + ("?" + query if query else "")
