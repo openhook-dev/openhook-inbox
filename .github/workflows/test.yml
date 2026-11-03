@@ -20,6 +20,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync --frozen --extra dev
+      - run: uv export --frozen --no-dev --no-emit-project --output-file /tmp/openhook-production-requirements.txt
+      - run: uvx --from pip-audit==2.10.1 pip-audit --disable-pip --require-hashes -r /tmp/openhook-production-requirements.txt
       - run: uv run --no-sync pytest -q
       - run: uv run python scripts/generate_docs.py --check
       - run: node --check web/assets/app.js

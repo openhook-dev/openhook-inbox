@@ -54,3 +54,8 @@ screens, keyboard focus and the reduced navigation. Confirm the installed wheel
 contains only channel features and can run without payment/provider credentials.
 Live rollout verification is separate from local test evidence; follow
 [the release checklist](CHANNEL_ONLY_RELEASE.md).
+
+Request-security tests exercise slow/dripping uploads, valid long-poll behavior,
+ambiguous framing and JSON, error-header enforcement, and private queue cleanup
+without discarding pending work. CI also audits the exact locked production
+dependencies; do not suppress advisory findings without a documented resolution.
