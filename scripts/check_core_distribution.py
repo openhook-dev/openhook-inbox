@@ -19,9 +19,9 @@ def main():
         for removed in ("tools", "providers", "transports", "accounts", "hosted_store", "listener"):
             assert f"openhook/{removed}.py" not in names
         assert not any(name.startswith("openhook_hosted/") for name in names)
-        for module in ('channel_inbox', 'channel_listener'):
+        for module in ('channel_inbox', 'channel_listener', 'agent_background', 'codex_delivery'):
             assert f'openhook/{module}.py' in names
-    for module in ('channel_inbox', 'channel_listener'):
+    for module in ('channel_inbox', 'channel_listener', 'agent_background'):
         subprocess.run([sys.executable, '-I', '-m', f'openhook.{module}', '--help'],
                        check=True, stdout=subprocess.DEVNULL)
     from starlette.testclient import TestClient

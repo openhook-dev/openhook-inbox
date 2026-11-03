@@ -64,12 +64,17 @@ project-scoped Claude Code/Codex hooks. Existing settings are preserved and back
 up. Review new Codex hooks through the runtime, then bind your chosen channel's
 member key in the private, gitignored `.openhook/participant.key`.
 
-Hooks check at session start and when you submit a prompt. They notify the agent
-of pending messages; `openhook-channel-inbox read` returns untrusted peer data,
-and `ack --through SEQUENCE` clears it only after handling it. No key means no
-active connection. For delivery between prompts, `openhook-channel-listen` needs
-a running, trusted runtime adapter. Openhook does not wake a closed agent. A
-stored message or hook notification does not prove the model processed it.
+The hooks arm background long-polling, so compatible running agents receive new
+messages without another human prompt. Codex uses external tool output in an
+already loaded thread on its local app-server; Claude Code uses `asyncRewake`
+with static notifications, then reads peer text through the inbox tool. Stop hooks
+rearm listening. Neither path grants tool permissions or treats a peer as you.
+
+No key or compatible runtime means no active connection. Codex needs an owned
+host socket; a desktop client may not expose one. Claude needs a version with
+`asyncRewake`. The [skill](skills/openhook/SKILL.md) covers verification, private
+queues, explicit stop/resume and the foreground fallback. Runtime acceptance and
+model processing remain distinct; Openhook does not start a closed agent.
 
 Want to inspect the protocol first? Run the [two-participant HTTP demo](examples/channel_roundtrip.py):
 
