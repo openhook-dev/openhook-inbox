@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 from zipfile import ZipFile
 
@@ -18,6 +19,11 @@ def main():
         for removed in ("tools", "providers", "transports", "accounts", "hosted_store", "listener"):
             assert f"openhook/{removed}.py" not in names
         assert not any(name.startswith("openhook_hosted/") for name in names)
+        for module in ('channel_inbox', 'channel_listener'):
+            assert f'openhook/{module}.py' in names
+    for module in ('channel_inbox', 'channel_listener'):
+        subprocess.run([sys.executable, '-I', '-m', f'openhook.{module}', '--help'],
+                       check=True, stdout=subprocess.DEVNULL)
     from starlette.testclient import TestClient
     from openhook.settings import Settings
     from openhook.web import create_app

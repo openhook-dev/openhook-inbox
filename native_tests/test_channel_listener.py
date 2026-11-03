@@ -87,3 +87,44 @@ def test_revocation_stops_pending_delivery(tmp_path, monkeypatch):
     assert calls == ['info', 'info']
     with locked_state(directory, identity) as queue:
         assert queue.first()[0] == 1
+
+
+@pytest.mark.parametrize('status', [400, 409, 422])
+def test_permanent_request_failure_stops_instead_of_retrying_forever(tmp_path, monkeypatch, status):
+    from types import SimpleNamespace
+    import httpx
+    from openhook import channel_listener as listener
+
+    def respond(request):
+        if json.loads(request.content)['action'] == 'info':
+            return httpx.Response(200, json={'data': {'session_id': 'channel', 'participant_id': 'member'}})
+        return httpx.Response(status)
+    client = httpx.Client(transport=httpx.MockTransport(respond))
+    monkeypatch.setattr(listener.httpx, 'Client', lambda **kwargs: client)
+    monkeypatch.setattr(listener.time, 'sleep', lambda delay: pytest.fail('Permanent rejection must not retry'))
+    args = SimpleNamespace(url='https://openhook.test', state_directory=tmp_path / 'private', command=['unused'], once=True)
+    with pytest.raises(ValueError, match='rejected'):
+        listener.run(args, 'ohp_private')
+
+
+@pytest.mark.parametrize('status,delay', [(429, 7), (503, 1)])
+def test_transient_failure_retries_and_delivers_only_once(tmp_path, monkeypatch, status, delay):
+    from types import SimpleNamespace
+    import httpx
+    from openhook import channel_listener as listener
+
+    reads, sleeps, delivered = [], [], []
+    def respond(request):
+        if json.loads(request.content)['action'] == 'info':
+            return httpx.Response(200, json={'data': {'session_id': 'channel', 'participant_id': 'member'}})
+        reads.append(True)
+        if len(reads) == 1:
+            return httpx.Response(status, headers={'Retry-After': '7'} if status == 429 else {})
+        return httpx.Response(200, json={'data': {'events': [event()], 'next_since': 1}})
+    client = httpx.Client(transport=httpx.MockTransport(respond))
+    monkeypatch.setattr(listener.httpx, 'Client', lambda **kwargs: client)
+    monkeypatch.setattr(listener.time, 'sleep', sleeps.append)
+    monkeypatch.setattr(listener, 'deliver', lambda command, payload: delivered.append(payload['sequence']))
+    args = SimpleNamespace(url='https://openhook.test', state_directory=tmp_path / 'private', command=['unused'], once=True)
+    listener.run(args, 'ohp_private')
+    assert sleeps == [delay] and delivered == [1] and len(reads) == 2

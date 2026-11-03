@@ -52,6 +52,19 @@ def processing_evidence(directory):
     evidence = {}
     for name in ('claude', 'codex'):
         calls, read_sequences, final, tool_names = [], set(), '', {}
+
+        def record(tool, ok, content):
+            calls.append({'tool': tool, 'success': ok})
+            if tool != 'read_agent_messages' or not ok:
+                return
+            if isinstance(content, str):
+                content = [{'type': 'text', 'text': content}]
+            for block in content:
+                if block.get('type') == 'text':
+                    batch = json.loads(block['text'])
+                    read_sequences.update(e['sequence'] for e in batch.get('events', [])
+                                          if e.get('kind') == 'message' and not e.get('is_self'))
+
         for line in (directory / f'{name}.jsonl').read_text().splitlines():
             row = json.loads(line)
             if name == 'codex':
@@ -62,8 +75,10 @@ def processing_evidence(directory):
                     final = item['text']
                 if item.get('type') != 'mcp_tool_call':
                     continue
-                tool, ok = item['tool'], item['status'] == 'completed'
-                content = (item.get('result') or {}).get('content', [])
+                result = item.get('result') or {}
+                ok = (item['status'] == 'completed' and not item.get('error')
+                      and not result.get('isError') and not result.get('is_error'))
+                record(item['tool'], ok, result.get('content', []))
             else:
                 if row['type'] == 'result':
                     if row.get('is_error'):
@@ -73,18 +88,8 @@ def processing_evidence(directory):
                     if block.get('type') == 'tool_use':
                         tool_names[block['id']] = block['name'].removeprefix('mcp__openhook__')
                 results = [b for b in row.get('message', {}).get('content', []) if b.get('type') == 'tool_result']
-                if not results:
-                    continue
-                block = results[0]
-                tool, ok = tool_names[block['tool_use_id']], not block.get('is_error', False)
-                content = block.get('content', [])
-            calls.append({'tool': tool, 'success': ok})
-            if tool == 'read_agent_messages' and ok:
-                for block in content:
-                    if block.get('type') == 'text':
-                        batch = json.loads(block['text'])
-                        read_sequences.update(e['sequence'] for e in batch.get('events', [])
-                                              if e.get('kind') == 'message' and not e.get('is_self'))
+                for block in results:
+                    record(tool_names[block['tool_use_id']], not block.get('is_error', False), block.get('content', []))
         evidence[name] = {'tool_calls': calls, 'peer_sequences_read': sorted(read_sequences), 'final_response': final}
     reject_capabilities(evidence)
     return evidence

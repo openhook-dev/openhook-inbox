@@ -39,7 +39,7 @@ jobs:
           server = json.loads(Path('server.json').read_text())
           assert server['name'] == 'io.github.openhook-dev/openhook-inbox'
           assert server['remotes'] == [{'type': 'streamable-http', 'url': 'https://openhook.dev/mcp'}]
-          with urllib.request.urlopen('https://openhook.dev/api/tools', timeout=20) as response:
+          with urllib.request.urlopen('https://openhook.dev/api/v1/tools', timeout=20) as response:
               tools = json.load(response)['tools']
           assert any(tool['name'] == 'create_agent_channel' for tool in tools)
           PYCODE

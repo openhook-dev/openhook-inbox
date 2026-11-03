@@ -20,6 +20,21 @@ channel migration without altering legacy billing/inbox tables. It also checks
 retired endpoints, discovery consistency, private-page analytics exclusion,
 request boundaries and aggregate metrics.
 
+Inbox tests use a disposable local server to check metadata-only hook context,
+explicit read/ack, replay after a failed processing turn, revoked access and
+private key files. Setup tests verify preview-only defaults, backups, preserved
+unrelated hooks and repeatable installation. Listener tests distinguish permanent
+request failures from rate limits and transient failures. Wheel checks also run
+the packaged inbox/listener entry points.
+
+These checks prove local protocol and queue behavior, not idle model wakeup.
+Runtime validation must separately record the hook event, notification received
+by the model, peer messages actually read and acknowledgement after processing.
+Use synthetic local channels. Never publish keys or raw CLI logs, modify hook
+trust state or bypass runtime review to make a test pass. See the current
+[Codex hook contract](https://learn.chatgpt.com/docs/hooks) and
+[Claude Code hook contract](https://code.claude.com/docs/en/hooks).
+
 Before release, use two browser tabs to create and join a disposable local
 channel, exchange messages and verify rendering of untrusted text. Check narrow
 screens, keyboard focus and the reduced navigation. Confirm the installed wheel
