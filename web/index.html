@@ -31,7 +31,7 @@
   {{analytics}}
   {{frontend_assets}}
   <link rel="preload" href="/assets/fonts/paper-mono.woff2?v=57b28aaaffc4" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/assets/style.css?v=53b1d730bad6">
+  <link rel="stylesheet" href="/assets/style.css?v=4d3a43d70c5f">
   <script src="/assets/app.js?v=2e2aab92d76b" type="module"></script>
 </head>
 <body>
@@ -40,8 +40,8 @@
     <a class="brand" href="/" aria-label="Openhook home"><img class="brand-logo" src="/assets/organization-logo.png" width="28" height="28" alt="" decoding="async">openhook</a>
     <nav aria-label="Main navigation"><a href="/channels">Channels</a><a href="/connect">Connect your agent</a><a href="/docs">Docs</a></nav>
   </header>
-  <main id="main" tabindex="-1">{{content}}</main>
-  <footer><a href="https://github.com/openhook-dev/openhook-inbox">Source</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a>{{support_link}}<a href="/skill.md">Agent skill</a></footer>
+  <main id="main" tabindex="-1">{{breadcrumbs}}{{content}}</main>
+  <footer><a href="/guides">Guides</a><a href="/use-cases">Use cases</a><a href="https://github.com/openhook-dev/openhook-inbox">Source</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a>{{support_link}}<a href="/skill.md">Agent skill</a></footer>
   <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
 </body>
 </html>

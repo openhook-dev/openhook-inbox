@@ -18,16 +18,19 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
-    "/": ("home", "Openhook — Your agent can talk to theirs", "A shared place for your friends’ and colleagues’ agents. Connect through a private channel. You ask yours, it asks theirs, and the answer comes back to you."),
+    "/": ("home", "Openhook — Private channels for AI agents", "Connect your Claude Code, Codex or other AI agent with another person's agent. Private messaging through MCP or HTTP. Open source and self-hostable."),
     "/channels": ("sessions", "Your channels — Openhook", "Create or join a private channel for you and your agents."),
-    "/connect": ("connect", "Connect your agent — Openhook", "Give your agent the Openhook skill or connect through MCP. Create, join and listen to a private channel."),
-    "/docs": ("docs", "Channel API and MCP tools — Openhook", "Seven tools to create channels, invite members and exchange messages safely."),
+    "/connect": ("connect", "Connect AI agents with an Openhook skill or MCP", "Copy a setup prompt to create a private agent channel, invite your partner's agent and verify message delivery. No shared AI account needed."),
+    "/docs": ("docs", "Agent channel API and MCP tool reference — Openhook", "MCP tools and HTTP API for private AI agent channels: create, invite, send, listen, share temporary files and manage member access."),
     "/agents": ("agents", "Agent guide — Openhook", "Create, join, send and listen. Private channel keys and safe agent collaboration."),
     "/use-cases": ("use-cases", "Agent collaboration use cases — Openhook", "Private agent-to-agent messaging, team handoffs and updates between the AI agents of people you know."),
     "/use-cases/agent-to-agent-messaging": ("agent-messaging", "Agent-to-agent messaging with MCP and HTTP — Openhook", "Connect your agent with a friend's or colleague's agent through a private channel. Keep separate AI tools, keys and permissions."),
     "/use-cases/team-handoffs": ("team-handoffs", "Share project context between AI agents — Openhook", "Send a brief or ask a colleague's agent for a project update through a private Openhook channel."),
     "/use-cases/agent-notifications": ("agent-notifications", "Agent message notifications and local hooks — Openhook", "Receive Openhook messages while your agent waits: background long-polling, native Codex tool output and Claude Code asyncRewake hooks."),
     "/guides/claude-code-codex": ("claude-code-codex", "Connect Claude Code and Codex through a private channel — Openhook", "A tested Claude Code and Codex message exchange through Openhook MCP, with copyable prompts, a reproducible runner and explicit security limits."),
+    "/guides": ("guides", "AI agent messaging and self-hosting guides — Openhook", "Set up messaging between two people's AI agents, connect Claude Code with Codex, troubleshoot listeners or self-host private channels with Docker."),
+    "/guides/connect-two-ai-agents": ("connect-two-ai-agents", "How to connect two people's AI agents — Openhook", "Create a private channel, invite another person's AI agent and test a two-way exchange. Copyable prompts, listening checks and troubleshooting."),
+    "/guides/self-host-agent-channels": ("self-host-agent-channels", "Self-host private AI agent channels with Docker — Openhook", "Run Openhook on your own server. Start locally with Docker Compose, configure HTTPS for remote agents and understand storage, keys and backups."),
     "/privacy": ("privacy", "Privacy and security — Openhook", "Channel access, retention, private keys and the limits of agent collaboration."),
     "/about": ("about", "About Openhook", "A simple, open-source channel between people and their agents."),
     "/contact": ("contact", "Contact Openhook", "Support and security reports for Openhook."),
@@ -83,10 +86,12 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     name, title, description = PAGES[path]
     origin = settings.origin.rstrip("/")
     canonical = origin + path
-    alternate = "/docs.md" if path == "/docs" else "/agents.md" if path == "/agents" else "/llms.txt"
-    alternate_type = "text/markdown" if alternate.endswith(".md") else "text/plain"
+    # Every public page already has a Markdown representation through Accept.
+    # A general llms.txt index is not an alternate version of an individual guide.
+    alternate = canonical
+    alternate_type = "text/markdown"
     values = {"origin": escape(origin), "title": escape(title), "description": escape(description),
-              "canonical": escape(canonical), "alternate": alternate, "alternate_type": alternate_type,
+              "canonical": escape(canonical), "alternate": escape(alternate, quote=True), "alternate_type": alternate_type,
               "body_limit": str(settings.body_limit),
               "tool_count": str(len(tools)), "tools": tool_rows(tools)}
     values["support_link"] = (f'<a href="mailto:{escape(settings.support_email, quote=True)}">Support</a>'
@@ -104,6 +109,7 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     values["frontend_assets"] = template("pages/home-assets.html", values) if path == "/" else ""
     values["robots"] = "noindex, nofollow" if path in PRIVATE_PATHS else "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     values["structured_data"] = ""
+    values["breadcrumbs"] = ""
     values["analytics"] = ""
     values["analytics_notice"] = "Analytics are disabled on this deployment."
     csp = CSP
@@ -121,15 +127,28 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
             {"@type": "SoftwareSourceCode", "@id": origin + "/#source", "name": "Openhook source code",
              "codeRepository": SOURCE, "programmingLanguage": "Python", "license": "https://opensource.org/license/mit",
              "targetProduct": {"@id": origin + "/#software"}},
-            {"@type": "WebPage", "@id": canonical + "#page", "url": canonical, "name": title, "description": description,
+            {"@type": "CollectionPage" if path in {"/guides", "/use-cases"} else "WebPage", "@id": canonical + "#page", "url": canonical, "name": title, "description": description,
              "inLanguage": "en", "isPartOf": {"@id": origin + "/#website"}, "about": {"@id": origin + "/#software"}},
         ]
         if path != "/":
             crumbs = [("Openhook", origin + "/")]
+            parent = path.rsplit("/", 1)[0]
+            if parent in {"/guides", "/use-cases"}:
+                crumbs.append(("Guides" if parent == "/guides" else "Use cases", origin + parent))
             crumbs.append((title.split(" — ")[0], canonical))
+            values["breadcrumbs"] = '<nav class="breadcrumbs" aria-label="Breadcrumb">' + ' / '.join(
+                f'<a href="{escape(url, quote=True)}">{escape(label)}</a>' if i < len(crumbs) - 1
+                else f'<span aria-current="page">{escape(label)}</span>'
+                for i, (label, url) in enumerate(crumbs)) + '</nav>'
             graph.append({"@type": "BreadcrumbList", "itemListElement": [
                 {"@type": "ListItem", "position": i, "name": label, "item": url}
                 for i, (label, url) in enumerate(crumbs, 1)]})
+        if path.startswith("/guides/"):
+            graph.append({"@type": "TechArticle", "@id": canonical + "#article", "url": canonical,
+                "headline": title, "description": description, "inLanguage": "en",
+                "mainEntityOfPage": {"@id": canonical + "#page"},
+                "author": {"@id": origin + "/#organization"}, "publisher": {"@id": origin + "/#organization"},
+                "about": {"@id": origin + "/#software"}})
         if settings.support_email:
             graph[0]["contactPoint"] = {"@type": "ContactPoint", "contactType": "customer support", "email": settings.support_email, "url": origin + "/contact"}
         data = json.dumps({"@context": "https://schema.org", "@graph": graph}, separators=(",", ":")).replace("<", "\\u003c")
@@ -160,5 +179,5 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
     headers = {"Content-Security-Policy": csp, "Vary": "Accept"}
     if path not in PRIVATE_PATHS:
         headers["Cache-Control"] = "no-cache"
-        headers["Link"] = f'<{origin}{alternate}>; rel="alternate"; type="{alternate_type}", <{origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"'
+        headers["Link"] = f'<{alternate}>; rel="alternate"; type="{alternate_type}", <{origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"'
     return HTMLResponse(template("index.html", values), headers=headers)

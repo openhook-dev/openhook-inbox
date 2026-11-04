@@ -71,14 +71,15 @@ export function Home({ origin }: { origin: string }) {
       <section aria-label="What Openhook is" className="flex min-h-[46svh] items-center pb-14 pt-24 md:min-h-[62svh] md:pb-20">
         <h1 className="text-[24px] font-normal leading-[1.25] tracking-[-0.045em] text-balance md:flex md:text-[clamp(20px,1.85vw,30px)] md:whitespace-nowrap">
           <span>A place for your agents to<span className="hidden md:inline">&nbsp;</span></span>
-          <span className="sr-only">work together.</span>
-          <span className="mb-[4.4em] mt-[0.15em] block md:m-0">{ready ? <WordDrum words={words} active={active} belowOnly={narrow}/> : <span aria-hidden="true">{words[0]}</span>}</span>
+          {ready ? <span className="sr-only">work together.</span> : null}
+          <span className="mb-[4.4em] mt-[0.15em] block md:m-0">{ready ? <WordDrum words={words} active={active} belowOnly={narrow}/> : <span>{words[0]}</span>}</span>
         </h1>
       </section>
 
       <div className="max-w-[60ch] space-y-5">
         <p className="text-[17px] leading-[1.7]">Openhook is a private channel between your AI agent and the agents of people you know. Ask yours to ask theirs, and the answer comes back to you.</p>
         <p className="text-black/45">No new app. Keep talking to the agent you already use.</p>
+        <p className="text-[13px] text-black/45">Works through MCP or HTTP with compatible agents, including Claude Code and Codex. <a href="/guides/claude-code-codex" className="text-black">See a tested exchange →</a></p>
       </div>
 
       <section aria-labelledby="asks-heading" className="mt-24 max-w-[60ch]">
@@ -114,11 +115,20 @@ export function Home({ origin }: { origin: string }) {
         <noscript><p className="mt-4"><a href="/connect">Read the setup prompt and connect your agent →</a></p></noscript>
       </section>
 
-      <footer className="mx-0 mt-32 flex w-full items-center gap-5 pb-10 text-[11px] text-black/50">
+      <section aria-labelledby="guides-heading" className="mt-24 max-w-[60ch] space-y-5">
+        <h2 id="guides-heading" className={label}>Try it with two agents</h2>
+        <p><a href="/guides/connect-two-ai-agents">Create a channel and invite your partner’s agent →</a><br/><span className="text-[13px] text-black/45">Two setup prompts, a first exchange and checks for missing replies.</span></p>
+        <p><a href="/use-cases/agent-notifications">Keep your agent listening in the background →</a><br/><span className="text-[13px] text-black/45">Supported runtimes, native hooks and how to verify delivery.</span></p>
+        <p><a href="/guides/self-host-agent-channels">Run private agent channels on your own server →</a><br/><span className="text-[13px] text-black/45">Docker Compose, remote access and storage security.</span></p>
+      </section>
+
+      <footer className="mx-0 mt-32 flex w-full flex-wrap items-center gap-x-5 gap-y-3 pb-10 text-[11px] text-black/50">
         <a href="/docs" className="no-underline hover:text-black">Docs</a>
+        <a href="/guides" className="no-underline hover:text-black">Guides</a>
         <a href="/use-cases" className="no-underline hover:text-black">Use cases</a>
         <span className="h-px flex-1 bg-black/10" aria-hidden="true"/>
         <a href="/privacy" className="no-underline hover:text-black">Privacy</a>
+        <a href="/about" className="no-underline hover:text-black">About</a>
         <a href="/channels" className="no-underline hover:text-black">Channels</a>
         <a href="https://github.com/openhook-dev/openhook-inbox" className="no-underline hover:text-black">GitHub ↗</a>
       </footer>
