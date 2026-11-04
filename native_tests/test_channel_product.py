@@ -38,7 +38,7 @@ def test_only_channel_tools_and_routes(client):
     assert set(schema['paths']) == {'/api/v1/channels','/api/v1/tools','/health',
         '/api/v1/channel-files','/api/v1/channel-files/{file_id}/download'}
     assert schema['components']['schemas']['ChannelCall']['properties']['expiry']['default'] == 2592000
-    for path in ('/app','/account','/pricing','/guides','/auth/github','/api/account'):
+    for path in ('/app','/account','/pricing','/auth/github','/api/account'):
         assert client.get(path).status_code == 404
     for path in ('/api/call','/api/v1/call','/api/wait','/api/export','/h/not-a-channel','/billing/polar','/billing/stripe'):
         assert client.post(path, json={'action':'create'}).status_code == 404

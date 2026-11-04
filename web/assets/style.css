@@ -114,6 +114,8 @@ dialog::backdrop { background: rgb(0 0 0 / .4); }
 }
 
 summary { cursor:pointer; padding:8px 0; }
+.breadcrumbs { display:block; margin-bottom:24px; color:var(--muted, #666); font-size:12px; line-height:1.8; overflow-wrap:anywhere; }
+.breadcrumbs a { color:inherit; }
 details > form { padding-top:16px; }
 #session-room > * { order: 4; }
 #session-room > #channel-heading { order: 0; }

@@ -69,7 +69,7 @@ async def openapi(request):
 
 async def robots(request):
     private = ''.join(f'Disallow: {path}\n' for path in sorted(PRIVATE_PATHS))
-    return Response(f"User-agent: *\nAllow: /\nAllow: /api/tools\nAllow: /api/v1/tools\nDisallow: /api/\n{private}Disallow: /mcp\nDisallow: /health\nDisallow: /metrics\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
+    return Response(f"User-agent: *\nAllow: /api/tools\nAllow: /api/v1/tools\nDisallow: /api/\n{private}Disallow: /mcp\nDisallow: /health\nDisallow: /metrics\nSitemap: {request.app.state.store.settings.origin}/sitemap.xml\n", media_type="text/plain")
 
 
 async def sitemap(request):
