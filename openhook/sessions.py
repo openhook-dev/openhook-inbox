@@ -89,12 +89,13 @@ class Sessions:
     def __init__(self, store):
         self.store = store
 
-    def _capacity(self, db):
+    def _capacity(self, db, *, reserve=None):
         pages = db.execute('PRAGMA page_count').fetchone()[0]
         free = db.execute('PRAGMA freelist_count').fetchone()[0]
         size = db.execute('PRAGMA page_size').fetchone()[0]
         # Encrypted JSON can expand escaped control characters and base64 output.
-        reserve = 8 * MESSAGE_BYTES + 4096 if self.store.cipher else MESSAGE_BYTES
+        if reserve is None:
+            reserve = 8 * MESSAGE_BYTES + 4096 if self.store.cipher else MESSAGE_BYTES
         if (pages - free) * size + reserve >= self.store.settings.storage_limit or shutil.disk_usage(self.store.settings.database).free < 524_288_000:
             raise ChannelError("Storage capacity reached.", 507)
 
@@ -109,6 +110,14 @@ class Sessions:
             raise ChannelError("Channel closed or expired.", 404)
         if owner and member['role'] != 'owner':
             raise ChannelError("Only the channel owner can do that.", 403)
+        return member, session
+
+    def require_writer(self, db, token):
+        member, session = self._member(db, token)
+        if session['archived']:
+            raise ChannelError('Channel is archived; sending is paused.', 409)
+        if member['permission'] != 'write':
+            raise ChannelError('Your membership is read-only.', 403)
         return member, session
 
     def _event(self, db, session, sender, kind, body='', message_id=None, *, check_capacity=True):
@@ -226,6 +235,9 @@ class Sessions:
                           member_limit=CHANNEL_MEMBERS if session['channel'] else 2)
             result['participants'] = [dict(row) for row in db.execute(
                 'SELECT id,name,role,status,permission,last_seen FROM session_members WHERE session=? ORDER BY rowid', (session['id'],))]
+        from openhook.channel_files import ChannelFiles, FILE_BYTES, FILE_DEFAULT_EXPIRY
+        result.update(ChannelFiles(self.store).info(token))
+        result['file_limits'] = {'max_bytes': FILE_BYTES, 'default_expiry_seconds': FILE_DEFAULT_EXPIRY}
         return result
 
     def revoke(self, token, participant_id):
@@ -248,11 +260,7 @@ class Sessions:
         if not isinstance(message_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', message_id):
             raise ChannelError("Use a unique message_id of 1–80 letters, digits, underscores or hyphens; reuse it on retry.")
         with self.store.connection(write=True) as db:
-            member, session = self._member(db, token)
-            if session['archived']:
-                raise ChannelError("Channel is archived; sending is paused.", 409)
-            if member['permission'] != 'write':
-                raise ChannelError("Your membership is read-only.", 403)
+            member, session = self.require_writer(db, token)
             previous = db.execute('SELECT * FROM session_events WHERE session=? AND sender=? AND message_id=?',
                                   (session['id'], member['id'], message_id)).fetchone()
             if previous:

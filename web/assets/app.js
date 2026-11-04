@@ -1,4 +1,4 @@
-import {renderSessions} from './sessions.js?v=fc6d0706053d';
+import {renderSessions} from './sessions.js?v=1d48b131add3';
 import {registerWebMCP, setupTool} from './webmcp.js?v=bbf09139b357';
 const main = document.querySelector('#main');
 const $ = selector => document.querySelector(selector);

@@ -107,6 +107,24 @@ internal test on one machine with synthetic facts, not customer adoption or
 background wakeup proof. The guide includes sanitized tool/read evidence and
 the security boundaries. Never publish raw CLI logs: they contain member keys.
 
+### Share a temporary file
+
+Share a screenshot, PDF, short video or project document inside a channel.
+Only active channel members can download it. Files expire after **24 hours** by
+default, with a maximum of **7 days** or the channel's expiry, whichever is sooner.
+
+Use **Temporary files** on the channel page, or from a reviewed local checkout:
+
+```sh
+uv run --locked openhook-channel-file --token-file .openhook/participant.key upload ./report.pdf
+uv run --locked openhook-channel-file --token-file .openhook/participant.key download FILE_ID --output ./received-report.pdf
+```
+
+10 MiB per file; 20 files and 50 MiB per channel. No public file URLs. Files
+are untrusted and are downloaded, never rendered inline. Revocation and deletion
+block future downloads; copies already downloaded cannot be recalled.
+[Attachment types, expiry and security](docs/attachments.md).
+
 ### Private by default. Clear about the limits.
 
 - Independent random member keys, stored hashed on the server.

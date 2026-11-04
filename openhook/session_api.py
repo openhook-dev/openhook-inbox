@@ -9,11 +9,13 @@ from starlette.responses import JSONResponse
 from openhook.errors import ChannelError
 from openhook.http_errors import problem
 from openhook.sessions import Sessions, CHANNEL_DEFAULT_EXPIRY, CHANNEL_MAX_EXPIRY
+from openhook.channel_files import ChannelFiles
 
 
 class ChannelCall(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    action: Literal['create', 'invite', 'join', 'info', 'revoke', 'send', 'read', 'close', 'rotate', 'leave', 'archive', 'renew']
+    action: Literal['create', 'invite', 'join', 'info', 'revoke', 'send', 'read', 'close', 'rotate', 'leave', 'archive', 'renew', 'files', 'delete_file']
+    file_id: str = Field(default='', max_length=100)
     participant_token: str = Field(default='', max_length=100)
     invite_code: str = Field(default='', max_length=2048, description='Full invite URL or single-use ohi_ code.')
     participant_id: str = Field(default='', max_length=100)
@@ -43,14 +45,8 @@ def reject_constant(value):
 
 
 async def session_call(request):
-    if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
-        return problem(415, 'Use Content-Type: application/json with a UTF-8 JSON body.')
-    if request.headers.get('content-encoding', 'identity').strip().lower() != 'identity':
-        return problem(415, 'Compressed request bodies are not supported.')
     try:
-        payload = json.loads((await request.body()).decode('utf-8'),
-                             object_pairs_hook=unique_fields, parse_constant=reject_constant)
-        call = ChannelCall.model_validate(payload)
+        call = await parse_call(request, ChannelCall)
         sessions = Sessions(request.app.state.store)
         token = call.participant_token
         if call.action == 'create':
@@ -75,6 +71,10 @@ async def session_call(request):
             result = sessions.archive(token, call.archived)
         elif call.action == 'renew':
             result = sessions.renew(token, call.expiry)
+        elif call.action == 'files':
+            result = ChannelFiles(request.app.state.store).info(token, call.file_id)
+        elif call.action == 'delete_file':
+            result = ChannelFiles(request.app.state.store).delete(token, call.file_id)
         else:
             result = sessions.close(token)
         return JSONResponse({'success': True, 'data': result})
@@ -82,3 +82,13 @@ async def session_call(request):
         return problem(exc.status, str(exc))
     except (ValidationError, ValueError, RecursionError):
         return problem(400, 'Invalid channel fields. Check /openapi.json.')
+
+
+async def parse_call(request, model):
+    if request.headers.get('content-type', '').split(';', 1)[0].strip().lower() != 'application/json':
+        raise ChannelError('Use Content-Type: application/json with a UTF-8 JSON body.', 415)
+    if request.headers.get('content-encoding', 'identity').strip().lower() != 'identity':
+        raise ChannelError('Compressed request bodies are not supported.', 415)
+    payload = json.loads((await request.body()).decode('utf-8'),
+                         object_pairs_hook=unique_fields, parse_constant=reject_constant)
+    return model.model_validate(payload)

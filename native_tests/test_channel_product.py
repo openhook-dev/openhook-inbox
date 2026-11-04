@@ -30,11 +30,13 @@ def client(settings):
 
 def test_only_channel_tools_and_routes(client):
     expected = {'create_agent_channel','join_agent_channel','get_agent_channel',
-        'send_agent_message','read_agent_messages','manage_agent_channel','delete_agent_channel'}
+        'send_agent_message','read_agent_messages','manage_agent_channel','delete_agent_channel',
+        'prepare_agent_file_upload','get_agent_file','delete_agent_file'}
     tools = client.get('/api/v1/tools').json()['tools']
     assert {t['name'] for t in tools} == expected
     schema = client.get('/openapi.json').json()
-    assert set(schema['paths']) == {'/api/v1/channels','/api/v1/tools','/health'}
+    assert set(schema['paths']) == {'/api/v1/channels','/api/v1/tools','/health',
+        '/api/v1/channel-files','/api/v1/channel-files/{file_id}/download'}
     assert schema['components']['schemas']['ChannelCall']['properties']['expiry']['default'] == 2592000
     for path in ('/app','/account','/pricing','/guides','/auth/github','/api/account'):
         assert client.get(path).status_code == 404
@@ -128,7 +130,7 @@ def test_channel_only_start_preserves_unrelated_legacy_data(settings):
 def test_fresh_database_only_contains_channel_tables(settings):
     with Store(settings).connection() as db:
         tables={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert tables=={'agent_sessions','session_members','session_events','sqlite_sequence','storage_protection'}
+    assert tables=={'agent_sessions','session_members','session_events','sqlite_sequence','storage_protection','channel_files'}
 
 
 def test_metrics_require_key_and_only_expose_aggregate_channels(client):
