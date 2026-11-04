@@ -28,6 +28,8 @@ from openhook.metrics import RequestMetrics, metrics_response
 from openhook.http_errors import http_error, problem
 from openhook.agent_discovery import ROUTES as DISCOVERY_ROUTES
 from openhook.session_api import ChannelCall, session_call
+from openhook.channel_files import FILE_BYTES, UPLOAD_PATH
+from openhook.file_api import FileAccess, upload_file, download_file
 
 
 async def tools_catalog(request):
@@ -62,7 +64,7 @@ async def llms(request):
 
 
 async def openapi(request):
-    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, ChannelCall))
+    return JSONResponse(openapi_schema(request.app.state.store.settings.origin, ChannelCall, FileAccess))
 
 
 async def robots(request):
@@ -89,6 +91,7 @@ class WebBoundary:
         self.hits: dict[str, deque] = {}
         self.inflight: dict[str, int] = {}
         self.active = 0
+        self.transfers = 0
         self.next_cleanup = 0.0
 
     async def __call__(self, scope, receive, send):
@@ -96,7 +99,9 @@ class WebBoundary:
             return await self.app(scope, receive, send)
         path = scope["path"]
         headers = {}
-        single_headers = {'host', 'origin', 'content-length', 'content-type', 'transfer-encoding'}
+        single_headers = {'host', 'origin', 'content-length', 'content-type', 'transfer-encoding',
+                          'authorization', 'content-encoding', 'x-openhook-filename',
+                          'x-openhook-upload-id', 'x-openhook-expiry'}
         for key, value in scope['headers']:
             name = key.decode('latin-1').lower()
             if name in single_headers and name in headers:
@@ -142,14 +147,17 @@ class WebBoundary:
                     headers={**rate_limit_headers(0, reset), "Retry-After": str(reset)})(scope, receive, send)
             hits.append(now)
             rate_headers = rate_limit_headers(120 - len(hits), reset)
+        upload = path == UPLOAD_PATH and scope['method'] == 'POST'
+        transfer = upload or (path.startswith(UPLOAD_PATH + '/') and path.endswith('/download'))
+        body_limit = FILE_BYTES if upload else self.settings.body_limit
         if 'content-length' in headers:
             length = headers['content-length']
             if not re.fullmatch(r'[0-9]+', length):
                 return await problem(400, 'Invalid Content-Length.')(scope, receive, send)
             # Compare bounded decimal strings before converting attacker input.
-            length, limit = length.lstrip('0') or '0', str(self.settings.body_limit)
+            length, limit = length.lstrip('0') or '0', str(body_limit)
             if len(length) > len(limit) or (len(length) == len(limit) and length > limit):
-                return await problem(413, "Request exceeds 1 MB", headers=rate_headers)(scope, receive, send)
+                return await problem(413, f'Request exceeds {body_limit} bytes', headers=rate_headers)(scope, receive, send)
         body_size = 0
         body_complete = False
         body_deadline = time.monotonic() + self.settings.body_timeout
@@ -163,8 +171,8 @@ class WebBoundary:
             except asyncio.TimeoutError:
                 raise HTTPException(408, 'Request body deadline exceeded.') from None
             body_size += len(message.get("body", b""))
-            if body_size > self.settings.body_limit:
-                raise HTTPException(413, "Request exceeds 1 MB")
+            if body_size > body_limit:
+                raise HTTPException(413, f'Request exceeds {body_limit} bytes')
             body_complete = message['type'] != 'http.request' or not message.get('more_body', False)
             return message
 
@@ -176,15 +184,19 @@ class WebBoundary:
 
         # Bound long polls and other in-flight requests, not just request starts.
         if protected:
-            if self.active >= 128 or self.inflight.get(ip, 0) >= 16:
+            if self.active >= 128 or self.inflight.get(ip, 0) >= 16 or (transfer and self.transfers >= 4):
                 return await problem(429, "Too many concurrent requests.",
                     headers={"Retry-After": "5"})(scope, receive, rate_limited_send)
             self.active += 1
             self.inflight[ip] = self.inflight.get(ip, 0) + 1
+            if transfer:
+                self.transfers += 1
         try:
             await self.app(scope, bounded_receive, rate_limited_send)
         finally:
             if protected:
+                if transfer:
+                    self.transfers -= 1
                 self.active -= 1
                 self.inflight[ip] -= 1
                 if not self.inflight[ip]:
@@ -287,6 +299,8 @@ def create_app(settings: Settings | None = None):
         Route("/api/v1/sessions", session_call, methods=["POST"]),
         Route("/sessions", lambda request: RedirectResponse("/channels", status_code=308)),
         Route("/api/v1/channels", session_call, methods=["POST"]),
+        Route(UPLOAD_PATH, upload_file, methods=['POST']),
+        Route(UPLOAD_PATH + '/{file_id}/download', download_file, methods=['POST']),
         Route("/api/v1/tools", tools_catalog), Route("/api/tools", tools_catalog),
         Route("/health", health), Route("/metrics", metrics_response),
         Route("/robots.txt", robots), Route("/sitemap.xml", sitemap),

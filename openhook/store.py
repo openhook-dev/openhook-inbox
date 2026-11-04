@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 from openhook.settings import Settings
-from openhook.storage_cipher import StorageCipher, event_context
+from openhook.storage_cipher import StorageCipher, event_context, file_context
 
 
 def timestamp(seconds=None):
@@ -39,9 +39,11 @@ class Store:
         finally:
             os.close(descriptor)
         from openhook.sessions import initialize
+        from openhook.channel_files import initialize as initialize_files
         with self.connection() as db:
             db.execute("PRAGMA journal_mode=WAL")
             initialize(db)
+            initialize_files(db)
             db.execute('CREATE TABLE IF NOT EXISTS storage_protection (id INTEGER PRIMARY KEY CHECK(id=1), required INTEGER NOT NULL)')
             db.execute('INSERT OR IGNORE INTO storage_protection VALUES(1,0)')
         self._protect_events()
@@ -72,6 +74,18 @@ class Store:
                     context = event_context(row['session'], row['sender'], row['kind'], row['message_id'])
                     db.execute('UPDATE session_events SET body=?,body_encrypted=1 WHERE sequence=?',
                                (self.encode_event(text, context), row['sequence']))
+            for row in db.execute('SELECT * FROM channel_files'):
+                if row['encrypted']:
+                    if not self.cipher:
+                        raise ValueError('Attachment storage requires OPENHOOK_STORAGE_KEY_FILE.')
+                    content = self.cipher.decrypt_bytes(row['content'], file_context(row))
+                else:
+                    if required and self.cipher:
+                        raise ValueError('Plaintext attachment in encrypted storage.')
+                    content = row['content']
+                if self.cipher and (not row['encrypted'] or not self.cipher.uses_active_key(row['content'])):
+                    db.execute('UPDATE channel_files SET content=?,encrypted=1 WHERE id=?',
+                               (self.cipher.encrypt_bytes(content, file_context(row)), row['id']))
             if self.cipher:
                 db.execute('UPDATE storage_protection SET required=1 WHERE id=1')
 
@@ -100,3 +114,4 @@ class Store:
         from openhook.sessions import expire
         with self.connection(write=True) as db:
             expire(db)
+            db.execute('DELETE FROM channel_files WHERE expires<=?', (time.time(),))

@@ -26,7 +26,7 @@ when event capacity is exhausted.
 
 See [channel-only rollout](CHANNEL_ONLY_RELEASE.md) before upgrading an existing
 hosted service. Provider-side subscriptions require separate handling; this code
-does not cancel them. Verify the exact deployed revision, TLS, health, seven-tool
+does not cancel them. Verify the exact deployed revision, TLS, health, ten-tool
 catalog, an invite/join/send/read round trip and revocation before announcing.
 
 ## Storage encryption

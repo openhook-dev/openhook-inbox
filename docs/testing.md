@@ -1,5 +1,11 @@
 # Channel release validation
 
+Temporary attachment checks in `native_tests/test_channel_files.py` cover
+membership isolation, read-only access, revocation during upload, expiry,
+duplicate and concurrent retries, storage limits, encrypted migration/rotation,
+tampering, binary HTTP security headers, MCP metadata and private CLI downloads.
+They use disposable local storage and synthetic content, not customer files.
+
 ```sh
 bun run build
 uv run pytest -q

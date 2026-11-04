@@ -19,9 +19,9 @@ def main():
         for removed in ("tools", "providers", "transports", "accounts", "hosted_store", "listener"):
             assert f"openhook/{removed}.py" not in names
         assert not any(name.startswith("openhook_hosted/") for name in names)
-        for module in ('channel_inbox', 'channel_listener', 'agent_background', 'codex_delivery'):
+        for module in ('channel_inbox', 'channel_listener', 'agent_background', 'codex_delivery', 'channel_files', 'channel_file_cli', 'file_api'):
             assert f'openhook/{module}.py' in names
-    for module in ('channel_inbox', 'channel_listener', 'agent_background'):
+    for module in ('channel_inbox', 'channel_listener', 'agent_background', 'channel_file_cli'):
         subprocess.run([sys.executable, '-I', '-m', f'openhook.{module}', '--help'],
                        check=True, stdout=subprocess.DEVNULL)
     from starlette.testclient import TestClient
@@ -43,7 +43,7 @@ def main():
             call('send', participant_token=guest['participant_token'], text='Packaged channel', message_id='wheel')
             assert call('read', participant_token=owner['participant_token'])['events'][-1]['text'] == 'Packaged channel'
             tools = client.get('/api/v1/tools').json()['tools']
-            assert len(tools) == 7
+            assert len(tools) == 10
             result = client.post('/mcp', headers={'Accept': 'application/json, text/event-stream'}, json={
                 'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call', 'params': {
                     'name': 'read_agent_messages', 'arguments': {'participant_token': owner['participant_token']}}}).json()['result']

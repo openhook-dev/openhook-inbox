@@ -24,7 +24,7 @@ alias; MCP clients must refresh their tool catalogs for the channel names.
 3. Deploy the core image and retain the existing data volume. Remove obsolete
    SMTP/DNS port exposure and payment/provider environment variables from the
    service configuration. Do not delete provider credentials in other services.
-4. Check health, the seven-tool catalog, channel creation/join, bidirectional
+4. Check health, the ten-tool catalog, channel creation/join, bidirectional
    messaging, revocation and a running listener. Clean up only test channels.
 5. Confirm public docs and sitemap match this release and private pages are
    no-store/noindex without analytics. Monitor errors and storage limits.

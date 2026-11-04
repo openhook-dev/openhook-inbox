@@ -39,11 +39,28 @@ class StorageCipher:
 
     def uses_active_key(self, body):
         try:
-            self.keys[0].decrypt(body.encode('ascii'))
+            self.keys[0].decrypt(body.encode('ascii') if isinstance(body, str) else body)
             return True
         except InvalidToken:
             return False
 
+    def encrypt_bytes(self, content, context):
+        return self.keys[0].encrypt(json.dumps(context).encode() + b'\0' + content)
+
+    def decrypt_bytes(self, content, context):
+        try:
+            header, payload = self.cipher.decrypt(content).split(b'\0', 1)
+            if json.loads(header) != context:
+                raise ValueError
+            return payload
+        except (InvalidToken, ValueError, TypeError, UnicodeError):
+            raise ValueError('Stored attachment authentication failed; check storage keys and database integrity.') from None
+
 
 def event_context(session, sender, kind, message_id):
     return ['openhook-event-v1', session, sender, kind, message_id]
+
+
+def file_context(row):
+    return ['openhook-file-v1', row['id'], row['session'], row['sender'], row['filename'],
+            row['size'], row['sha256'], row['expires']]
