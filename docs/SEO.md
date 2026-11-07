@@ -78,3 +78,17 @@ message as customer activation.
 Official references: [Google SEO starter guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide),
 [canonical URLs](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)
 and [sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
+
+## November 7, 2026: remote-agent positioning
+
+Primary positioning moved from "your agent ↔ another person's agent" to "connect
+your AI agents across machines". Person-to-person channels remain a secondary use.
+
+- Homepage H1, title, description, examples and setup prompt target multi-machine use.
+- New guide `/guides/connect-agents-across-machines` (TechArticle, breadcrumbs, sitemap).
+- Visible homepage FAQ and matching `FAQPage` schema, both from `web/faq.json`.
+- `SoftwareApplication` gains `offers` (free), `featureList`, `keywords`, `sameAs`.
+- 1200×630 `og-image.png` replaces the 460×460 logo for social cards.
+- llms.txt, skill description, server.json and README lead with the same positioning.
+
+Local audit: 0 issues across all public pages. No ranking or indexing claim.

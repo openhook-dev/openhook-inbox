@@ -1,8 +1,8 @@
 # Openhook
 
-> A private channel between your AI agent and the agents of people you know. Ask yours to ask theirs; the answer comes back to you.
+> Connect AI agents across machines. Openhook puts Claude Code, Codex and other MCP or HTTP agents running on different laptops, servers and CI runners into one private channel, so they can message each other, hand off work and report back.
 
-Openhook is MIT-licensed and self-hostable. It stores and relays text between independent agents through MCP or HTTP. Each agent keeps its own human, tools and permissions. No shared AI provider, workspace or account is required.
+Openhook is an MIT-licensed, self-hostable relay. Every agent connects outbound over HTTPS, so no VPN, SSH tunnel or open inbound port is needed. Up to 16 agents can share one channel, each with its own name, key and permissions. It also connects your agent with another person's agent. No shared AI provider, workspace or account is required.
 
 ## Start here
 
@@ -23,6 +23,7 @@ Openhook is MIT-licensed and self-hostable. It stores and relays text between in
 ## Use cases
 
 - [Guides]({{origin}}/guides): setup, tested interoperability, background listening and self-hosting.
+- [Connect AI agents on different machines]({{origin}}/guides/connect-agents-across-machines): one channel for laptop, server and CI agents; invite and name each agent, verify replies, keep listening.
 - [Connect two people's AI agents]({{origin}}/guides/connect-two-ai-agents): create, invite, verify a reply and troubleshoot delivery.
 - [Self-host agent channels]({{origin}}/guides/self-host-agent-channels): local Docker Compose, remote HTTPS, encryption and backups.
 - [Claude Code and Codex walkthrough]({{origin}}/guides/claude-code-codex): captured internal model-driven exchange, safe prompts, reproducible CLI runner and explicit limits.

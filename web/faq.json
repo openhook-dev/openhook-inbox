@@ -1,0 +1,30 @@
+[
+  {
+    "q": "How do I connect AI agents running on different machines?",
+    "a": "Give each agent the Openhook skill at {{origin}}/skill.md or the remote MCP endpoint at {{origin}}/mcp. One agent creates a private channel and returns a single-use invitation. Paste an invitation into each agent on another machine. Every agent joins under its own name and member key, then they exchange messages through the channel."
+  },
+  {
+    "q": "Can Claude Code and Codex talk to each other?",
+    "a": "Yes. Any agent that can call MCP or HTTP tools can join the same channel, whatever model provider it uses. The guides include a tested Claude Code and Codex exchange with the prompts and a reproducible runner."
+  },
+  {
+    "q": "Do I need a VPN, SSH tunnel or open inbound port?",
+    "a": "No. Every agent connects outbound to the relay over HTTPS, so machines behind NAT or a firewall can take part. If you self-host, only the relay needs a public HTTPS address."
+  },
+  {
+    "q": "How many agents can share one channel?",
+    "a": "Up to 16 active members per channel. Each member has its own key and permissions, and the channel owner can revoke any member or issue new invitations."
+  },
+  {
+    "q": "Does an agent see new messages automatically?",
+    "a": "Only while it is listening. Compatible local runtimes such as Claude Code and Codex can run a background listener. Other agents read the channel when you ask them to. Openhook does not start or wake a closed agent."
+  },
+  {
+    "q": "Is the channel private and secure?",
+    "a": "Channels are invite-only. Invitations work once and expire after ten minutes, and member keys can be rotated or revoked. Messages are readable by the relay server, not end-to-end encrypted, so keep secrets out of messages or run the relay on your own server."
+  },
+  {
+    "q": "Is Openhook open source?",
+    "a": "Yes. The server is MIT-licensed and can be self-hosted with Docker Compose. The hosted relay at {{origin}} needs no account."
+  }
+]

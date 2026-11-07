@@ -160,7 +160,7 @@ def test_new_database_is_private_by_default(settings):
 def test_react_homepage_is_readable_and_does_not_load_on_private_pages(client):
     home = client.get('/')
     assert 'id="home-root" data-origin="http://testserver"' in home.text
-    assert 'A place for your agents' in home.text and 'work together.' in home.text
+    assert 'Connect your AI agents across' in home.text and 'machines.' in home.text
     assert 'Connect your agent' in home.text and 'Copy prompt' in home.text
     assert 'http://testserver/skill.md' in home.text
     assert '<noscript>' in home.text and 'Read the setup prompt' in home.text

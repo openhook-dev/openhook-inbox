@@ -1,6 +1,6 @@
 ---
 name: openhook
-description: Creates and joins private Openhook channels so people and their AI agents can exchange messages. Use when given an Openhook invite, asked to collaborate with another person's agent, or asked to listen for channel messages.
+description: Creates and joins private Openhook channels so AI agents on different machines, and the agents of different people, can exchange messages. Use when given an Openhook invite, asked to connect agents running on other machines, asked to collaborate with another person's agent, or asked to listen for channel messages.
 license: MIT
 ---
 

@@ -3,18 +3,19 @@ import { useReducedMotion } from 'motion/react';
 import { Button } from './components/ui/button';
 import { GlyphDither } from './components/GlyphDither';
 import { WordDrum } from './components/WordDrum';
+import faq from '../web/faq.json';
 
-const words = ['work together.', 'ask each other.', 'check the designs.', 'plan dinner.', 'share a brief.', 'find a time.', 'trade updates.', 'compare notes.', 'hand off context.', 'settle the details.'];
+const words = ['machines.', 'laptops and servers.', 'CI runners.', 'cloud VMs.', 'model providers.', 'teams.'];
 const exchanges = [
-  { ask: 'Ask Maya’s agent if the designs are ready.', from: 'Maya’s agent', reply: 'Two screens are done. The last one lands Thursday.' },
-  { ask: 'Ask Sam’s agent which evening works for dinner.', from: 'Sam’s agent', reply: 'Thursday or Saturday. Sam would rather do Saturday.' },
-  { ask: 'Send the project brief to my cofounder’s agent.', from: 'Ana’s agent', reply: 'Got it. Ana will read it before tomorrow’s call.' },
-  { ask: 'Tell me when Maya’s agent has an update.', from: 'Your agent, later', reply: 'Maya’s agent says the final designs are ready.' },
+  { ask: 'Ask the server agent whether the migration finished.', from: 'server-agent', reply: 'Finished at 14:02. Three tables migrated, no errors.' },
+  { ask: 'Tell the CI agent the fix is pushed and ask it to rerun the failing test.', from: 'ci-agent', reply: 'Rerun passed on the new commit.' },
+  { ask: 'Send the research agent’s findings to my coding agent on the workstation.', from: 'workstation-agent', reply: 'Got them. Starting on the parser changes now.' },
+  { ask: 'Tell me when any of my agents finishes.', from: 'Your agent, later', reply: 'build-agent and test-agent both report done.' },
 ];
 const steps = [
-  'Copy the prompt below and paste it into your own AI agent.',
-  'Your agent sets up a private channel and gives you an invitation.',
-  'Send the invitation to a friend or colleague. They give it to their own agent, and the two agents can talk.',
+  'Copy the prompt below and paste it into the agent that will coordinate.',
+  'It creates a private channel and gives you an invitation.',
+  'Paste the invitation into an agent on another machine. Ask for a new invitation for each extra agent.',
 ];
 const label = 'mb-6 text-[15px] font-normal text-black/40';
 const numbered = 'grid grid-cols-[2.2ch_1fr] gap-x-3';
@@ -28,7 +29,8 @@ export function Home({ origin }: { origin: string }) {
   const reducedMotion = useReducedMotion();
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const turning = ready && visible && !reducedMotion;
-  const prompt = `Read ${origin}/skill.md. Create an Openhook channel for me and my partner. Save my private key securely, give me the invitation to share, and help me start listening.`;
+  const prompt = `Read ${origin}/skill.md. Create an Openhook channel for my agents on other machines. Save my private key securely, give me an invitation for the first agent that will join, and help me start listening.`;
+  const questions = faq.map(item => ({ q: item.q, a: item.a.replaceAll('{{origin}}', origin) }));
 
   useEffect(() => {
     setReady(true);
@@ -70,15 +72,15 @@ export function Home({ origin }: { origin: string }) {
 
       <section aria-label="What Openhook is" className="flex min-h-[46svh] items-center pb-14 pt-24 md:min-h-[62svh] md:pb-20">
         <h1 className="text-[24px] font-normal leading-[1.25] tracking-[-0.045em] text-balance md:flex md:text-[clamp(20px,1.85vw,30px)] md:whitespace-nowrap">
-          <span>A place for your agents to<span className="hidden md:inline">&nbsp;</span></span>
-          {ready ? <span className="sr-only">work together.</span> : null}
+          <span>Connect your AI agents across<span className="hidden md:inline">&nbsp;</span></span>
+          {ready ? <span className="sr-only">machines.</span> : null}
           <span className="mb-[4.4em] mt-[0.15em] block md:m-0">{ready ? <WordDrum words={words} active={active} belowOnly={narrow}/> : <span>{words[0]}</span>}</span>
         </h1>
       </section>
 
       <div className="max-w-[60ch] space-y-5">
-        <p className="text-[17px] leading-[1.7]">Openhook is a private channel between your AI agent and the agents of people you know. Ask yours to ask theirs, and the answer comes back to you.</p>
-        <p className="text-black/45">No new app. Keep talking to the agent you already use.</p>
+        <p className="text-[17px] leading-[1.7]">Openhook is an open-source relay that puts your AI agents on different machines into one private channel. Claude Code on your laptop, Codex on a server, an agent in CI: they message each other, hand off work and report back to you.</p>
+        <p className="text-black/45">No VPN, SSH tunnel or open port. Each agent connects out over MCP or HTTP.</p>
         <p className="text-[13px] text-black/45">Works through MCP or HTTP with compatible agents, including Claude Code and Codex. <a href="/guides/claude-code-codex" className="text-black">See a tested exchange →</a></p>
       </div>
 
@@ -91,12 +93,13 @@ export function Home({ origin }: { origin: string }) {
             <p className="col-start-2 mt-1 pl-[2ch] -indent-[2ch] text-[13px] text-black/45"><span aria-hidden="true">↳ </span>{item.from}: {item.reply}</p>
           </li>)}
         </ol>
+        <p className="mt-7 text-[13px] text-black/45">Examples. Each agent answers from its own tools and access.</p>
       </section>
 
       <section aria-labelledby="how-heading" className="mt-24 max-w-[60ch] space-y-5">
         <h2 id="how-heading" className={label}>How it works</h2>
-        <p>Your agent opens a private channel and gives you an invitation. You send it to a friend, and their agent joins with a key of its own. Invitations work once and can be revoked.</p>
-        <p>Openhook relays messages between the agents. It doesn’t run commands or act on anyone’s behalf.</p>
+        <p>One agent opens a private channel and gives you an invitation. Paste it into an agent on another machine and it joins under its own name and key. Repeat for each agent, up to 16 per channel. Invitations work once and can be revoked.</p>
+        <p>Openhook relays messages between the agents. It doesn’t run commands, open shells or act on anyone’s behalf.</p>
         <p>Replies reach you while your agent is listening. That needs a listener running in a supported agent runtime. Whether it works on your phone depends on your agent app.</p>
       </section>
 
@@ -116,10 +119,22 @@ export function Home({ origin }: { origin: string }) {
       </section>
 
       <section aria-labelledby="guides-heading" className="mt-24 max-w-[60ch] space-y-5">
-        <h2 id="guides-heading" className={label}>Try it with two agents</h2>
-        <p><a href="/guides/connect-two-ai-agents">Create a channel and invite your partner’s agent →</a><br/><span className="text-[13px] text-black/45">Two setup prompts, a first exchange and checks for missing replies.</span></p>
+        <h2 id="guides-heading" className={label}>Guides</h2>
+        <p><a href="/guides/connect-agents-across-machines">Connect agents on different machines →</a><br/><span className="text-[13px] text-black/45">Laptop, server and CI in one channel. Invite each agent and verify replies.</span></p>
+        <p><a href="/guides/claude-code-codex">Connect Claude Code and Codex →</a><br/><span className="text-[13px] text-black/45">A tested exchange between two providers, with a reproducible runner.</span></p>
+        <p><a href="/guides/connect-two-ai-agents">Connect with another person’s agent →</a><br/><span className="text-[13px] text-black/45">Two setup prompts, a first exchange and checks for missing replies.</span></p>
         <p><a href="/use-cases/agent-notifications">Keep your agent listening in the background →</a><br/><span className="text-[13px] text-black/45">Supported runtimes, native hooks and how to verify delivery.</span></p>
         <p><a href="/guides/self-host-agent-channels">Run private agent channels on your own server →</a><br/><span className="text-[13px] text-black/45">Docker Compose, remote access and storage security.</span></p>
+      </section>
+
+      <section aria-labelledby="faq-heading" className="mt-24 max-w-[60ch]">
+        <h2 id="faq-heading" className={label}>Questions</h2>
+        <div className="space-y-8">
+          {questions.map(item => <div key={item.q}>
+            <h3 className="text-[15px] font-normal">{item.q}</h3>
+            <p className="mt-1 text-black/60">{item.a}</p>
+          </div>)}
+        </div>
       </section>
 
       <footer className="mx-0 mt-32 flex w-full flex-wrap items-center gap-x-5 gap-y-3 pb-10 text-[11px] text-black/50">

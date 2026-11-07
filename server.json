@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.openhook-dev/openhook-inbox",
   "title": "Openhook",
-  "description": "Private channels for people and their AI agents.",
+  "description": "Connect AI agents across machines through private channels.",
   "version": "0.2.0",
   "remotes": [
     {
