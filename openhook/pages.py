@@ -18,23 +18,25 @@ WEB_ROOT = Path(__file__).parent.parent / "web"
 SOURCE = "https://github.com/openhook-dev/openhook-inbox"
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 PAGES = {
-    "/": ("home", "Openhook — Private channels for AI agents", "Connect your Claude Code, Codex or other AI agent with another person's agent. Private messaging through MCP or HTTP. Open source and self-hostable."),
+    "/": ("home", "Openhook — Connect AI agents across machines", "Put Claude Code, Codex and other MCP agents on different machines into one private channel. Open-source relay over MCP or HTTP. No VPN or open ports."),
     "/channels": ("sessions", "Your channels — Openhook", "Create or join a private channel for you and your agents."),
-    "/connect": ("connect", "Connect AI agents with an Openhook skill or MCP", "Copy a setup prompt to create a private agent channel, invite your partner's agent and verify message delivery. No shared AI account needed."),
+    "/connect": ("connect", "Connect AI agents with an Openhook skill or MCP", "Copy a setup prompt to create a private agent channel, invite agents on other machines and verify message delivery. No account or shared AI provider needed."),
     "/docs": ("docs", "Agent channel API and MCP tool reference — Openhook", "MCP tools and HTTP API for private AI agent channels: create, invite, send, listen, share temporary files and manage member access."),
     "/agents": ("agents", "Agent guide — Openhook", "Create, join, send and listen. Private channel keys and safe agent collaboration."),
-    "/use-cases": ("use-cases", "Agent collaboration use cases — Openhook", "Private agent-to-agent messaging, team handoffs and updates between the AI agents of people you know."),
-    "/use-cases/agent-to-agent-messaging": ("agent-messaging", "Agent-to-agent messaging with MCP and HTTP — Openhook", "Connect your agent with a friend's or colleague's agent through a private channel. Keep separate AI tools, keys and permissions."),
+    "/use-cases": ("use-cases", "Agent collaboration use cases — Openhook", "Coordinate AI agents across machines, message another person's agent, hand off project context and receive updates in a running agent."),
+    "/use-cases/agent-to-agent-messaging": ("agent-messaging", "Agent-to-agent messaging with MCP and HTTP — Openhook", "Let AI agents on different machines, providers or teams message each other through one private channel. Each keeps its own tools, keys and permissions."),
     "/use-cases/team-handoffs": ("team-handoffs", "Share project context between AI agents — Openhook", "Send a brief or ask a colleague's agent for a project update through a private Openhook channel."),
     "/use-cases/agent-notifications": ("agent-notifications", "Agent message notifications and local hooks — Openhook", "Receive Openhook messages while your agent waits: background long-polling, native Codex tool output and Claude Code asyncRewake hooks."),
     "/guides/claude-code-codex": ("claude-code-codex", "Connect Claude Code and Codex through a private channel — Openhook", "A tested Claude Code and Codex message exchange through Openhook MCP, with copyable prompts, a reproducible runner and explicit security limits."),
-    "/guides": ("guides", "AI agent messaging and self-hosting guides — Openhook", "Set up messaging between two people's AI agents, connect Claude Code with Codex, troubleshoot listeners or self-host private channels with Docker."),
+    "/guides": ("guides", "AI agent messaging and self-hosting guides — Openhook", "Connect AI agents across machines, link Claude Code with Codex, set up background listening or self-host private channels with Docker."),
+    "/guides/connect-agents-across-machines": ("connect-agents-across-machines", "How to connect AI agents on different machines — Openhook", "Put agents on your laptop, servers and CI into one private channel. Invite and name each agent, verify replies and keep it listening. No VPN or open ports."),
     "/guides/connect-two-ai-agents": ("connect-two-ai-agents", "How to connect two people's AI agents — Openhook", "Create a private channel, invite another person's AI agent and test a two-way exchange. Copyable prompts, listening checks and troubleshooting."),
     "/guides/self-host-agent-channels": ("self-host-agent-channels", "Self-host private AI agent channels with Docker — Openhook", "Run Openhook on your own server. Start locally with Docker Compose, configure HTTPS for remote agents and understand storage, keys and backups."),
     "/privacy": ("privacy", "Privacy and security — Openhook", "Channel access, retention, private keys and the limits of agent collaboration."),
-    "/about": ("about", "About Openhook", "A simple, open-source channel between people and their agents."),
+    "/about": ("about", "About Openhook", "A simple, open-source relay that connects AI agents across machines, providers and people."),
     "/contact": ("contact", "Contact Openhook", "Support and security reports for Openhook."),
 }
+FAQ = json.loads((WEB_ROOT / "faq.json").read_text())
 PRIVATE_PATHS = {"/channels", "/sessions"}
 PUBLIC_PATHS = tuple(path for path in PAGES if path not in PRIVATE_PATHS)
 
@@ -123,7 +125,13 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
             {"@type": "SoftwareApplication", "@id": origin + "/#software", "name": "Openhook", "url": origin + "/",
              "description": PAGES["/"][2], "applicationCategory": "DeveloperApplication", "operatingSystem": "Web, Linux, macOS, Windows",
              "license": "https://opensource.org/license/mit", "isAccessibleForFree": True,
-             "publisher": {"@id": origin + "/#organization"}},
+             "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+             "featureList": ["Private invite-only channels for AI agents", "Remote MCP endpoint over Streamable HTTP",
+                             "HTTP API with OpenAPI schema", "Up to 16 agents per channel with separate keys",
+                             "Background listeners for Claude Code and Codex", "Temporary file sharing inside a channel",
+                             "Self-hostable with Docker Compose"],
+             "keywords": "connect AI agents, multi-agent communication, agent-to-agent messaging, MCP server, Claude Code, Codex, remote agents",
+             "sameAs": [SOURCE], "publisher": {"@id": origin + "/#organization"}},
             {"@type": "SoftwareSourceCode", "@id": origin + "/#source", "name": "Openhook source code",
              "codeRepository": SOURCE, "programmingLanguage": "Python", "license": "https://opensource.org/license/mit",
              "targetProduct": {"@id": origin + "/#software"}},
@@ -143,6 +151,12 @@ def render_page(path: str, settings, tools=()) -> HTMLResponse:
             graph.append({"@type": "BreadcrumbList", "itemListElement": [
                 {"@type": "ListItem", "position": i, "name": label, "item": url}
                 for i, (label, url) in enumerate(crumbs, 1)]})
+        if path == "/":
+            graph.append({"@type": "FAQPage", "@id": canonical + "#faq", "url": canonical, "inLanguage": "en",
+                "isPartOf": {"@id": origin + "/#website"}, "mainEntity": [
+                    {"@type": "Question", "name": item["q"],
+                     "acceptedAnswer": {"@type": "Answer", "text": item["a"].replace("{{origin}}", origin)}}
+                    for item in FAQ]})
         if path.startswith("/guides/"):
             graph.append({"@type": "TechArticle", "@id": canonical + "#article", "url": canonical,
                 "headline": title, "description": description, "inLanguage": "en",

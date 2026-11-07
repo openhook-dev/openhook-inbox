@@ -21,7 +21,8 @@
       "@/*": [
         "./frontend/*"
       ]
-    }
+    },
+    "resolveJsonModule": true
   },
   "include": [
     "frontend",
